@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url is now configured in prisma.config.ts (Prisma 7 breaking change)
+}
+
+enum ProjectStatus {
+  ACTIVE
+  SUSPENDED
+  TAMPERED
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  apiKey        String        @unique @default(uuid())
+  name          String
+  domain        String        @unique
+  serverIp      String?
+  status        ProjectStatus @default(ACTIVE)
+  gracePeriod   Int           @default(24) // dalam jam
+  lastHeartbeat DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  logs          ActivityLog[]
+
+  @@map("projects")
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  event     String   // "REGISTER", "HEARTBEAT", "SUSPENDED", "ACTIVATED", "TAMPER_ATTEMPT"
+  ipAddress String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@map("activity_logs")
+}
