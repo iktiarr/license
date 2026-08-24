@@ -59,12 +59,34 @@
   var overlayId = '__license_guard_lock_overlay__';
   var pollTimer = null;
 
+  // ── Helper: Format Date (DD/MM/YYYY HH:MM:SS) ──────────────────────────────
+  function formatDateTime(timestamp) {
+    var d = timestamp ? new Date(timestamp) : new Date();
+    var pad = function (n) {
+      return n < 10 ? '0' + n : n;
+    };
+    return (
+      pad(d.getDate()) +
+      '/' +
+      pad(d.getMonth() + 1) +
+      '/' +
+      d.getFullYear() +
+      ' ' +
+      pad(d.getHours()) +
+      ':' +
+      pad(d.getMinutes()) +
+      ':' +
+      pad(d.getSeconds())
+    );
+  }
+
   // ── Local State ────────────────────────────────────────────────────────────
   var state = {
     valid: true,
     status: 'ACTIVE',
     token: null,
     lastCheck: 0,
+    suspendedAt: null,
   };
 
   try {
@@ -74,66 +96,103 @@
     }
   } catch {}
 
-  // ── UI Lock Screen (Inescapable Overlay with Re-check Button) ───────────────
+  // ── Load DotLottie Player Component Dynamically ────────────────────────────
+  function loadLottiePlayer() {
+    if (window.__DOTLOTTIE_SCRIPT_LOADED__) return;
+    window.__DOTLOTTIE_SCRIPT_LOADED__ = true;
+    try {
+      var s = document.createElement('script');
+      s.type = 'module';
+      s.src = 'https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs';
+      document.head.appendChild(s);
+    } catch {}
+  }
+
+  // ── UI Lock Screen (Light Glassmorphism Modern Screen) ─────────────────────
   function createLockOverlay(reason) {
     var existing = document.getElementById(overlayId);
     if (existing) return;
 
-    var statusText =
-      reason === 'TAMPERED'
-        ? 'Pelanggaran Lisensi Terdeteksi (Tampered)'
-        : 'Akses Operasional Ditangguhkan (Suspended)';
+    loadLottiePlayer();
 
-    var descText =
+    if (!state.suspendedAt) {
+      state.suspendedAt = Date.now();
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {}
+    }
+
+    var suspendedDateFormatted = formatDateTime(state.suspendedAt);
+    var pageUrl = window.location.href;
+    var lottieUrl = (ENDPOINT ? ENDPOINT.replace(/\/$/, '') : '') + '/error.lottie';
+
+    var reasonText =
       reason === 'TAMPERED'
-        ? 'Domain "' +
-          DOMAIN +
-          '" tidak terdaftar atau modifikasi tidak sah terdeteksi. Silakan hubungi developer/administrator.'
-        : 'Lisensi website untuk domain "' +
-          DOMAIN +
-          '" sedang dinonaktifkan oleh administrator. Silakan hubungi pihak pengembang.';
+        ? 'Pelanggaran domain / modifikasi tidak sah'
+        : 'Alasan tidak diketahui';
 
     var overlay = document.createElement('div');
     overlay.id = overlayId;
     overlay.style.cssText =
       'position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;' +
-      'z-index:2147483647!important;background:rgba(11,15,25,0.98)!important;backdrop-filter:blur(16px)!important;' +
-      '-webkit-backdrop-filter:blur(16px)!important;display:flex!important;align-items:center!important;' +
-      'justify-content:center!important;padding:24px!important;box-sizing:border-box!important;' +
-      'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif!important;color:#f8fafc!important;';
+      'z-index:2147483647!important;background:rgba(241,245,249,0.85)!important;backdrop-filter:blur(24px)!important;' +
+      '-webkit-backdrop-filter:blur(24px)!important;display:flex!important;align-items:center!important;' +
+      'justify-content:center!important;padding:20px!important;box-sizing:border-box!important;' +
+      'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif!important;color:#0f172a!important;';
 
     overlay.innerHTML =
-      '<div style="max-width:500px;width:100%;background:#0f172a;border:1px solid #1e293b;border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(239,68,68,0.25);animation:lgFadeIn 0.3s ease-out;">' +
-      '  <div style="width:64px;height:64px;border-radius:18px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">' +
-      '    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-      '      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' +
-      '      <line x1="12" y1="8" x2="12" y2="12"/>' +
-      '      <line x1="12" y1="16" x2="12.01" y2="16"/>' +
-      '    </svg>' +
+      '<div style="max-width:480px;width:100%;background:rgba(255,255,255,0.94);border:1px solid rgba(226,232,240,0.9);border-radius:24px;padding:36px 30px;text-align:center;box-shadow:0 20px 45px -12px rgba(15,23,42,0.12), 0 0 1px 1px rgba(15,23,42,0.05);animation:lgFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">' +
+      '  <div style="width:100px;height:100px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;">' +
+      '    <dotlottie-player src="' +
+      lottieUrl +
+      '" background="transparent" speed="1" style="width:100px;height:100px;" loop autoplay>' +
+      '      <div style="width:64px;height:64px;border-radius:20px;background:#fee2e2;display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:28px;">🚫</div>' +
+      '    </dotlottie-player>' +
       '  </div>' +
-      '  <h2 style="margin:0 0 10px;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.02em;">' +
-      statusText +
-      '</h2>' +
-      '  <p style="margin:0 0 20px;font-size:13px;line-height:1.6;color:#94a3b8;">' +
-      descText +
-      '</p>' +
-      '  <div style="background:#1e293b;border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;font-size:12px;">' +
-      '    <span style="color:#64748b;">Domain Klien</span>' +
-      '    <span style="color:#e2e8f0;font-family:monospace;font-weight:600;">' +
-      DOMAIN +
+      '  <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-0.02em;line-height:1.3;">' +
+      '    halaman ditangguhkan' +
+      '  </h1>' +
+      '  <p style="margin:0 0 20px;font-size:13px;line-height:1.6;color:#64748b;">' +
+      '    anda tidak dapat menggunakan halaman ini. silahkan hubungi pihak terkait untuk bisa mengakses kembali halaman ini.' +
+      '  </p>' +
+      '  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:20px;text-align:left;font-size:12px;box-shadow:inset 0 1px 2px rgba(0,0,0,0.02);">' +
+      '    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf2f7;">' +
+      '      <span style="color:#64748b;font-weight:500;">rincian</span>' +
+      '      <span style="color:#0f172a;font-family:monospace;font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' +
+      pageUrl +
+      '">' +
+      pageUrl +
       '</span>' +
+      '    </div>' +
+      '    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf2f7;">' +
+      '      <span style="color:#64748b;font-weight:500;">tanggal ditangguhkan</span>' +
+      '      <span style="color:#0f172a;font-family:monospace;font-weight:600;">' +
+      suspendedDateFormatted +
+      '</span>' +
+      '    </div>' +
+      '    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf2f7;">' +
+      '      <span style="color:#64748b;font-weight:500;">tanggal dikembalikan</span>' +
+      '      <span style="color:#64748b;font-style:italic;">Tidak ditentukan</span>' +
+      '    </div>' +
+      '    <div style="display:flex;justify-content:space-between;padding:5px 0;">' +
+      '      <span style="color:#64748b;font-weight:500;">alasan</span>' +
+      '      <span style="color:#0f172a;font-weight:600;">' +
+      reasonText +
+      '</span>' +
+      '    </div>' +
       '  </div>' +
-      '  <button id="__lg_recheck_btn__" style="width:100%;padding:12px;background:#4f46e5;color:#fff;font-weight:600;font-size:13px;border:none;border-radius:12px;cursor:pointer;transition:all 0.2s ease;margin-bottom:16px;">' +
-      '    🔄 Periksa Status Aktivasi' +
+      '  <button id="__lg_recheck_btn__" style="width:100%;padding:12px 16px;background:#0f172a;color:#ffffff;font-weight:600;font-size:13px;border:none;border-radius:12px;cursor:pointer;transition:all 0.2s ease;margin-bottom:16px;box-shadow:0 4px 12px rgba(15,23,42,0.15);">' +
+      '    🔄 Periksa Status Akses' +
       '  </button>' +
-      '  <div style="font-size:11px;color:#64748b;display:flex;align-items:center;justify-content:center;gap:6px;">' +
+      '  <div style="font-size:11px;color:#94a3b8;display:flex;align-items:center;justify-content:center;gap:6px;">' +
       '    <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;"></span>' +
       '    <span>Protected by Centralized License Guard</span>' +
       '  </div>' +
       '</div>' +
       '<style>' +
-      '@keyframes lgFadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}' +
-      '#__lg_recheck_btn__:hover{background:#4338ca;}' +
+      '@keyframes lgFadeIn{from{opacity:0;transform:scale(0.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}' +
+      '#__lg_recheck_btn__:hover{background:#1e293b;transform:translateY(-1px);}' +
+      '#__lg_recheck_btn__:active{transform:translateY(0);}' +
       '</style>';
 
     // Prevent body scrolling
@@ -150,9 +209,9 @@
             btn.innerText = 'Memeriksa...';
             checkLicense(function (valid) {
               if (!valid) {
-                btn.innerText = 'Masih Dinonaktifkan (Coba Lagi)';
+                btn.innerText = 'Masih Ditangguhkan (Coba Lagi)';
                 setTimeout(function () {
-                  btn.innerText = '🔄 Periksa Status Aktivasi';
+                  btn.innerText = '🔄 Periksa Status Akses';
                 }, 2000);
               }
             });
@@ -167,7 +226,7 @@
       document.addEventListener('DOMContentLoaded', appendOverlay);
     }
 
-    // Faster polling while locked (every 5 seconds) to unlock automatically when activated!
+    // Auto-polling every 5 seconds to unlock instantly when activated in Dashboard
     if (!pollTimer) {
       pollTimer = setInterval(function () {
         if (state.status !== 'ACTIVE') {
@@ -195,6 +254,7 @@
       clearInterval(pollTimer);
       pollTimer = null;
     }
+    state.suspendedAt = null;
     var overlay = document.getElementById(overlayId);
     if (overlay && overlay.parentNode) {
       overlay.parentNode.removeChild(overlay);
@@ -233,6 +293,7 @@
                 status: 'ACTIVE',
                 token: data.token,
                 lastCheck: Date.now(),
+                suspendedAt: null,
               };
               try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -269,6 +330,9 @@
   function handleSuspended(status) {
     state.valid = false;
     state.status = status;
+    if (!state.suspendedAt) {
+      state.suspendedAt = Date.now();
+    }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {}
@@ -285,8 +349,10 @@
   }
 
   function handleNetworkFail() {
-    // If we have cached valid state within last 24h, allow it
-    var isWithinGrace = state.valid && state.lastCheck && (Date.now() - state.lastCheck < 24 * 60 * 60 * 1000);
+    var isWithinGrace =
+      state.valid &&
+      state.lastCheck &&
+      Date.now() - state.lastCheck < 24 * 60 * 60 * 1000;
     if (!isWithinGrace && !state.valid) {
       createLockOverlay(state.status || 'SUSPENDED');
     }
@@ -294,18 +360,13 @@
 
   // ── Auto Initialization ───────────────────────────────────────────────────
   function init() {
-    // If cached status was already suspended, show lock immediately to prevent flash
     if (state.valid === false || state.status === 'SUSPENDED' || state.status === 'TAMPERED') {
       createLockOverlay(state.status);
     }
 
-    // Run active heartbeat check (will remove overlay if status in DB is ACTIVE!)
     checkLicense();
-
-    // Periodic heartbeat
     setInterval(checkLicense, HEARTBEAT_INTERVAL);
 
-    // Re-check when user switches back to the tab
     window.addEventListener('focus', function () {
       if (Date.now() - state.lastCheck > 5 * 1000) {
         checkLicense();
@@ -342,6 +403,7 @@
     unlock: function () {
       state.valid = true;
       state.status = 'ACTIVE';
+      state.suspendedAt = null;
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       } catch {}
