@@ -2,9 +2,11 @@
 
 import Link from 'next/link';
 import { useTransition } from 'react';
-import { ExternalLink, Eye, PauseCircle, PlayCircle, Clock, Globe } from 'lucide-react';
+import { Eye, PauseCircle, PlayCircle, Globe, Key } from 'lucide-react';
 import StatusBadge from './status-badge';
 import { updateProjectStatus } from '@/lib/actions';
+import { Button } from '@/components/ui/button';
+
 export type ProjectWithStatus = {
   id: string;
   name: string;
@@ -24,123 +26,101 @@ function formatDate(date: Date | null) {
   }).format(new Date(date));
 }
 
-function HeartbeatCell({ date }: { date: Date | null }) {
-  if (!date) return <span className="text-slate-400 text-xs">Never</span>;
-  const now = new Date();
-  const diff = now.getTime() - new Date(date).getTime();
-  const hours = diff / (1000 * 60 * 60);
-  const isStale = hours > 2;
-
-  return (
-    <span className={`text-xs flex items-center gap-1.5 ${isStale ? 'text-amber-600' : 'text-slate-500'}`}>
-      <Clock className={`w-3.5 h-3.5 ${isStale ? 'text-amber-500' : 'text-emerald-500'}`} />
-      {formatDate(date)}
-    </span>
-  );
-}
-
-function ActionButtons({ project }: { project: ProjectWithStatus }) {
+export default function ProjectTable({
+  projects,
+}: {
+  projects: ProjectWithStatus[];
+}) {
   const [isPending, startTransition] = useTransition();
 
-  function toggleStatus() {
-    const newStatus = project.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+  function toggleStatus(id: string, currentStatus: string) {
+    const newStatus = currentStatus === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
     startTransition(async () => {
-      await updateProjectStatus(project.id, newStatus);
+      await updateProjectStatus(id, newStatus);
     });
   }
 
-  return (
-    <div className="flex items-center gap-2">
-      <Link href={`/projects/${project.id}`} className="btn-ghost py-1.5">
-        <Eye className="w-3.5 h-3.5" />
-        <span>View</span>
-      </Link>
-      {project.status === 'ACTIVE' ? (
-        <button
-          onClick={toggleStatus}
-          disabled={isPending}
-          className="btn-danger"
-        >
-          <PauseCircle className="w-3.5 h-3.5" />
-          <span>{isPending ? 'Updating...' : 'Suspend'}</span>
-        </button>
-      ) : (
-        <button
-          onClick={toggleStatus}
-          disabled={isPending}
-          className="btn-success"
-        >
-          <PlayCircle className="w-3.5 h-3.5" />
-          <span>{isPending ? 'Updating...' : 'Activate'}</span>
-        </button>
-      )}
-    </div>
-  );
-}
-
-export default function ProjectTable({ projects }: { projects: ProjectWithStatus[] }) {
   if (projects.length === 0) {
     return (
       <div className="text-center py-16">
-        <Globe className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-        <p className="text-slate-500 font-medium">No projects yet</p>
-        <p className="text-slate-400 text-sm mt-1">Add your first project to get started</p>
+        <Globe className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
+        <p className="text-sm font-medium text-zinc-300">No projects created yet</p>
+        <p className="text-xs text-zinc-500 mt-1">
+          Click the "Add Project" button to register your first client website.
+        </p>
       </div>
     );
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="data-table">
-        <thead>
+      <table className="w-full text-left text-xs text-zinc-300">
+        <thead className="bg-zinc-950/60 border-b border-zinc-800/80 text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
           <tr>
-            <th>Project</th>
-            <th>Domain</th>
-            <th>Status</th>
-            <th>Last Heartbeat</th>
-            <th>Server IP</th>
-            <th>Actions</th>
+            <th className="px-5 py-3.5">Project Name</th>
+            <th className="px-5 py-3.5">Domain</th>
+            <th className="px-5 py-3.5">Status</th>
+            <th className="px-5 py-3.5">Last Seen</th>
+            <th className="px-5 py-3.5 text-right">Killswitch Actions</th>
           </tr>
         </thead>
-        <tbody>
-          {projects.map((project, i) => (
-            <tr
-              key={project.id}
-              className="animate-fade-in-up"
-              style={{ animationDelay: `${i * 40}ms` }}
-            >
-              <td>
-                <div>
-                  <p className="font-medium text-slate-800">{project.name}</p>
-                  <p className="text-xs text-slate-400 font-mono mt-0.5">
-                    {project.id.slice(0, 12)}...
-                  </p>
-                </div>
-              </td>
-              <td>
-                <a
-                  href={`https://${project.domain}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+        <tbody className="divide-y divide-zinc-800/50">
+          {projects.map((project) => (
+            <tr key={project.id} className="hover:bg-zinc-800/30 transition-colors">
+              <td className="px-5 py-4">
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="font-semibold text-sm text-zinc-100 hover:text-white transition-colors block"
                 >
-                  {project.domain}
-                  <ExternalLink className="w-3 h-3" />
-                </a>
-              </td>
-              <td>
-                <StatusBadge status={project.status} />
-              </td>
-              <td>
-                <HeartbeatCell date={project.lastHeartbeat} />
-              </td>
-              <td>
-                <span className="text-xs text-slate-500 font-mono">
-                  {project.serverIp ?? '—'}
+                  {project.name}
+                </Link>
+                <span className="text-[10px] text-zinc-400 font-mono mt-0.5 inline-flex items-center gap-1">
+                  <Key className="w-2.5 h-2.5" />
+                  {project.id.slice(0, 10)}...
                 </span>
               </td>
-              <td>
-                <ActionButtons project={project} />
+              <td className="px-5 py-4 whitespace-nowrap">
+                <span className="font-mono text-xs text-zinc-300 bg-zinc-950 px-2.5 py-1 rounded-md border border-zinc-800/80">
+                  {project.domain}
+                </span>
+              </td>
+              <td className="px-5 py-4 whitespace-nowrap">
+                <StatusBadge status={project.status} />
+              </td>
+              <td className="px-5 py-4 whitespace-nowrap text-zinc-400 font-mono text-[11px]">
+                {formatDate(project.lastHeartbeat)}
+              </td>
+              <td className="px-5 py-4 text-right whitespace-nowrap space-x-2">
+                {project.status === 'ACTIVE' ? (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    disabled={isPending}
+                    onClick={() => toggleStatus(project.id, project.status)}
+                    className="h-7 text-xs px-2.5"
+                  >
+                    <PauseCircle className="w-3.5 h-3.5" />
+                    <span>Suspend</span>
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="success"
+                    disabled={isPending}
+                    onClick={() => toggleStatus(project.id, project.status)}
+                    className="h-7 text-xs px-2.5"
+                  >
+                    <PlayCircle className="w-3.5 h-3.5" />
+                    <span>Activate</span>
+                  </Button>
+                )}
+
+                <Button asChild size="sm" variant="outline" className="h-7 text-xs px-2.5">
+                  <Link href={`/projects/${project.id}`}>
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>View</span>
+                  </Link>
+                </Button>
               </td>
             </tr>
           ))}

@@ -7,6 +7,7 @@ import {
   Radio,
   FileText,
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export type LogWithProject = {
   id: string;
@@ -20,13 +21,13 @@ export type LogWithProject = {
 
 const eventConfig: Record<
   string,
-  { label: string; icon: typeof Activity; color: string }
+  { label: string; icon: typeof Activity; variant: 'success' | 'destructive' | 'warning' | 'default' }
 > = {
-  REGISTER: { label: 'Registration', icon: LogIn, color: 'text-indigo-500 bg-indigo-50' },
-  HEARTBEAT: { label: 'Heartbeat', icon: Radio, color: 'text-emerald-500 bg-emerald-50' },
-  SUSPENDED: { label: 'Suspended', icon: PauseCircle, color: 'text-red-500 bg-red-50' },
-  ACTIVATED: { label: 'Activated', icon: PlayCircle, color: 'text-emerald-500 bg-emerald-50' },
-  TAMPER_ATTEMPT: { label: 'Tamper Attempt', icon: AlertTriangle, color: 'text-amber-500 bg-amber-50' },
+  REGISTER: { label: 'Register', icon: LogIn, variant: 'default' },
+  HEARTBEAT: { label: 'Heartbeat', icon: Radio, variant: 'success' },
+  SUSPENDED: { label: 'Suspended', icon: PauseCircle, variant: 'destructive' },
+  ACTIVATED: { label: 'Activated', icon: PlayCircle, variant: 'success' },
+  TAMPER_ATTEMPT: { label: 'Tamper Alert', icon: AlertTriangle, variant: 'warning' },
 };
 
 function formatDate(date: Date) {
@@ -46,69 +47,67 @@ export default function LogTable({
   if (logs.length === 0) {
     return (
       <div className="text-center py-12">
-        <FileText className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-        <p className="text-slate-400 text-sm">No activity logs yet</p>
+        <FileText className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
+        <p className="text-zinc-500 text-xs">No activity logs recorded yet</p>
       </div>
     );
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="data-table">
-        <thead>
+      <table className="w-full text-left text-xs text-zinc-300">
+        <thead className="bg-zinc-950/60 border-b border-zinc-800/80 text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
           <tr>
-            <th>Event</th>
-            {showProject && <th>Project</th>}
-            <th>IP Address</th>
-            <th>Metadata</th>
-            <th>Timestamp</th>
+            <th className="px-4 py-3">Event</th>
+            {showProject && <th className="px-4 py-3">Project</th>}
+            <th className="px-4 py-3">IP Address</th>
+            <th className="px-4 py-3">Details</th>
+            <th className="px-4 py-3 text-right">Timestamp</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-zinc-800/50">
           {logs.map((log) => {
             const event = eventConfig[log.event] ?? {
               label: log.event,
               icon: Activity,
-              color: 'text-slate-500 bg-slate-50',
+              variant: 'default',
             };
             const Icon = event.icon;
 
             return (
-              <tr key={log.id}>
-                <td>
-                  <div className="flex items-center gap-2.5">
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${event.color}`}>
-                      <Icon className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="font-medium text-slate-700">{event.label}</span>
-                  </div>
+              <tr key={log.id} className="hover:bg-zinc-800/30 transition-colors">
+                <td className="px-4 py-3.5 whitespace-nowrap">
+                  <Badge variant={event.variant} dot>
+                    <Icon className="w-3 h-3 mr-1" />
+                    <span>{event.label}</span>
+                  </Badge>
                 </td>
                 {showProject && (
-                  <td>
-                    <div>
-                      <p className="text-sm font-medium text-slate-700">
-                        {log.project?.name ?? '—'}
-                      </p>
-                      <p className="text-xs text-slate-400">{log.project?.domain ?? ''}</p>
-                    </div>
+                  <td className="px-4 py-3.5">
+                    <p className="font-semibold text-zinc-200 truncate max-w-[160px]">
+                      {log.project?.name ?? '—'}
+                    </p>
+                    <p className="text-[10px] text-zinc-400 font-mono truncate max-w-[160px]">
+                      {log.project?.domain ?? ''}
+                    </p>
                   </td>
                 )}
-                <td>
-                  <span className="text-xs font-mono text-slate-500">
+                <td className="px-4 py-3.5 whitespace-nowrap">
+                  <span className="font-mono text-xs text-zinc-400">
                     {log.ipAddress ?? '—'}
                   </span>
                 </td>
-                <td>
+                <td className="px-4 py-3.5 max-w-[200px] truncate">
                   {log.metadata ? (
-                    <span className="text-xs font-mono text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100 max-w-xs truncate block">
+                    <span className="font-mono text-[11px] text-zinc-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800/80 truncate block">
                       {JSON.stringify(log.metadata)}
                     </span>
                   ) : (
-                    <span className="text-slate-300">—</span>
+                    <span className="text-zinc-600">—</span>
                   )}
                 </td>
-                <td>
-                  <span className="text-xs text-slate-400">{formatDate(log.createdAt)}</span>
+                <td className="px-4 py-3.5 text-right whitespace-nowrap font-mono text-[11px] text-zinc-400">
+                  {formatDate(log.createdAt)}
                 </td>
               </tr>
             );

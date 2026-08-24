@@ -14,9 +14,12 @@ import {
   Calendar,
   Key,
   Activity,
+  ShieldCheck,
 } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
-export const metadata: Metadata = { title: 'Project Detail' };
+export const metadata: Metadata = { title: 'Project Details — License Guard' };
 
 function formatDate(date: Date | null | undefined) {
   if (!date) return 'Never';
@@ -46,112 +49,120 @@ export default async function ProjectDetailPage({
   if (!project) notFound();
 
   const infoRows = [
-    { label: 'Domain', value: project.domain, icon: Globe, mono: false, link: `https://${project.domain}` },
-    { label: 'Server IP', value: project.serverIp ?? 'Not set', icon: Server, mono: true },
+    { label: 'Target Domain', value: project.domain, icon: Globe, mono: true, link: `https://${project.domain}` },
+    { label: 'Server IP Filter', value: project.serverIp ?? 'Not set (Any)', icon: Server, mono: true },
     { label: 'Grace Period', value: `${project.gracePeriod} hours`, icon: Clock, mono: false },
     { label: 'Last Heartbeat', value: formatDate(project.lastHeartbeat), icon: Activity, mono: false },
-    { label: 'Created', value: formatDate(project.createdAt), icon: Calendar, mono: false },
+    { label: 'Created At', value: formatDate(project.createdAt), icon: Calendar, mono: false },
     { label: 'Project ID', value: project.id, icon: Key, mono: true },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="animate-fade-in-up">
-        <Link href="/projects" className="btn-ghost mb-4 inline-flex">
-          <ArrowLeft className="w-4 h-4" />
-          Back to Projects
-        </Link>
-        <div className="flex items-start justify-between">
+    <div className="space-y-6 animate-fade-in-up">
+      {/* Top Header */}
+      <div>
+        <Button asChild variant="ghost" size="sm" className="mb-3 text-zinc-400 hover:text-white">
+          <Link href="/projects">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            <span>Back to Projects</span>
+          </Link>
+        </Button>
+
+        <div className="flex items-center justify-between border-b border-zinc-800/80 pb-6">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">{project.name}</h1>
-            <div className="flex items-center gap-3 mt-2">
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold tracking-tight text-white">{project.name}</h1>
               <StatusBadge status={project.status} />
-              <a
-                href={`https://${project.domain}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
-              >
-                <Globe className="w-3.5 h-3.5" />
-                {project.domain}
-              </a>
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-xs text-zinc-400">
+              <Globe className="w-3.5 h-3.5" />
+              <span className="font-mono text-zinc-300">{project.domain}</span>
             </div>
           </div>
+
           <ProjectControls project={{ id: project.id, status: project.status, name: project.name }} />
         </div>
       </div>
 
+      {/* Grid: Info + API Key + Activity */}
       <div className="grid grid-cols-5 gap-6">
-        {/* Left: Info + API Key */}
-        <div className="col-span-2 space-y-5">
-          {/* Project Info */}
-          <div className="card animate-fade-in-up delay-100">
-            <div className="card-header">
-              <h2 className="text-sm font-semibold text-slate-700">Project Info</h2>
-            </div>
-            <div className="divide-y divide-slate-50">
+        {/* Left 2 Cols: Project Info & API Key */}
+        <div className="col-span-2 space-y-6">
+          {/* Metadata Card */}
+          <Card className="border-zinc-800 bg-zinc-900/60 shadow-lg">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-zinc-400" />
+                <CardTitle className="text-sm">Instance Configuration</CardTitle>
+              </div>
+            </CardHeader>
+            <div className="divide-y divide-zinc-800/60">
               {infoRows.map(({ label, value, icon: Icon, mono, link }) => (
-                <div key={label} className="px-5 py-3.5 flex items-center gap-3">
-                  <div className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
-                    <Icon className="w-3.5 h-3.5 text-slate-400" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs text-slate-400 font-medium">{label}</p>
-                    {link ? (
-                      <a
-                        href={link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`text-sm text-indigo-600 hover:underline ${mono ? 'font-mono' : 'font-medium'} truncate block`}
-                      >
-                        {value}
-                      </a>
-                    ) : (
-                      <p className={`text-sm text-slate-700 ${mono ? 'font-mono' : 'font-medium'} truncate`}>
-                        {value}
-                      </p>
-                    )}
-                  </div>
+                <div key={label} className="p-3.5 px-4 flex items-center justify-between text-xs">
+                  <span className="text-zinc-400 flex items-center gap-2">
+                    <Icon className="w-3.5 h-3.5 text-zinc-500" />
+                    <span>{label}</span>
+                  </span>
+                  {link ? (
+                    <a
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="font-mono text-zinc-200 hover:text-white underline truncate max-w-[200px]"
+                    >
+                      {value}
+                    </a>
+                  ) : (
+                    <span className={`text-zinc-200 ${mono ? 'font-mono' : 'font-medium'} truncate max-w-[200px]`}>
+                      {value}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
-          {/* API Key */}
-          <div className="card animate-fade-in-up delay-200">
-            <div className="card-header">
-              <h2 className="text-sm font-semibold text-slate-700">API Key</h2>
-              <span className="text-xs text-amber-600 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">
-                Secret
+          {/* API Key Card */}
+          <Card className="border-zinc-800 bg-zinc-900/60 shadow-lg">
+            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Key className="w-4 h-4 text-zinc-400" />
+                <CardTitle className="text-sm">Secret API Key</CardTitle>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+                Confidential
               </span>
-            </div>
-            <div className="card-body">
-              <p className="text-xs text-slate-500 mb-2">
-                Share this with the client site for authentication:
+            </CardHeader>
+            <CardContent className="space-y-2 pt-2">
+              <p className="text-xs text-zinc-400">
+                Gunakan API key ini untuk mengautentikasi website klien Anda:
               </p>
-              <div className="code-block select-all break-all">{project.apiKey}</div>
-              <p className="text-xs text-slate-400 mt-2">
-                Used in <code className="bg-slate-100 px-1 rounded">POST /api/license/register</code>
-              </p>
-            </div>
-          </div>
+              <div className="font-mono text-xs text-zinc-100 bg-zinc-950 p-3 rounded-lg border border-zinc-800 select-all break-all shadow-inner">
+                {project.apiKey}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Right: Activity Logs */}
-        <div className="col-span-3 card animate-fade-in-up delay-200">
-          <div className="card-header">
-            <h2 className="text-sm font-semibold text-slate-700">Activity Logs</h2>
-            <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">
-              Last 50
-            </span>
-          </div>
-          <LogTable logs={project.logs} />
+        {/* Right 3 Cols: Activity Stream */}
+        <div className="col-span-3">
+          <Card className="border-zinc-800 bg-zinc-900/60 shadow-lg h-full">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-zinc-400" />
+                <CardTitle className="text-sm">Instance Activity Logs</CardTitle>
+              </div>
+              <span className="text-[11px] font-mono text-zinc-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800">
+                Last {project.logs.length} Events
+              </span>
+            </CardHeader>
+            <LogTable logs={project.logs} />
+          </Card>
         </div>
       </div>
 
-      {/* Full Width: Multi-Language Integration Snippet */}
-      <div className="animate-fade-in-up delay-300">
+      {/* Multi-Language & Native HTML Code Integration Snippet */}
+      <div className="pt-2">
         <IntegrationSnippet apiKey={project.apiKey} domain={project.domain} />
       </div>
     </div>

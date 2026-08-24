@@ -1,40 +1,31 @@
-import { clsx } from 'clsx';
-import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
-type Status = 'ACTIVE' | 'SUSPENDED' | 'TAMPERED';
+type ProjectStatus = 'ACTIVE' | 'SUSPENDED' | 'TAMPERED';
 
-const config: Record<
-  Status,
-  { label: string; icon: typeof CheckCircle; className: string }
+const statusConfig: Record<
+  ProjectStatus,
+  { label: string; variant: 'success' | 'destructive' | 'warning' }
 > = {
-  ACTIVE: {
-    label: 'Active',
-    icon: CheckCircle,
-    className: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  },
-  SUSPENDED: {
-    label: 'Suspended',
-    icon: XCircle,
-    className: 'bg-red-50 text-red-700 border border-red-200',
-  },
-  TAMPERED: {
-    label: 'Tampered',
-    icon: AlertTriangle,
-    className: 'bg-amber-50 text-amber-700 border border-amber-200',
-  },
+  ACTIVE: { label: 'Active', variant: 'success' },
+  SUSPENDED: { label: 'Suspended', variant: 'destructive' },
+  TAMPERED: { label: 'Tampered', variant: 'warning' },
 };
 
-export default function StatusBadge({ status }: { status: Status }) {
-  const { label, icon: Icon, className } = config[status];
+export default function StatusBadge({
+  status,
+  className,
+}: {
+  status: ProjectStatus | string;
+  className?: string;
+}) {
+  const config = statusConfig[status as ProjectStatus] ?? {
+    label: status,
+    variant: 'warning',
+  };
+
   return (
-    <span
-      className={clsx(
-        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold',
-        className
-      )}
-    >
-      <Icon className="w-3.5 h-3.5" />
-      {label}
-    </span>
+    <Badge variant={config.variant} dot className={className}>
+      {config.label}
+    </Badge>
   );
 }

@@ -2,7 +2,12 @@
 
 import { signIn } from 'next-auth/react';
 import { useState, useTransition } from 'react';
-import { Shield, Eye, EyeOff, AlertCircle, Lock, Mail } from 'lucide-react';
+import { Shield, Eye, EyeOff, AlertCircle, Lock, Mail, ArrowRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Field, FieldLabel } from '@/components/ui/field';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +27,9 @@ export default function LoginPage() {
         password,
         redirect: false,
       });
+
       if (result?.error) {
-        setError('Invalid email or password. Please try again.');
+        setError('Email atau password tidak valid. Silakan coba lagi.');
       } else {
         const urlParams = new URLSearchParams(window.location.search);
         const callbackUrl = urlParams.get('callbackUrl') || '/';
@@ -33,113 +39,110 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      {/* Background grid */}
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center p-6 select-none relative overflow-hidden">
+      {/* Subtle Geometric Grid */}
       <div
-        className="fixed inset-0 opacity-[0.03]"
+        className="fixed inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage:
-            'linear-gradient(#6366f1 1px, transparent 1px), linear-gradient(90deg, #6366f1 1px, transparent 1px)',
-          backgroundSize: '48px 48px',
+            'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)',
+          backgroundSize: '40px 40px',
         }}
       />
 
-      {/* Glow blob */}
-      <div
-        className="fixed top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full opacity-10 blur-3xl pointer-events-none"
-        style={{ background: 'radial-gradient(circle, #6366f1, transparent)' }}
-      />
-
-      {/* Card */}
-      <div className="relative w-full max-w-sm animate-fade-in-up">
-        {/* Logo */}
-        <div className="flex justify-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-500 flex items-center justify-center shadow-2xl shadow-indigo-500/30">
-            <Shield className="w-8 h-8 text-white" />
+      {/* Main Login Card */}
+      <div className="relative w-full max-w-sm animate-fade-in-up space-y-6">
+        {/* Brand Icon */}
+        <div className="flex justify-center">
+          <div className="w-14 h-14 rounded-2xl bg-white text-zinc-950 flex items-center justify-center shadow-xl shadow-white/5 border border-zinc-200">
+            <Shield className="w-7 h-7 fill-zinc-950" />
           </div>
         </div>
 
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-white">License Guard</h1>
-          <p className="text-slate-400 text-sm mt-1">Sign in to Admin Console</p>
-        </div>
+        <Card className="border-zinc-800 bg-zinc-900/90 shadow-2xl">
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="text-xl font-bold tracking-tight text-white">
+              License Guard
+            </CardTitle>
+            <CardDescription className="text-xs text-zinc-400">
+              Admin Authentication Portal
+            </CardDescription>
+          </CardHeader>
 
-        <div
-          className="rounded-2xl p-8 border border-slate-800"
-          style={{ background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(12px)' }}
-        >
-          {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-              <p className="text-red-400 text-sm">{error}</p>
-            </div>
-          )}
+          <CardContent className="pt-4 space-y-4">
+            {error && (
+              <Alert variant="destructive" className="py-2.5">
+                <AlertCircle className="w-4 h-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-1.5">
-                Email
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="admin@licenseguard.dev"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all"
-                />
-              </div>
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <Field>
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    placeholder="admin@licenseguard.dev"
+                    className="pl-9 bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-400"
+                  />
+                </div>
+              </Field>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-10 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
+              <Field>
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••"
+                    className="pl-9 pr-9 bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-400"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </Field>
 
-            <button
-              id="login-submit"
-              type="submit"
-              disabled={isPending}
-              className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg text-sm transition-all duration-150 shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 hover:-translate-y-0.5 active:translate-y-0"
-            >
-              {isPending ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
-                  Signing in...
-                </span>
-              ) : (
-                'Sign In'
-              )}
-            </button>
-          </form>
-        </div>
+              <Button
+                id="login-submit"
+                type="submit"
+                disabled={isPending}
+                className="w-full mt-2 group"
+                variant="default"
+              >
+                {isPending ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    Signing In...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    <span>Sign In</span>
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
 
-        <p className="text-center text-slate-600 text-xs mt-6">
-          Centralized License Guard — Admin Access Only
+        <p className="text-center text-[11px] text-zinc-600 font-mono">
+          Centralized License Guard • Desktop Admin Console
         </p>
       </div>
     </div>

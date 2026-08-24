@@ -4,6 +4,9 @@ import { useTransition, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateProjectStatus, deleteProject } from '@/lib/actions';
 import { PauseCircle, PlayCircle, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+
 type ProjectStatus = 'ACTIVE' | 'SUSPENDED' | 'TAMPERED';
 
 type Props = {
@@ -15,8 +18,10 @@ export default function ProjectControls({ project }: Props) {
   const [isPending, startTransition] = useTransition();
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  function toggleStatus() {
-    const newStatus: ProjectStatus = project.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+  const isActive = project.status === 'ACTIVE';
+
+  function handleToggle(checked: boolean) {
+    const newStatus: ProjectStatus = checked ? 'ACTIVE' : 'SUSPENDED';
     startTransition(async () => {
       await updateProjectStatus(project.id, newStatus);
     });
@@ -35,37 +40,65 @@ export default function ProjectControls({ project }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      {project.status === 'ACTIVE' ? (
-        <button
-          id="project-suspend-btn"
-          onClick={toggleStatus}
+    <div className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-2.5 rounded-xl shadow-sm">
+      {/* Interactive Killswitch Switch */}
+      <div className="flex items-center gap-2.5 px-2">
+        <Switch
+          id="project-killswitch-toggle"
+          checked={isActive}
           disabled={isPending}
-          className="btn-danger"
-        >
-          <PauseCircle className="w-4 h-4" />
-          {isPending ? 'Updating...' : 'Suspend License'}
-        </button>
-      ) : (
-        <button
-          id="project-activate-btn"
-          onClick={toggleStatus}
+          onCheckedChange={handleToggle}
+        />
+        <div className="text-left">
+          <p className="text-xs font-semibold text-zinc-100">
+            {isActive ? 'Live (Active)' : 'Locked (Suspended)'}
+          </p>
+          <p className="text-[10px] text-zinc-500">Killswitch Control</p>
+        </div>
+      </div>
+
+      <div className="h-6 w-px bg-zinc-800" />
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-2">
+        {isActive ? (
+          <Button
+            id="project-suspend-btn"
+            size="sm"
+            variant="destructive"
+            disabled={isPending}
+            onClick={() => handleToggle(false)}
+            className="h-8 text-xs font-medium"
+          >
+            <PauseCircle className="w-3.5 h-3.5" />
+            <span>{isPending ? 'Updating...' : 'Suspend'}</span>
+          </Button>
+        ) : (
+          <Button
+            id="project-activate-btn"
+            size="sm"
+            variant="success"
+            disabled={isPending}
+            onClick={() => handleToggle(true)}
+            className="h-8 text-xs font-medium"
+          >
+            <PlayCircle className="w-3.5 h-3.5" />
+            <span>{isPending ? 'Updating...' : 'Activate'}</span>
+          </Button>
+        )}
+
+        <Button
+          id="project-delete-btn"
+          size="sm"
+          variant={confirmDelete ? 'destructive' : 'outline'}
           disabled={isPending}
-          className="btn-success"
+          onClick={handleDelete}
+          className="h-8 text-xs text-zinc-400 hover:text-white"
         >
-          <PlayCircle className="w-4 h-4" />
-          {isPending ? 'Updating...' : 'Activate License'}
-        </button>
-      )}
-      <button
-        id="project-delete-btn"
-        onClick={handleDelete}
-        disabled={isPending}
-        className={confirmDelete ? 'btn-danger' : 'btn-ghost'}
-      >
-        <Trash2 className="w-4 h-4" />
-        {confirmDelete ? 'Confirm Delete?' : 'Delete'}
-      </button>
+          <Trash2 className="w-3.5 h-3.5" />
+          <span>{confirmDelete ? 'Confirm Delete?' : 'Delete'}</span>
+        </Button>
+      </div>
     </div>
   );
 }
