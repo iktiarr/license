@@ -1,9 +1,23 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 
+// If NEXTAUTH_URL was accidentally set to localhost in production on Vercel,
+// sanitize it so NextAuth dynamically determines the live domain via trustHost.
+if (process.env.NODE_ENV === 'production') {
+  if (process.env.NEXTAUTH_URL?.includes('localhost')) {
+    delete process.env.NEXTAUTH_URL;
+  }
+  if (process.env.AUTH_URL?.includes('localhost')) {
+    delete process.env.AUTH_URL;
+  }
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || 'K7hPqR9mXvL2nJdW5tBcYuA3eGsFzN8k',
+  secret:
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    'K7hPqR9mXvL2nJdW5tBcYuA3eGsFzN8k',
   providers: [
     Credentials({
       name: 'credentials',

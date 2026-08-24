@@ -17,15 +17,15 @@ export const proxy = auth((req) => {
   // Redirect authenticated users away from login
   if (isAuthPage) {
     if (isLoggedIn) {
-      return NextResponse.redirect(new URL('/', nextUrl));
+      return NextResponse.redirect(new URL('/', req.url));
     }
     return NextResponse.next();
   }
 
   // Redirect unauthenticated users to login
   if (!isLoggedIn) {
-    const loginUrl = new URL('/login', nextUrl);
-    if (nextUrl.pathname !== '/') {
+    const loginUrl = new URL('/login', req.url);
+    if (nextUrl.pathname !== '/' && nextUrl.pathname !== '') {
       loginUrl.searchParams.set('callbackUrl', nextUrl.pathname);
     }
     return NextResponse.redirect(loginUrl);
