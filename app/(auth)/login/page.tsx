@@ -25,7 +25,9 @@ export default function LoginPage() {
       if (result?.error) {
         setError('Invalid email or password. Please try again.');
       } else {
-        window.location.href = '/';
+        const urlParams = new URLSearchParams(window.location.search);
+        const callbackUrl = urlParams.get('callbackUrl') || '/';
+        window.location.href = callbackUrl;
       }
     });
   }
