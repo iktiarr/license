@@ -54,9 +54,10 @@
       10
     ) * 1000;
 
-  var DOMAIN = window.location.hostname;
+  var DOMAIN = window.location.hostname || 'localhost';
   var STORAGE_KEY = '_lg_license_state';
   var overlayId = '__license_guard_lock_overlay__';
+  var pollTimer = null;
 
   // ── Local State ────────────────────────────────────────────────────────────
   var state = {
@@ -73,9 +74,10 @@
     }
   } catch {}
 
-  // ── UI Lock Screen (Inescapable Overlay) ────────────────────────────────────
+  // ── UI Lock Screen (Inescapable Overlay with Re-check Button) ───────────────
   function createLockOverlay(reason) {
-    if (document.getElementById(overlayId)) return;
+    var existing = document.getElementById(overlayId);
+    if (existing) return;
 
     var statusText =
       reason === 'TAMPERED'
@@ -84,12 +86,12 @@
 
     var descText =
       reason === 'TAMPERED'
-        ? 'Domain ' +
+        ? 'Domain "' +
           DOMAIN +
-          ' tidak terdaftar atau telah dimodifikasi tanpa izin. Harap hubungi administrator/developer resmi.'
-        : 'Lisensi website untuk domain ' +
+          '" tidak terdaftar atau modifikasi tidak sah terdeteksi. Silakan hubungi developer/administrator.'
+        : 'Lisensi website untuk domain "' +
           DOMAIN +
-          ' sedang dalam status non-aktif. Silakan hubungi pengembang untuk pengaktifan kembali.';
+          '" sedang dinonaktifkan oleh administrator. Silakan hubungi pihak pengembang.';
 
     var overlay = document.createElement('div');
     overlay.id = overlayId;
@@ -101,33 +103,37 @@
       'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif!important;color:#f8fafc!important;';
 
     overlay.innerHTML =
-      '<div style="max-width:520px;width:100%;background:#0f172a;border:1px solid #1e293b;border-radius:20px;padding:36px 32px;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(239,68,68,0.25);animation:lgFadeIn 0.3s ease-out;">' +
-      '  <div style="width:68px;height:68px;border-radius:18px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);margin:0 auto 24px;display:flex;align-items:center;justify-content:center;">' +
-      '    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '<div style="max-width:500px;width:100%;background:#0f172a;border:1px solid #1e293b;border-radius:24px;padding:36px 32px;text-align:center;box-shadow:0 25px 50px -12px rgba(0,0,0,0.7), 0 0 0 1px rgba(239,68,68,0.25);animation:lgFadeIn 0.3s ease-out;">' +
+      '  <div style="width:64px;height:64px;border-radius:18px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">' +
+      '    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
       '      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' +
       '      <line x1="12" y1="8" x2="12" y2="12"/>' +
       '      <line x1="12" y1="16" x2="12.01" y2="16"/>' +
       '    </svg>' +
       '  </div>' +
-      '  <h2 style="margin:0 0 10px;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:-0.02em;">' +
+      '  <h2 style="margin:0 0 10px;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.02em;">' +
       statusText +
       '</h2>' +
-      '  <p style="margin:0 0 24px;font-size:14px;line-height:1.6;color:#94a3b8;">' +
+      '  <p style="margin:0 0 20px;font-size:13px;line-height:1.6;color:#94a3b8;">' +
       descText +
       '</p>' +
-      '  <div style="background:#1e293b;border-radius:12px;padding:14px 16px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;font-size:12px;">' +
-      '    <span style="color:#64748b;">Domain</span>' +
+      '  <div style="background:#1e293b;border-radius:12px;padding:12px 16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;font-size:12px;">' +
+      '    <span style="color:#64748b;">Domain Klien</span>' +
       '    <span style="color:#e2e8f0;font-family:monospace;font-weight:600;">' +
       DOMAIN +
       '</span>' +
       '  </div>' +
-      '  <div style="font-size:12px;color:#64748b;display:flex;align-items:center;justify-content:center;gap:6px;">' +
-      '    <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;"></span>' +
+      '  <button id="__lg_recheck_btn__" style="width:100%;padding:12px;background:#4f46e5;color:#fff;font-weight:600;font-size:13px;border:none;border-radius:12px;cursor:pointer;transition:all 0.2s ease;margin-bottom:16px;">' +
+      '    🔄 Periksa Status Aktivasi' +
+      '  </button>' +
+      '  <div style="font-size:11px;color:#64748b;display:flex;align-items:center;justify-content:center;gap:6px;">' +
+      '    <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;"></span>' +
       '    <span>Protected by Centralized License Guard</span>' +
       '  </div>' +
       '</div>' +
       '<style>' +
       '@keyframes lgFadeIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}' +
+      '#__lg_recheck_btn__:hover{background:#4338ca;}' +
       '</style>';
 
     // Prevent body scrolling
@@ -135,19 +141,46 @@
     document.body.style.overflow = 'hidden';
 
     // Append to document
-    if (document.body) {
-      document.body.appendChild(overlay);
-    } else {
-      document.addEventListener('DOMContentLoaded', function () {
+    function appendOverlay() {
+      if (document.body && !document.getElementById(overlayId)) {
         document.body.appendChild(overlay);
-      });
+        var btn = document.getElementById('__lg_recheck_btn__');
+        if (btn) {
+          btn.onclick = function () {
+            btn.innerText = 'Memeriksa...';
+            checkLicense(function (valid) {
+              if (!valid) {
+                btn.innerText = 'Masih Dinonaktifkan (Coba Lagi)';
+                setTimeout(function () {
+                  btn.innerText = '🔄 Periksa Status Aktivasi';
+                }, 2000);
+              }
+            });
+          };
+        }
+      }
+    }
+
+    if (document.body) {
+      appendOverlay();
+    } else {
+      document.addEventListener('DOMContentLoaded', appendOverlay);
+    }
+
+    // Faster polling while locked (every 5 seconds) to unlock automatically when activated!
+    if (!pollTimer) {
+      pollTimer = setInterval(function () {
+        if (state.status !== 'ACTIVE') {
+          checkLicense();
+        }
+      }, 5000);
     }
 
     // Anti-Tamper: MutationObserver to re-inject overlay if removed from DevTools
     if (window.MutationObserver) {
       var observer = new MutationObserver(function () {
         if (!document.getElementById(overlayId) && state.status !== 'ACTIVE') {
-          if (document.body) document.body.appendChild(overlay);
+          if (document.body) appendOverlay();
         }
       });
       observer.observe(document.documentElement, {
@@ -158,12 +191,16 @@
   }
 
   function removeLockOverlay() {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
     var overlay = document.getElementById(overlayId);
     if (overlay && overlay.parentNode) {
       overlay.parentNode.removeChild(overlay);
-      document.documentElement.style.overflow = '';
-      document.body.style.overflow = '';
     }
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
   }
 
   // ── Verification / Heartbeat Request ────────────────────────────────────────
@@ -207,7 +244,6 @@
               if (callback) callback(false, state);
             }
           } catch {
-            // JSON parse error — trust cache within grace period
             handleNetworkFail();
           }
         } else if (xhr.status === 403 || xhr.status === 401) {
@@ -219,7 +255,6 @@
           }
           if (callback) callback(false, state);
         } else {
-          // Network / server temporary issue -> fallback to cache
           handleNetworkFail();
         }
       }
@@ -259,12 +294,12 @@
 
   // ── Auto Initialization ───────────────────────────────────────────────────
   function init() {
-    // If cached status was already suspended, lock immediately before request
+    // If cached status was already suspended, show lock immediately to prevent flash
     if (state.valid === false || state.status === 'SUSPENDED' || state.status === 'TAMPERED') {
       createLockOverlay(state.status);
     }
 
-    // Run active heartbeat check
+    // Run active heartbeat check (will remove overlay if status in DB is ACTIVE!)
     checkLicense();
 
     // Periodic heartbeat
@@ -272,7 +307,7 @@
 
     // Re-check when user switches back to the tab
     window.addEventListener('focus', function () {
-      if (Date.now() - state.lastCheck > 60 * 1000) {
+      if (Date.now() - state.lastCheck > 5 * 1000) {
         checkLicense();
       }
     });
@@ -307,6 +342,9 @@
     unlock: function () {
       state.valid = true;
       state.status = 'ACTIVE';
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch {}
       removeLockOverlay();
     },
   };

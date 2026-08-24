@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { signLicenseToken } from '@/lib/jwt';
 import { jsonWithCors, handleOptions } from '@/lib/cors';
+import { isDomainMatch, normalizeDomain } from '@/lib/domain';
 import { NextRequest } from 'next/server';
 
 export async function OPTIONS() {
@@ -10,17 +11,15 @@ export async function OPTIONS() {
 /**
  * POST /api/license/register
  * Body: { apiKey: string, domain: string }
- *
- * Client sites call this to register themselves and receive a signed JWT.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { apiKey, domain } = body as { apiKey?: string; domain?: string };
 
-    if (!apiKey || !domain) {
+    if (!apiKey) {
       return jsonWithCors(
-        { error: 'apiKey and domain are required' },
+        { error: 'apiKey is required', valid: false },
         { status: 400 }
       );
     }
@@ -28,27 +27,27 @@ export async function POST(request: NextRequest) {
     const project = await db.project.findUnique({ where: { apiKey } });
 
     if (!project) {
-      return jsonWithCors({ error: 'Invalid API key' }, { status: 401 });
+      return jsonWithCors({ error: 'Invalid API key', valid: false }, { status: 401 });
     }
 
+    const requestDomain = domain || 'localhost';
+
     // Validate domain matches
-    const normalizedDomain = domain.trim().toLowerCase();
-    if (project.domain !== normalizedDomain) {
-      // Log tamper attempt
+    if (!isDomainMatch(project.domain, requestDomain)) {
       await db.activityLog.create({
         data: {
           projectId: project.id,
           event: 'TAMPER_ATTEMPT',
           ipAddress: request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? 'unknown',
-          metadata: { reason: 'domain_mismatch', provided: normalizedDomain, expected: project.domain },
+          metadata: { reason: 'domain_mismatch', provided: requestDomain, expected: project.domain },
         },
       });
-      return jsonWithCors({ error: 'Domain mismatch' }, { status: 403 });
+      return jsonWithCors({ error: 'Domain mismatch', valid: false, status: 'TAMPERED' }, { status: 403 });
     }
 
     if (project.status === 'SUSPENDED') {
       return jsonWithCors(
-        { error: 'License suspended', status: 'SUSPENDED' },
+        { error: 'License suspended', valid: false, status: 'SUSPENDED' },
         { status: 403 }
       );
     }
@@ -61,7 +60,7 @@ export async function POST(request: NextRequest) {
         projectId: project.id,
         event: 'REGISTER',
         ipAddress: ip,
-        metadata: { domain: normalizedDomain },
+        metadata: { domain: normalizeDomain(requestDomain) },
       },
     });
 
@@ -79,6 +78,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error('[license/register]', err);
-    return jsonWithCors({ error: 'Internal server error' }, { status: 500 });
+    return jsonWithCors({ error: 'Internal server error', valid: false }, { status: 500 });
   }
 }

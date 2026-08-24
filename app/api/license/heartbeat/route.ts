@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { signLicenseToken } from '@/lib/jwt';
 import { jsonWithCors, handleOptions } from '@/lib/cors';
+import { isDomainMatch, normalizeDomain } from '@/lib/domain';
 import { NextRequest } from 'next/server';
 
 export async function OPTIONS() {
@@ -10,9 +11,6 @@ export async function OPTIONS() {
 /**
  * POST /api/license/heartbeat
  * Body: { apiKey: string, domain: string, serverIp?: string }
- *
- * Client sites call this periodically (e.g. every hour) to renew their JWT.
- * IP changes are flagged but not auto-blocked.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -23,9 +21,9 @@ export async function POST(request: NextRequest) {
       serverIp?: string;
     };
 
-    if (!apiKey || !domain) {
+    if (!apiKey) {
       return jsonWithCors(
-        { error: 'apiKey and domain are required' },
+        { error: 'apiKey is required', valid: false },
         { status: 400 }
       );
     }
@@ -33,7 +31,7 @@ export async function POST(request: NextRequest) {
     const project = await db.project.findUnique({ where: { apiKey } });
 
     if (!project) {
-      return jsonWithCors({ error: 'Invalid API key' }, { status: 401 });
+      return jsonWithCors({ error: 'Invalid API key', valid: false }, { status: 401 });
     }
 
     const ip =
@@ -41,10 +39,10 @@ export async function POST(request: NextRequest) {
       request.headers.get('x-real-ip') ??
       null;
 
-    const normalizedDomain = domain.trim().toLowerCase();
+    const requestDomain = domain || 'localhost';
 
-    // Domain tamper check
-    if (project.domain !== normalizedDomain) {
+    // Domain tamper check using smart matcher
+    if (!isDomainMatch(project.domain, requestDomain)) {
       await db.activityLog.create({
         data: {
           projectId: project.id,
@@ -52,21 +50,23 @@ export async function POST(request: NextRequest) {
           ipAddress: ip,
           metadata: {
             reason: 'domain_mismatch',
-            provided: normalizedDomain,
+            provided: requestDomain,
             expected: project.domain,
           },
         },
       });
 
-      // Auto-flag as tampered
-      await db.project.update({
-        where: { id: project.id },
-        data: { status: 'TAMPERED' },
-      });
-
-      return jsonWithCors({ error: 'Domain mismatch — tamper detected', status: 'TAMPERED' }, { status: 403 });
+      return jsonWithCors(
+        {
+          error: 'Domain mismatch — tamper detected',
+          valid: false,
+          status: 'TAMPERED',
+        },
+        { status: 403 }
+      );
     }
 
+    // Check if project is suspended by Admin
     if (project.status === 'SUSPENDED') {
       await db.activityLog.create({
         data: {
@@ -79,8 +79,8 @@ export async function POST(request: NextRequest) {
       return jsonWithCors({ valid: false, status: 'SUSPENDED' }, { status: 403 });
     }
 
-    // Update heartbeat timestamp and optionally server IP
-    const updateData: { lastHeartbeat: Date; serverIp?: string } = {
+    // Update heartbeat timestamp and server IP
+    const updateData: { lastHeartbeat: Date; serverIp?: string; status?: 'ACTIVE' } = {
       lastHeartbeat: new Date(),
     };
     if (serverIp) updateData.serverIp = serverIp;
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         projectId: project.id,
         event: 'HEARTBEAT',
         ipAddress: ip,
-        metadata: { domain: normalizedDomain, serverIp: serverIp ?? null },
+        metadata: { domain: normalizeDomain(requestDomain), serverIp: serverIp ?? null },
       },
     });
 
@@ -115,6 +115,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (err) {
     console.error('[license/heartbeat]', err);
-    return jsonWithCors({ error: 'Internal server error' }, { status: 500 });
+    return jsonWithCors({ error: 'Internal server error', valid: false }, { status: 500 });
   }
 }
