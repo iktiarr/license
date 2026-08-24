@@ -10,6 +10,340 @@
   if (window.__LICENSE_GUARD_INITIALIZED__) return;
   window.__LICENSE_GUARD_INITIALIZED__ = true;
 
+  // ── Lottie Animation JSON (Embedded directly for 100% offline & instant load) ──
+  var LOTTIE_DATA = {
+    v: '4.8.0',
+    fr: 30,
+    ip: 0,
+    op: 230,
+    w: 500,
+    h: 500,
+    nm: 'Shake',
+    ddd: 0,
+    assets: [
+      {
+        id: 'comp_0',
+        layers: [
+          {
+            ddd: 0,
+            ind: 1,
+            ty: 4,
+            nm: 'Shape Layer 3',
+            sr: 1,
+            ks: {
+              o: { a: 0, k: 100 },
+              r: { a: 0, k: 40 },
+              p: { a: 0, k: [375, 375, 0] },
+              a: { a: 0, k: [14, 2.5, 0] },
+              s: { a: 0, k: [100, 100, 100] },
+            },
+            shapes: [
+              {
+                ty: 'gr',
+                it: [
+                  {
+                    ind: 0,
+                    ty: 'sh',
+                    ks: {
+                      a: 0,
+                      k: {
+                        i: [[0, 0], [0, 0]],
+                        o: [[0, 0], [0, 0]],
+                        v: [[14, -121], [14, 126]],
+                        c: false,
+                      },
+                    },
+                    nm: 'Path 1',
+                  },
+                  {
+                    ty: 'st',
+                    c: { a: 0, k: [1, 1, 1, 1] },
+                    o: { a: 0, k: 100 },
+                    w: { a: 0, k: 30 },
+                    lc: 2,
+                    lj: 1,
+                  },
+                  {
+                    ty: 'tr',
+                    p: { a: 0, k: [0, 0] },
+                    a: { a: 0, k: [0, 0] },
+                    s: { a: 0, k: [100, 100] },
+                    r: { a: 0, k: 0 },
+                    o: { a: 0, k: 100 },
+                  },
+                ],
+                nm: 'Shape 1',
+              },
+              {
+                ty: 'tm',
+                s: { a: 0, k: 0 },
+                e: {
+                  a: 1,
+                  k: [
+                    { i: { x: [0.261], y: [1] }, o: { x: [0.286], y: [0] }, t: 143, s: [0] },
+                    { t: 166, s: [100] },
+                  ],
+                },
+                o: { a: 0, k: 0 },
+                m: 1,
+              },
+            ],
+            ip: 143,
+            op: 260,
+            st: 22,
+          },
+          {
+            ddd: 0,
+            ind: 2,
+            ty: 4,
+            nm: 'Shape Layer 2',
+            sr: 1,
+            ks: {
+              o: { a: 0, k: 100 },
+              r: { a: 0, k: -40 },
+              p: { a: 0, k: [375, 375, 0] },
+              a: { a: 0, k: [14, 2.5, 0] },
+              s: { a: 0, k: [100, 100, 100] },
+            },
+            shapes: [
+              {
+                ty: 'gr',
+                it: [
+                  {
+                    ind: 0,
+                    ty: 'sh',
+                    ks: {
+                      a: 0,
+                      k: {
+                        i: [[0, 0], [0, 0]],
+                        o: [[0, 0], [0, 0]],
+                        v: [[14, -121], [14, 126]],
+                        c: false,
+                      },
+                    },
+                    nm: 'Path 1',
+                  },
+                  {
+                    ty: 'st',
+                    c: { a: 0, k: [1, 1, 1, 1] },
+                    o: { a: 0, k: 100 },
+                    w: { a: 0, k: 30 },
+                    lc: 2,
+                    lj: 1,
+                  },
+                  {
+                    ty: 'tr',
+                    p: { a: 0, k: [0, 0] },
+                    a: { a: 0, k: [0, 0] },
+                    s: { a: 0, k: [100, 100] },
+                    r: { a: 0, k: 0 },
+                    o: { a: 0, k: 100 },
+                  },
+                ],
+                nm: 'Shape 1',
+              },
+              {
+                ty: 'tm',
+                s: { a: 0, k: 0 },
+                e: {
+                  a: 1,
+                  k: [
+                    { i: { x: [0.261], y: [1] }, o: { x: [0.286], y: [0] }, t: 134, s: [0] },
+                    { t: 157, s: [100] },
+                  ],
+                },
+                o: { a: 0, k: 0 },
+                m: 1,
+              },
+            ],
+            ip: 134,
+            op: 260,
+            st: 13,
+          },
+          {
+            ddd: 0,
+            ind: 3,
+            ty: 4,
+            nm: 'Circle Stroke',
+            sr: 1,
+            ks: {
+              o: {
+                a: 1,
+                k: [
+                  { i: { x: [0.833], y: [0.833] }, o: { x: [0.167], y: [0.167] }, t: 0, s: [0] },
+                  { t: 7, s: [100] },
+                ],
+              },
+              r: { a: 0, k: 0 },
+              p: { a: 0, k: [375, 375, 0] },
+              a: { a: 0, k: [4, -6, 0] },
+              s: { a: 0, k: [132, 132, 100] },
+            },
+            shapes: [
+              {
+                ty: 'gr',
+                it: [
+                  { d: 1, ty: 'el', s: { a: 0, k: [306, 306] }, p: { a: 0, k: [0, 0] } },
+                  {
+                    ty: 'st',
+                    c: {
+                      a: 1,
+                      k: [
+                        { i: { x: [0.833], y: [0.833] }, o: { x: [0.167], y: [0.167] }, t: 0, s: [0, 0, 0, 1] },
+                        { i: { x: [0.833], y: [0.833] }, o: { x: [0.167], y: [0.167] }, t: 87, s: [0, 0, 0, 1] },
+                        { t: 99, s: [0.95, 0.075, 0.075, 1] },
+                      ],
+                    },
+                    o: { a: 0, k: 100 },
+                    w: { a: 0, k: 8 },
+                    lc: 2,
+                    lj: 1,
+                  },
+                  {
+                    ty: 'tr',
+                    p: { a: 0, k: [4, -6] },
+                    a: { a: 0, k: [0, 0] },
+                    s: { a: 0, k: [100, 100] },
+                    r: { a: 0, k: 0 },
+                    o: { a: 0, k: 100 },
+                  },
+                ],
+                nm: 'Ellipse 1',
+              },
+              {
+                ty: 'tm',
+                s: {
+                  a: 1,
+                  k: [
+                    { i: { x: [0.338], y: [1] }, o: { x: [0.333], y: [0] }, t: 87, s: [50] },
+                    { t: 122, s: [100] },
+                  ],
+                },
+                e: {
+                  a: 1,
+                  k: [
+                    { i: { x: [0.338], y: [1] }, o: { x: [0.333], y: [0] }, t: 87, s: [45] },
+                    { t: 122, s: [0] },
+                  ],
+                },
+                o: {
+                  a: 1,
+                  k: [
+                    { i: { x: [0.474], y: [1] }, o: { x: [0.43], y: [0] }, t: 0, s: [-170.4] },
+                    { t: 111, s: [-1250.4] },
+                  ],
+                },
+                m: 1,
+              },
+            ],
+            ip: 0,
+            op: 260,
+            st: 0,
+          },
+          {
+            ddd: 0,
+            ind: 4,
+            ty: 4,
+            nm: 'Circle Fill',
+            sr: 1,
+            ks: {
+              o: {
+                a: 1,
+                k: [
+                  { i: { x: [0.833], y: [0.833] }, o: { x: [0.167], y: [0.167] }, t: -33, s: [0] },
+                  { t: -26, s: [100] },
+                ],
+              },
+              r: { a: 0, k: 0 },
+              p: { a: 0, k: [375, 375, 0] },
+              a: { a: 0, k: [4, -6, 0] },
+              s: {
+                a: 1,
+                k: [
+                  { i: { x: [0.389, 0.389, 0.667], y: [1, 1, 1] }, o: { x: [0.333, 0.333, 0.333], y: [0, 0, 0] }, t: 121, s: [0, 0, 100] },
+                  { t: 133, s: [130.1, 130.1, 100] },
+                ],
+              },
+            },
+            shapes: [
+              {
+                ty: 'gr',
+                it: [
+                  { d: 1, ty: 'el', s: { a: 0, k: [306, 306] }, p: { a: 0, k: [0, 0] } },
+                  {
+                    ty: 'fl',
+                    c: { a: 0, k: [0.949, 0.074, 0.074, 1] },
+                    o: { a: 0, k: 100 },
+                  },
+                  {
+                    ty: 'tr',
+                    p: { a: 0, k: [4, -6] },
+                    a: { a: 0, k: [0, 0] },
+                    s: { a: 0, k: [100, 100] },
+                    r: { a: 0, k: 0 },
+                    o: { a: 0, k: 100 },
+                  },
+                ],
+                nm: 'Ellipse 1',
+              },
+            ],
+            ip: 121,
+            op: 260,
+            st: -33,
+          },
+        ],
+      },
+    ],
+    layers: [
+      {
+        ddd: 0,
+        ind: 1,
+        ty: 0,
+        nm: 'Error',
+        refId: 'comp_0',
+        sr: 1,
+        ks: {
+          o: { a: 0, k: 100 },
+          r: { a: 0, k: 0 },
+          p: { a: 0, k: [261, 250, 0] },
+          a: { a: 0, k: [375, 375, 0] },
+          s: { a: 0, k: [100, 100, 100] },
+        },
+        w: 750,
+        h: 750,
+        ip: 179,
+        op: 230,
+        st: 0,
+      },
+      {
+        ddd: 0,
+        ind: 2,
+        ty: 0,
+        nm: 'Error',
+        refId: 'comp_0',
+        sr: 1,
+        ks: {
+          o: { a: 0, k: 100 },
+          r: { a: 0, k: 0 },
+          p: {
+            a: 1,
+            k: [
+              { i: { x: 0.833, y: 0.833 }, o: { x: 0.167, y: 0.167 }, t: 171, s: [250, 250, 0] },
+              { t: 173, s: [261, 250, 0] },
+            ],
+          },
+          a: { a: 0, k: [375, 375, 0] },
+          s: { a: 0, k: [100, 100, 100] },
+        },
+        w: 750,
+        h: 750,
+        ip: 0,
+        op: 179,
+        st: 0,
+      },
+    ],
+  };
+
   // ── Find Script Configuration ──────────────────────────────────────────────
   var currentScript =
     document.currentScript ||
@@ -96,24 +430,37 @@
     }
   } catch {}
 
-  // ── Load DotLottie Player Component Dynamically ────────────────────────────
-  function loadLottiePlayer() {
-    if (window.__DOTLOTTIE_SCRIPT_LOADED__) return;
-    window.__DOTLOTTIE_SCRIPT_LOADED__ = true;
-    try {
+  // ── Render Lottie Animation Directly ───────────────────────────────────────
+  function initLottieAnimation(container) {
+    if (!container) return;
+
+    function renderLottie() {
+      if (window.lottie) {
+        container.innerHTML = '';
+        window.lottie.loadAnimation({
+          container: container,
+          renderer: 'svg',
+          loop: true,
+          autoplay: true,
+          animationData: LOTTIE_DATA,
+        });
+      }
+    }
+
+    if (window.lottie) {
+      renderLottie();
+    } else {
       var s = document.createElement('script');
-      s.type = 'module';
-      s.src = 'https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs';
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js';
+      s.onload = renderLottie;
       document.head.appendChild(s);
-    } catch {}
+    }
   }
 
-  // ── UI Lock Screen (Clean Full-Page Layout with Lottie Animation) ───────────
+  // ── UI Lock Screen (Clean Full-Page Minimalist Typography) ──────────────────
   function createLockOverlay(reason) {
     var existing = document.getElementById(overlayId);
     if (existing) return;
-
-    loadLottiePlayer();
 
     if (!state.suspendedAt) {
       state.suspendedAt = Date.now();
@@ -124,7 +471,6 @@
 
     var suspendedDateFormatted = formatDateTime(state.suspendedAt);
     var pageUrl = window.location.href;
-    var lottieUrl = (ENDPOINT ? ENDPOINT.replace(/\/$/, '') : '') + '/error.lottie';
 
     var reasonText =
       reason === 'TAMPERED'
@@ -136,50 +482,59 @@
     overlay.style.cssText =
       'position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;' +
       'z-index:2147483647!important;background:#ffffff!important;display:flex!important;flex-direction:column!important;' +
-      'align-items:center!important;justify-content:center!important;padding:32px 24px!important;box-sizing:border-box!important;' +
+      'align-items:center!important;justify-content:center!important;padding:40px 24px!important;box-sizing:border-box!important;' +
       'overflow-y:auto!important;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif!important;' +
       'color:#09090b!important;';
 
     overlay.innerHTML =
-      '<div style="max-width:620px;width:100%;margin:auto;text-align:center;animation:lgFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);">' +
-      '  <div style="width:140px;height:140px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">' +
-      '    <dotlottie-player src="' +
-      lottieUrl +
-      '" background="transparent" speed="1" style="width:140px;height:140px;" loop autoplay>' +
-      '      <div style="width:72px;height:72px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:32px;">🚫</div>' +
-      '    </dotlottie-player>' +
+      '<div style="max-width:680px;width:100%;margin:auto;text-align:center;animation:lgFadeIn 0.35s cubic-bezier(0.16,1,0.3,1);">' +
+      // Lottie Animation Container
+      '  <div id="__lg_lottie_box__" style="width:130px;height:130px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">' +
+      '    <svg width="68" height="68" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+      '      <circle cx="12" cy="12" r="10"/>' +
+      '      <line x1="12" y1="8" x2="12" y2="12"/>' +
+      '      <line x1="12" y1="16" x2="12.01" y2="16"/>' +
+      '    </svg>' +
       '  </div>' +
-      '  <h1 style="margin:0 0 12px;font-size:32px;font-weight:800;letter-spacing:-0.03em;color:#09090b;line-height:1.2;">' +
+      // Large Typography Title
+      '  <h1 style="margin:0 0 14px;font-size:38px;font-weight:800;letter-spacing:-0.035em;color:#09090b;line-height:1.15;">' +
       '    halaman ditangguhkan' +
       '  </h1>' +
-      '  <p style="margin:0 auto 32px;font-size:15px;line-height:1.65;color:#71717a;max-width:520px;">' +
+      // Subtitle
+      '  <p style="margin:0 auto 36px;font-size:16px;line-height:1.65;color:#52525b;max-width:560px;">' +
       '    anda tidak dapat menggunakan halaman ini. silahkan hubungi pihak terkait untuk bisa mengakses kembali halaman ini.' +
       '  </p>' +
-      '  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:20px 24px;text-align:left;font-size:13px;line-height:1.6;margin-bottom:32px;box-shadow:0 1px 3px rgba(0,0,0,0.02);">' +
-      '    <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;display:flex;flex-direction:column;gap:4px;">' +
-      '      <span style="color:#64748b;font-size:12px;font-weight:600;">rincian :</span>' +
-      '      <span style="color:#0f172a;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:13px;font-weight:600;word-break:break-all;overflow-wrap:anywhere;line-height:1.5;">' +
+      // Information Box with Full unbroken URL & Clear Typography
+      '  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;padding:24px 28px;text-align:left;font-size:14px;line-height:1.6;margin-bottom:36px;box-shadow:0 1px 3px rgba(0,0,0,0.02);">' +
+      // Row 1: Rincian (Full unbroken link)
+      '    <div style="padding:12px 0;border-bottom:1px solid #e2e8f0;">' +
+      '      <div style="color:#64748b;font-size:13px;font-weight:600;margin-bottom:6px;">rincian :</div>' +
+      '      <div style="color:#09090b;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px;font-weight:700;word-break:break-all;overflow-wrap:anywhere;line-height:1.5;background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:10px 14px;">' +
       pageUrl +
-      '</span>' +
+      '      </div>' +
       '    </div>' +
-      '    <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-      '      <span style="color:#64748b;font-size:12px;font-weight:600;">tanggal ditangguhkan:</span>' +
-      '      <span style="color:#0f172a;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-weight:600;">' +
+      // Row 2: Tanggal ditangguhkan
+      '    <div style="padding:12px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+      '      <span style="color:#64748b;font-size:13px;font-weight:600;">tanggal ditangguhkan:</span>' +
+      '      <span style="color:#09090b;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px;font-weight:700;">' +
       suspendedDateFormatted +
       '</span>' +
       '    </div>' +
-      '    <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-      '      <span style="color:#64748b;font-size:12px;font-weight:600;">tanggal dikembalikan :</span>' +
-      '      <span style="color:#64748b;font-style:italic;font-weight:500;">Tidak ditentukan</span>' +
+      // Row 3: Tanggal dikembalikan
+      '    <div style="padding:12px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+      '      <span style="color:#64748b;font-size:13px;font-weight:600;">tanggal dikembalikan :</span>' +
+      '      <span style="color:#71717a;font-style:italic;font-size:14px;font-weight:600;">Tidak ditentukan</span>' +
       '    </div>' +
-      '    <div style="padding:10px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
-      '      <span style="color:#64748b;font-size:12px;font-weight:600;">alasan :</span>' +
-      '      <span style="color:#0f172a;font-weight:600;">' +
+      // Row 4: Alasan
+      '    <div style="padding:12px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+      '      <span style="color:#64748b;font-size:13px;font-weight:600;">alasan :</span>' +
+      '      <span style="color:#09090b;font-size:14px;font-weight:700;">' +
       reasonText +
       '</span>' +
       '    </div>' +
       '  </div>' +
-      '  <div style="font-size:12px;color:#94a3b8;display:flex;align-items:center;justify-content:center;gap:6px;">' +
+      // Minimal Footer
+      '  <div style="font-size:12px;color:#a1a1aa;display:flex;align-items:center;justify-content:center;gap:6px;">' +
       '    <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;"></span>' +
       '    <span>Protected by Centralized License Guard</span>' +
       '  </div>' +
@@ -192,10 +547,14 @@
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
 
-    // Append to document
+    // Append to document and start Lottie animation
     function appendOverlay() {
       if (document.body && !document.getElementById(overlayId)) {
         document.body.appendChild(overlay);
+        var lottieBox = document.getElementById('__lg_lottie_box__');
+        if (lottieBox) {
+          initLottieAnimation(lottieBox);
+        }
       }
     }
 
