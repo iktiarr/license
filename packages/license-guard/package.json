@@ -1,0 +1,40 @@
+{
+  "name": "@masdannn/license-guard",
+  "version": "1.0.0",
+  "description": "Centralized Remote License Guard Client SDK & CLI Pairing Tool",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "license-guard": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "license",
+    "killswitch",
+    "guard",
+    "security",
+    "client-sdk",
+    "anti-tamper"
+  ],
+  "author": "Iktiar Ramadani",
+  "license": "MIT",
+  "dependencies": {
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.0",
+    "@types/node": "^22.13.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
