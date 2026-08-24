@@ -108,7 +108,7 @@
     } catch {}
   }
 
-  // ── UI Lock Screen (Light Glassmorphism Modern Screen) ─────────────────────
+  // ── UI Lock Screen (Clean Full-Page Layout with Lottie Animation) ───────────
   function createLockOverlay(reason) {
     var existing = document.getElementById(overlayId);
     if (existing) return;
@@ -135,64 +135,57 @@
     overlay.id = overlayId;
     overlay.style.cssText =
       'position:fixed!important;top:0!important;left:0!important;width:100vw!important;height:100vh!important;' +
-      'z-index:2147483647!important;background:rgba(241,245,249,0.85)!important;backdrop-filter:blur(24px)!important;' +
-      '-webkit-backdrop-filter:blur(24px)!important;display:flex!important;align-items:center!important;' +
-      'justify-content:center!important;padding:20px!important;box-sizing:border-box!important;' +
-      'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif!important;color:#0f172a!important;';
+      'z-index:2147483647!important;background:#ffffff!important;display:flex!important;flex-direction:column!important;' +
+      'align-items:center!important;justify-content:center!important;padding:32px 24px!important;box-sizing:border-box!important;' +
+      'overflow-y:auto!important;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif!important;' +
+      'color:#09090b!important;';
 
     overlay.innerHTML =
-      '<div style="max-width:480px;width:100%;background:rgba(255,255,255,0.94);border:1px solid rgba(226,232,240,0.9);border-radius:24px;padding:36px 30px;text-align:center;box-shadow:0 20px 45px -12px rgba(15,23,42,0.12), 0 0 1px 1px rgba(15,23,42,0.05);animation:lgFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">' +
-      '  <div style="width:100px;height:100px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;">' +
+      '<div style="max-width:620px;width:100%;margin:auto;text-align:center;animation:lgFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);">' +
+      '  <div style="width:140px;height:140px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;">' +
       '    <dotlottie-player src="' +
       lottieUrl +
-      '" background="transparent" speed="1" style="width:100px;height:100px;" loop autoplay>' +
-      '      <div style="width:64px;height:64px;border-radius:20px;background:#fee2e2;display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:28px;">🚫</div>' +
+      '" background="transparent" speed="1" style="width:140px;height:140px;" loop autoplay>' +
+      '      <div style="width:72px;height:72px;border-radius:50%;background:#fee2e2;display:flex;align-items:center;justify-content:center;color:#ef4444;font-size:32px;">🚫</div>' +
       '    </dotlottie-player>' +
       '  </div>' +
-      '  <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-0.02em;line-height:1.3;">' +
+      '  <h1 style="margin:0 0 12px;font-size:32px;font-weight:800;letter-spacing:-0.03em;color:#09090b;line-height:1.2;">' +
       '    halaman ditangguhkan' +
       '  </h1>' +
-      '  <p style="margin:0 0 20px;font-size:13px;line-height:1.6;color:#64748b;">' +
+      '  <p style="margin:0 auto 32px;font-size:15px;line-height:1.65;color:#71717a;max-width:520px;">' +
       '    anda tidak dapat menggunakan halaman ini. silahkan hubungi pihak terkait untuk bisa mengakses kembali halaman ini.' +
       '  </p>' +
-      '  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:16px;margin-bottom:20px;text-align:left;font-size:12px;box-shadow:inset 0 1px 2px rgba(0,0,0,0.02);">' +
-      '    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf2f7;">' +
-      '      <span style="color:#64748b;font-weight:500;">rincian</span>' +
-      '      <span style="color:#0f172a;font-family:monospace;font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' +
-      pageUrl +
-      '">' +
+      '  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:18px;padding:20px 24px;text-align:left;font-size:13px;line-height:1.6;margin-bottom:32px;box-shadow:0 1px 3px rgba(0,0,0,0.02);">' +
+      '    <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;display:flex;flex-direction:column;gap:4px;">' +
+      '      <span style="color:#64748b;font-size:12px;font-weight:600;">rincian :</span>' +
+      '      <span style="color:#0f172a;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:13px;font-weight:600;word-break:break-all;overflow-wrap:anywhere;line-height:1.5;">' +
       pageUrl +
       '</span>' +
       '    </div>' +
-      '    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf2f7;">' +
-      '      <span style="color:#64748b;font-weight:500;">tanggal ditangguhkan</span>' +
-      '      <span style="color:#0f172a;font-family:monospace;font-weight:600;">' +
+      '    <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+      '      <span style="color:#64748b;font-size:12px;font-weight:600;">tanggal ditangguhkan:</span>' +
+      '      <span style="color:#0f172a;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-weight:600;">' +
       suspendedDateFormatted +
       '</span>' +
       '    </div>' +
-      '    <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #edf2f7;">' +
-      '      <span style="color:#64748b;font-weight:500;">tanggal dikembalikan</span>' +
-      '      <span style="color:#64748b;font-style:italic;">Tidak ditentukan</span>' +
+      '    <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+      '      <span style="color:#64748b;font-size:12px;font-weight:600;">tanggal dikembalikan :</span>' +
+      '      <span style="color:#64748b;font-style:italic;font-weight:500;">Tidak ditentukan</span>' +
       '    </div>' +
-      '    <div style="display:flex;justify-content:space-between;padding:5px 0;">' +
-      '      <span style="color:#64748b;font-weight:500;">alasan</span>' +
+      '    <div style="padding:10px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
+      '      <span style="color:#64748b;font-size:12px;font-weight:600;">alasan :</span>' +
       '      <span style="color:#0f172a;font-weight:600;">' +
       reasonText +
       '</span>' +
       '    </div>' +
       '  </div>' +
-      '  <button id="__lg_recheck_btn__" style="width:100%;padding:12px 16px;background:#0f172a;color:#ffffff;font-weight:600;font-size:13px;border:none;border-radius:12px;cursor:pointer;transition:all 0.2s ease;margin-bottom:16px;box-shadow:0 4px 12px rgba(15,23,42,0.15);">' +
-      '    🔄 Periksa Status Akses' +
-      '  </button>' +
-      '  <div style="font-size:11px;color:#94a3b8;display:flex;align-items:center;justify-content:center;gap:6px;">' +
+      '  <div style="font-size:12px;color:#94a3b8;display:flex;align-items:center;justify-content:center;gap:6px;">' +
       '    <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;"></span>' +
       '    <span>Protected by Centralized License Guard</span>' +
       '  </div>' +
       '</div>' +
       '<style>' +
-      '@keyframes lgFadeIn{from{opacity:0;transform:scale(0.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}' +
-      '#__lg_recheck_btn__:hover{background:#1e293b;transform:translateY(-1px);}' +
-      '#__lg_recheck_btn__:active{transform:translateY(0);}' +
+      '@keyframes lgFadeIn{from{opacity:0;transform:scale(0.97) translateY(12px)}to{opacity:1;transform:scale(1) translateY(0)}}' +
       '</style>';
 
     // Prevent body scrolling
@@ -203,20 +196,6 @@
     function appendOverlay() {
       if (document.body && !document.getElementById(overlayId)) {
         document.body.appendChild(overlay);
-        var btn = document.getElementById('__lg_recheck_btn__');
-        if (btn) {
-          btn.onclick = function () {
-            btn.innerText = 'Memeriksa...';
-            checkLicense(function (valid) {
-              if (!valid) {
-                btn.innerText = 'Masih Ditangguhkan (Coba Lagi)';
-                setTimeout(function () {
-                  btn.innerText = '🔄 Periksa Status Akses';
-                }, 2000);
-              }
-            });
-          };
-        }
       }
     }
 
@@ -226,13 +205,13 @@
       document.addEventListener('DOMContentLoaded', appendOverlay);
     }
 
-    // Auto-polling every 5 seconds to unlock instantly when activated in Dashboard
+    // Auto-polling every 4 seconds to unlock instantly when activated in Dashboard
     if (!pollTimer) {
       pollTimer = setInterval(function () {
         if (state.status !== 'ACTIVE') {
           checkLicense();
         }
-      }, 5000);
+      }, 4000);
     }
 
     // Anti-Tamper: MutationObserver to re-inject overlay if removed from DevTools
