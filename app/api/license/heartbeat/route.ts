@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { signLicenseToken } from '@/lib/jwt';
 import { jsonWithCors, handleOptions } from '@/lib/cors';
-import { isDomainMatch, normalizeDomain } from '@/lib/domain';
+import { isDomainMatch } from '@/lib/domain';
 import { NextRequest } from 'next/server';
 
 export async function OPTIONS() {
@@ -11,6 +11,9 @@ export async function OPTIONS() {
 /**
  * POST /api/license/heartbeat
  * Body: { apiKey: string, domain: string, serverIp?: string }
+ *
+ * Catatan: Heartbeat rutin HANYA memperbarui lastHeartbeat di data Project
+ * dan TIDAK dicatat ke ActivityLog agar database tidak penuh.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -43,6 +46,7 @@ export async function POST(request: NextRequest) {
 
     // Domain tamper check using smart matcher
     if (!isDomainMatch(project.domain, requestDomain)) {
+      // Catat log HANYA jika terjadi percobaan pembajakan / domain tidak sah
       await db.activityLog.create({
         data: {
           projectId: project.id,
@@ -66,20 +70,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if project is suspended by Admin
+    // Check if project is suspended by Admin (tanpa insert log rutin)
     if (project.status === 'SUSPENDED') {
-      await db.activityLog.create({
-        data: {
-          projectId: project.id,
-          event: 'HEARTBEAT',
-          ipAddress: ip,
-          metadata: { blocked: true, status: 'SUSPENDED' },
-        },
-      });
       return jsonWithCors({ valid: false, status: 'SUSPENDED' }, { status: 403 });
     }
 
-    // Update heartbeat timestamp and server IP
+    // Update heartbeat timestamp & server IP pada data Project
     const updateData: { lastHeartbeat: Date; serverIp?: string; status?: 'ACTIVE' } = {
       lastHeartbeat: new Date(),
     };
@@ -90,15 +86,7 @@ export async function POST(request: NextRequest) {
       data: updateData,
     });
 
-    await db.activityLog.create({
-      data: {
-        projectId: project.id,
-        event: 'HEARTBEAT',
-        ipAddress: ip,
-        metadata: { domain: normalizeDomain(requestDomain), serverIp: serverIp ?? null },
-      },
-    });
-
+    // Generate fresh token
     const token = await signLicenseToken(
       {
         projectId: project.id,
@@ -112,6 +100,7 @@ export async function POST(request: NextRequest) {
       valid: true,
       status: project.status,
       token,
+      gracePeriod: project.gracePeriod,
     });
   } catch (err) {
     console.error('[license/heartbeat]', err);

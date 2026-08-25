@@ -2,12 +2,7 @@
 
 import { signIn } from 'next-auth/react';
 import { useState, useTransition } from 'react';
-import { Shield, Eye, EyeOff, AlertCircle, Lock, Mail, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Field, FieldLabel } from '@/components/ui/field';
+import { Terminal, Eye, EyeOff, ShieldAlert, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +24,7 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError('Email atau password tidak valid. Silakan coba lagi.');
+        setError('ACCESS DENIED: Invalid credentials');
       } else {
         const urlParams = new URLSearchParams(window.location.search);
         const callbackUrl = urlParams.get('callbackUrl') || '/';
@@ -39,111 +34,104 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex items-center justify-center p-6 select-none relative overflow-hidden">
-      {/* Subtle Geometric Grid */}
+    <div className="min-h-screen bg-black text-zinc-100 flex items-center justify-center p-4 font-mono select-none relative overflow-hidden">
+      {/* Background Matrix/Grid Texture */}
       <div
         className="fixed inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage:
-            'linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)',
-          backgroundSize: '40px 40px',
+            'linear-gradient(#10b981 1px, transparent 1px), linear-gradient(90deg, #10b981 1px, transparent 1px)',
+          backgroundSize: '32px 32px',
         }}
       />
 
-      {/* Main Login Card */}
-      <div className="relative w-full max-w-sm animate-fade-in-up space-y-6">
-        {/* Brand Icon */}
-        <div className="flex justify-center">
-          <div className="w-14 h-14 rounded-2xl bg-white text-zinc-950 flex items-center justify-center shadow-xl shadow-white/5 border border-zinc-200">
-            <Shield className="w-7 h-7 fill-zinc-950" />
+      {/* Terminal Box */}
+      <div className="relative w-full max-w-sm border border-zinc-800 bg-zinc-950/90 rounded-xl shadow-2xl backdrop-blur-md overflow-hidden">
+        {/* Terminal Titlebar */}
+        <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900/90 border-b border-zinc-800/80 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
           </div>
+          <div className="flex items-center gap-1.5 text-zinc-400 text-[11px]">
+            <Terminal className="w-3 h-3 text-emerald-400" />
+            <span className="text-zinc-300 font-semibold tracking-wider">root@guard:~$ auth</span>
+          </div>
+          <span className="w-2.5 h-2.5" />
         </div>
 
-        <Card className="border-zinc-800 bg-zinc-900/90 shadow-2xl">
-          <CardHeader className="text-center pb-2">
-            <CardTitle className="text-xl font-bold tracking-tight text-white">
-              License Guard
-            </CardTitle>
-            <CardDescription className="text-xs text-zinc-400">
-              Admin Authentication Portal
-            </CardDescription>
-          </CardHeader>
+        <div className="p-6 space-y-5">
+          {/* Error Message */}
+          {error && (
+            <div className="flex items-center gap-2 p-2.5 rounded border border-rose-500/30 bg-rose-500/10 text-rose-400 text-xs animate-shake">
+              <ShieldAlert className="w-4 h-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
-          <CardContent className="pt-4 space-y-4">
-            {error && (
-              <Alert variant="destructive" className="py-2.5">
-                <AlertCircle className="w-4 h-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
+                [USER / EMAIL]
+              </label>
+              <div className="relative flex items-center bg-black border border-zinc-800 rounded-lg focus-within:border-emerald-500/80 focus-within:ring-1 focus-within:ring-emerald-500/40 transition-all">
+                <span className="pl-3 text-emerald-500 text-xs select-none">&gt;</span>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  className="w-full bg-transparent px-2.5 py-2 text-xs text-zinc-100 focus:outline-none font-mono"
+                />
+              </div>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="admin@licenseguard.dev"
-                    className="pl-9 bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-400"
-                  />
-                </div>
-              </Field>
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="block text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
+                [PASSWORD / KEY]
+              </label>
+              <div className="relative flex items-center bg-black border border-zinc-800 rounded-lg focus-within:border-emerald-500/80 focus-within:ring-1 focus-within:ring-emerald-500/40 transition-all">
+                <span className="pl-3 text-emerald-500 text-xs select-none">&gt;</span>
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  autoComplete="current-password"
+                  className="w-full bg-transparent px-2.5 py-2 pr-9 text-xs text-zinc-100 focus:outline-none font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2.5 text-zinc-500 hover:text-zinc-300 transition-colors p-1"
+                >
+                  {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+            </div>
 
-              <Field>
-                <FieldLabel htmlFor="password">Password</FieldLabel>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    placeholder="••••••••"
-                    className="pl-9 pr-9 bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-600 focus-visible:ring-zinc-400"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 transition-colors p-1"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </Field>
-
-              <Button
-                id="login-submit"
-                type="submit"
-                disabled={isPending}
-                className="w-full mt-2 group"
-                variant="default"
-              >
-                {isPending ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                    </svg>
-                    Signing In...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <span>Sign In</span>
-                    <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                )}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        <p className="text-center text-[11px] text-zinc-600 font-mono">
-          Centralized License Guard • Desktop Admin Console
-        </p>
+            {/* Submit Button */}
+            <button
+              id="login-submit"
+              type="submit"
+              disabled={isPending}
+              className="w-full mt-3 py-2.5 px-4 bg-zinc-100 hover:bg-emerald-400 text-black font-bold text-xs uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg"
+            >
+              {isPending ? (
+                <span>[ AUTHENTICATING... ]</span>
+              ) : (
+                <>
+                  <span>[ ACCESS SYSTEM ]</span>
+                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+                </>
+              )}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

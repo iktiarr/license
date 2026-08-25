@@ -13,6 +13,12 @@ enum ProjectStatus {
   TAMPERED
 }
 
+enum PairingStatus {
+  PENDING
+  CLAIMED
+  EXPIRED
+}
+
 model Project {
   id            String        @id @default(cuid())
   apiKey        String        @unique @default(uuid())
@@ -33,10 +39,24 @@ model ActivityLog {
   id        String   @id @default(cuid())
   projectId String
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  event     String   // "REGISTER", "HEARTBEAT", "SUSPENDED", "ACTIVATED", "TAMPER_ATTEMPT"
+  event     String   // "REGISTER", "SUSPENDED", "ACTIVATED", "TAMPER_ATTEMPT"
   ipAddress String?
   metadata  Json?
   createdAt DateTime @default(now())
 
   @@map("activity_logs")
+}
+
+model PairingSession {
+  id        String        @id @default(cuid())
+  code      String        @unique // e.g. LG-8492-XK91
+  status    PairingStatus @default(PENDING)
+  domain    String?
+  apiKey    String?
+  projectId String?
+  createdAt DateTime      @default(now())
+  expiresAt DateTime
+
+  @@index([code])
+  @@map("pairing_sessions")
 }
