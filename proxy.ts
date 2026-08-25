@@ -9,10 +9,14 @@ export const proxy = auth((req) => {
   const isAuthPage = nextUrl.pathname.startsWith('/login');
   const isApiAuth = nextUrl.pathname.startsWith('/api/auth');
   const isLicenseApi = nextUrl.pathname.startsWith('/api/license');
+  const isPairingApi = nextUrl.pathname.startsWith('/api/pairing');
   const isGuardJs = nextUrl.pathname === '/guard.js';
+  const isErrorLottie = nextUrl.pathname === '/error.lottie';
 
-  // Always allow auth API, license API, and guard.js (public endpoints)
-  if (isApiAuth || isLicenseApi || isGuardJs) return NextResponse.next();
+  // Always allow auth API, license API, pairing API, and static assets (public endpoints)
+  if (isApiAuth || isLicenseApi || isPairingApi || isGuardJs || isErrorLottie) {
+    return NextResponse.next();
+  }
 
   // Redirect authenticated users away from login
   if (isAuthPage) {
@@ -36,6 +40,6 @@ export const proxy = auth((req) => {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|guard.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|guard.js|error.lottie|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

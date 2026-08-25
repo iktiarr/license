@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-#!/usr/bin/env node
-
 import p from"fs";import u from"path";import o from"picocolors";var m="https://license-tau-nine.vercel.app";async function k(){console.clear(),console.log(o.bold(o.cyan(`
   \u{1F6E1}\uFE0F  CENTRALIZED LICENSE GUARD CLI`))),console.log(o.dim("  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500")),console.log(o.dim(`  Alat penghubung otomatis instance klien dengan Control Hub
 `));let l=process.env.LICENSE_GUARD_SERVER||m;console.log(o.yellow("  \u23F3 Menghubungi Control Hub untuk meminta Pairing Code..."));try{let n=await fetch(`${l}/api/pairing/request`,{method:"POST",headers:{"Content-Type":"application/json"}}),a=await n.json();(!n.ok||!a.success)&&(console.error(o.red(`
