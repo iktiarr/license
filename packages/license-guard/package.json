@@ -1,6 +1,6 @@
 {
   "name": "@masdannn/license-guard",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Centralized Remote License Guard Client SDK & CLI Pairing Tool",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
