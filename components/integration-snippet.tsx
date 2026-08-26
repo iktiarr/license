@@ -1,9 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Copy, Code2, Sparkles, FileCode2, Globe, Server, Layers } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Check, Copy, Code2, Globe, Server, Terminal } from 'lucide-react';
 
 type Props = {
   apiKey: string;
@@ -19,180 +17,46 @@ export default function IntegrationSnippet({ apiKey, domain, serverUrl }: Props)
   const origin =
     typeof window !== 'undefined'
       ? window.location.origin
-      : serverUrl || 'http://localhost:3000';
+      : serverUrl || 'https://license-tau-nine.vercel.app';
 
-  const frontendSnippets: Record<string, { name: string; icon: typeof Globe; desc: string; code: string; lang: string }> = {
+  const frontendSnippets: Record<string, { name: string; desc: string; code: string }> = {
     html: {
-      name: 'HTML Native (1-Baris Tag Script)',
-      icon: Globe,
-      desc: 'Cukup tempelkan 1 baris ini di dalam tag <head> atau <body> pada website HTML biasa, PHP template, WordPress, atau Webflow Anda.',
-      code: `<!-- Centralized License Guard (Universal Client SDK) -->\n<script src="${origin}/guard.js" data-api-key="${apiKey}"></script>`,
-      lang: 'html',
+      name: 'HTML / WordPress',
+      desc: 'Tempelkan 1 baris ini di dalam tag <head> atau <body> pada file HTML, WordPress, atau template web Anda.',
+      code: `<!-- Centralized License Guard (Client SDK) -->\n<script src="${origin}/guard.js" data-api-key="${apiKey}"></script>`,
     },
     spa: {
-      name: 'React / Vue / Next.js / SPA',
-      icon: Layers,
-      desc: 'Integrasi client-side programmatic menggunakan script helper dan event listener.',
-      code: `// Pasang di _app.tsx / layout.tsx / index.html
-import useEffect from 'react';
-
-export function LicenseGuardProvider({ children }) {
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = '${origin}/guard.js';
-    script.setAttribute('data-api-key', '${apiKey}');
-    document.head.appendChild(script);
-
-    window.onLicenseSuspended = (status) => {
-      console.warn('License suspended:', status);
-    };
-  }, []);
-
-  return <>{children}</>;
-}`,
-      lang: 'javascript',
+      name: 'React / Next.js / Vue',
+      desc: 'Gunakan NPM package untuk proteksi otomatis atau inisialisasi di root component.',
+      code: `// Jalankan di terminal:\n// $ npm install @masdannn/license-guard\n\n// Di root layout / _app.tsx:\nimport { initGuard } from '@masdannn/license-guard';\n\ninitGuard({\n  apiKey: '${apiKey}',\n  endpoint: '${origin}',\n});`,
     },
   };
 
-  const backendSnippets: Record<string, { name: string; icon: typeof Server; desc: string; code: string; lang: string }> = {
+  const backendSnippets: Record<string, { name: string; desc: string; code: string }> = {
     php: {
-      name: 'PHP (Native / Laravel / CI)',
-      icon: FileCode2,
-      desc: 'Tempelkan di file index.php atau middleware backend PHP Anda untuk memverifikasi lisensi di tingkat server.',
-      code: `<?php
-function verifyLicenseGuard() {
-    $apiKey = "${apiKey}";
-    $domain = "${domain}";
-    $endpoint = "${origin}/api/license/heartbeat";
-
-    $ch = curl_init($endpoint);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
-        'apiKey' => $apiKey,
-        'domain' => $domain
-    ]));
-    curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-
-    $response = curl_exec($ch);
-    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
-
-    $data = json_decode($response, true);
-    if ($httpCode !== 200 || empty($data['valid']) || $data['status'] !== 'ACTIVE') {
-        http_response_code(403);
-        die("<h1>403 Forbidden - License Suspended</h1><p>Contact administrator to reactivate.</p>");
-    }
-}
-verifyLicenseGuard();
-?>`,
-      lang: 'php',
+      name: 'PHP / Laravel',
+      desc: 'Letakkan di awal file index.php atau middleware backend PHP Anda.',
+      code: `<?php\n// Verifikasi Lisensi via Central License Guard\n$response = file_get_contents("${origin}/api/license/heartbeat", false,\n  stream_context_create(['http' => [\n    'method'  => 'POST',\n    'header'  => 'Content-Type: application/json',\n    'content' => json_encode([\n      'apiKey' => '${apiKey}',\n      'domain' => $_SERVER['HTTP_HOST'] ?? '${domain}'\n    ])\n  ]])\n);\n$data = json_decode($response, true);\nif (!$data['valid'] || $data['status'] !== 'ACTIVE') {\n  http_response_code(403);\n  die("<h1>403 Forbidden - Lisensi Dinonaktifkan</h1>");\n}\n?>`,
     },
     node: {
       name: 'Node.js / Express',
-      icon: Code2,
-      desc: 'Middleware Express.js untuk verifikasi lisensi sebelum request di-handle oleh route controller.',
-      code: `import express from 'express';
-
-const app = express();
-
-async function licenseGuardMiddleware(req, res, next) {
-  try {
-    const response = await fetch('${origin}/api/license/heartbeat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        apiKey: '${apiKey}',
-        domain: '${domain}',
-      }),
-    });
-
-    const data = await response.json();
-    if (!data.valid || data.status !== 'ACTIVE') {
-      return res.status(403).send('<h1>License Suspended</h1>');
-    }
-    next();
-  } catch (err) {
-    // Toleransi jika server guard sementara offline
-    next();
-  }
-}
-
-app.use(licenseGuardMiddleware);`,
-      lang: 'javascript',
+      desc: 'Middleware Express.js untuk verifikasi status lisensi secara berkala.',
+      code: `import express from 'express';\n\nconst app = express();\n\nasync function licenseGuardMiddleware(req, res, next) {\n  try {\n    const response = await fetch('${origin}/api/license/heartbeat', {\n      method: 'POST',\n      headers: { 'Content-Type': 'application/json' },\n      body: JSON.stringify({ apiKey: '${apiKey}', domain: '${domain}' }),\n    });\n    const data = await response.json();\n    if (!data.valid || data.status !== 'ACTIVE') {\n      return res.status(403).send('<h1>403 - License Suspended</h1>');\n    }\n    next();\n  } catch (err) {\n    next(); // toleransi jaringan\n  }\n}\n\napp.use(licenseGuardMiddleware);`,
     },
     python: {
-      name: 'Python (FastAPI / Django)',
-      icon: FileCode2,
-      desc: 'Middleware verifikasi lisensi untuk aplikasi server Python.',
-      code: `import requests
-from fastapi import FastAPI, HTTPException
-
-app = FastAPI()
-
-def check_license():
-    try:
-        res = requests.post(
-            "${origin}/api/license/heartbeat",
-            json={"apiKey": "${apiKey}", "domain": "${domain}"},
-            timeout=5
-        )
-        data = res.json()
-        if res.status_code != 200 or not data.get("valid") or data.get("status") != "ACTIVE":
-            raise HTTPException(status_code=403, detail="License Suspended")
-    except Exception:
-        pass # Grace period fallback
-
-@app.middleware("http")
-async def license_guard(request, call_next):
-    # Verifikasi lisensi pada startup / per interval
-    return await call_next(request)`,
-      lang: 'python',
+      name: 'Python (FastAPI/Django)',
+      desc: 'Middleware verifikasi lisensi untuk server backend Python.',
+      code: `import requests\nfrom fastapi import FastAPI, HTTPException\n\napp = FastAPI()\n\ndef verify_license():\n    try:\n        res = requests.post(\n            "${origin}/api/license/heartbeat",\n            json={"apiKey": "${apiKey}", "domain": "${domain}"},\n            timeout=5\n        )\n        data = res.json()\n        if not data.get("valid") or data.get("status") != "ACTIVE":\n            raise HTTPException(status_code=403, detail="License Suspended")\n    except Exception:\n        pass`,
     },
     go: {
       name: 'Go (Golang)',
-      icon: Code2,
-      desc: 'HTTP Middleware untuk framework Go (Gin / Chi / Fiber / Standard net/http).',
-      code: `package main
-
-import (
-    "bytes"
-    "encoding/json"
-    "net/http"
-    "time"
-)
-
-func LicenseGuardMiddleware(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        payload, _ := json.Marshal(map[string]string{
-            "apiKey": "${apiKey}",
-            "domain": "${domain}",
-        })
-        
-        client := &http.Client{Timeout: 5 * time.Second}
-        resp, err := client.Post("${origin}/api/license/heartbeat", "application/json", bytes.NewBuffer(payload))
-        
-        if err != nil || resp.StatusCode != http.StatusOK {
-            http.Error(w, "License Suspended", http.StatusForbidden)
-            return
-        }
-        next.ServeHTTP(w, r)
-    })
-}`,
-      lang: 'go',
+      desc: 'HTTP middleware untuk backend Go (Standard http / Gin / Fiber).',
+      code: `package main\n\nimport (\n\t"bytes"\n\t"encoding/json"\n\t"net/http"\n\t"time"\n)\n\nfunc LicenseMiddleware(next http.Handler) http.Handler {\n\treturn http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {\n\t\tbody, _ := json.Marshal(map[string]string{\n\t\t\t"apiKey": "${apiKey}",\n\t\t\t"domain": "${domain}",\n\t\t})\n\t\tclient := &http.Client{Timeout: 5 * time.Second}\n\t\tresp, err := client.Post("${origin}/api/license/heartbeat", "application/json", bytes.NewBuffer(body))\n\t\tif err != nil || resp.StatusCode != http.StatusOK {\n\t\t\thttp.Error(w, "License Suspended", http.StatusForbidden)\n\t\t\treturn\n\t\t}\n\t\tnext.ServeHTTP(w, r)\n\t})\n}`,
     },
     curl: {
       name: 'cURL / REST API',
-      icon: Sparkles,
-      desc: 'Endpoint standar JSON REST API yang kompatibel dengan semua bahasa pemrograman.',
-      code: `curl -X POST "${origin}/api/license/heartbeat" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "apiKey": "${apiKey}",
-    "domain": "${domain}"
-  }'`,
-      lang: 'bash',
+      desc: 'HTTP endpoint standar yang kompatibel dengan semua bahasa dan platform.',
+      code: `curl -X POST "${origin}/api/license/heartbeat" \\\n  -H "Content-Type: application/json" \\\n  -d '{"apiKey": "${apiKey}", "domain": "${domain}"}'`,
     },
   };
 
@@ -206,99 +70,96 @@ func LicenseGuardMiddleware(next http.Handler) http.Handler {
   };
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/60 shadow-lg">
-      <CardHeader className="pb-3 flex flex-row items-center justify-between">
+    <div className="border border-zinc-800 rounded bg-zinc-950 font-mono">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-zinc-800 bg-zinc-900/60">
         <div className="flex items-center gap-2">
-          <Code2 className="w-4 h-4 text-zinc-300" />
-          <CardTitle className="text-sm">Client Integration Hub</CardTitle>
+          <Code2 className="w-4 h-4 text-emerald-400" />
+          <span className="text-xs font-bold text-zinc-200 tracking-wide uppercase">
+            INTEGRATION SDK &amp; CODE SNIPPETS
+          </span>
         </div>
-        
-        {/* Main Category Switcher: Frontend vs Backend */}
-        <div className="flex items-center p-0.5 bg-zinc-950 rounded-lg border border-zinc-800">
+
+        {/* Category Switcher */}
+        <div className="flex items-center p-0.5 bg-black rounded border border-zinc-800">
           <button
             onClick={() => {
               setCategory('frontend');
               setActiveTab('html');
             }}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded transition-all cursor-pointer ${
               category === 'frontend'
-                ? 'bg-white text-zinc-950 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-zinc-800 text-emerald-400 border border-zinc-700'
+                : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
             <Globe className="w-3.5 h-3.5" />
-            <span>Frontend (Web / HTML)</span>
+            <span>Frontend / Web</span>
           </button>
           <button
             onClick={() => {
               setCategory('backend');
               setActiveTab('php');
             }}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded transition-all cursor-pointer ${
               category === 'backend'
-                ? 'bg-white text-zinc-950 shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-zinc-800 text-emerald-400 border border-zinc-700'
+                : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
             <Server className="w-3.5 h-3.5" />
-            <span>Backend (Server / API)</span>
+            <span>Backend / Server</span>
           </button>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-4 pt-1">
-        {/* Sub Language Tabs */}
-        <div className="flex flex-wrap gap-1 p-1 bg-zinc-950 rounded-lg border border-zinc-800/80">
+      <div className="p-4 space-y-4">
+        {/* Language Tabs */}
+        <div className="flex flex-wrap gap-1.5 p-1 bg-black rounded border border-zinc-800/80">
           {Object.entries(activeGroup).map(([key, item]) => {
-            const Icon = item.icon;
             const isSelected = activeTab === key;
             return (
               <button
                 key={key}
                 onClick={() => setActiveTab(key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded text-xs font-medium transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-zinc-800 text-white font-semibold shadow-sm border border-zinc-700'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+                    ? 'bg-zinc-800 text-white font-bold border border-zinc-700'
+                    : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/60'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{item.name}</span>
+                {item.name}
               </button>
             );
           })}
         </div>
 
-        {/* Description & Copy Button */}
-        <div className="flex items-center justify-between gap-3 text-xs text-zinc-400 bg-zinc-950/80 border border-zinc-800/80 rounded-lg p-3">
-          <p className="leading-relaxed text-zinc-300">{currentSnippet.desc}</p>
-          <Button
-            size="sm"
-            variant="default"
+        {/* Description + Copy */}
+        <div className="flex items-center justify-between gap-4 p-3 bg-black border border-zinc-800 rounded">
+          <p className="text-xs text-zinc-400 leading-relaxed">{currentSnippet.desc}</p>
+          <button
             onClick={handleCopy}
-            className="shrink-0 h-8 text-xs font-semibold gap-1.5"
+            className="shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold bg-zinc-100 text-black rounded hover:bg-emerald-400 transition-colors cursor-pointer"
           >
             {copied ? (
               <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Tersalin!</span>
+                <Check className="w-3.5 h-3.5 text-emerald-950" />
+                <span>COPIED!</span>
               </>
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>Salin Kode</span>
+                <span>[ COPY CODE ]</span>
               </>
             )}
-          </Button>
+          </button>
         </div>
 
         {/* Code Box */}
-        <div className="relative">
-          <pre className="font-mono text-xs leading-relaxed overflow-x-auto p-4 rounded-xl text-zinc-200 bg-zinc-950 border border-zinc-800 shadow-inner">
-            <code>{currentSnippet.code}</code>
-          </pre>
-        </div>
-      </CardContent>
-    </Card>
+        <pre className="p-4 rounded border border-zinc-800 bg-black text-xs text-emerald-400 leading-relaxed font-mono overflow-x-auto select-all">
+          <code>{currentSnippet.code}</code>
+        </pre>
+      </div>
+    </div>
   );
 }

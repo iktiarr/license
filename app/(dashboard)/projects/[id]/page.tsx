@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
-import StatusBadge from '@/components/status-badge';
 import LogTable from '@/components/log-table';
 import ProjectControls from './controls';
 import IntegrationSnippet from '@/components/integration-snippet';
@@ -16,17 +15,18 @@ import {
   Activity,
   ShieldCheck,
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
-export const metadata: Metadata = { title: 'Project Details — License Guard' };
+export const metadata: Metadata = { title: 'Project Detail — License Guard' };
 
 function formatDate(date: Date | null | undefined) {
-  if (!date) return 'Never';
+  if (!date) return '—';
   return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-  }).format(new Date(date));
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(date)).replace(',', '');
 }
 
 export default async function ProjectDetailPage({
@@ -58,49 +58,52 @@ export default async function ProjectDetailPage({
   ];
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* Top Header */}
+    <div className="font-mono space-y-6">
+      {/* ── Top Navigation & Header ── */}
       <div>
-        <Button asChild variant="ghost" size="sm" className="mb-3 text-zinc-400 hover:text-white">
-          <Link href="/projects">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            <span>Back to Projects</span>
-          </Link>
-        </Button>
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors mb-4"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>cd ../projects</span>
+        </Link>
 
-        <div className="flex items-center justify-between border-b border-zinc-800/80 pb-6">
+        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight text-white">{project.name}</h1>
-              <StatusBadge status={project.status} />
+              <span className="text-emerald-500 text-sm">$</span>
+              <h1 className="text-lg font-bold text-zinc-100 tracking-wide">
+                {project.name}
+              </h1>
+              <span className="text-xs text-zinc-500">[{project.domain}]</span>
             </div>
-            <div className="flex items-center gap-2 mt-1 text-xs text-zinc-400">
-              <Globe className="w-3.5 h-3.5" />
-              <span className="font-mono text-zinc-300">{project.domain}</span>
-            </div>
+            <p className="text-xs text-zinc-600 mt-1 pl-5">
+              // Project ID: <span className="text-zinc-400">{project.id}</span>
+            </p>
           </div>
 
           <ProjectControls project={{ id: project.id, status: project.status, name: project.name }} />
         </div>
       </div>
 
-      {/* Grid: Info + API Key + Activity */}
-      <div className="grid grid-cols-5 gap-6">
-        {/* Left 2 Cols: Project Info & API Key */}
-        <div className="col-span-2 space-y-6">
+      {/* ── Grid: Info + API Key + Activity Stream ── */}
+      <div className="grid grid-cols-5 gap-5">
+        {/* Left 2 Cols: Metadata & API Key */}
+        <div className="col-span-2 space-y-5">
           {/* Metadata Card */}
-          <Card className="border-zinc-800 bg-zinc-900/60 shadow-lg">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-zinc-400" />
-                <CardTitle className="text-sm">Instance Configuration</CardTitle>
-              </div>
-            </CardHeader>
+          <div className="border border-zinc-800 rounded bg-zinc-950">
+            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/60">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-xs font-bold text-zinc-300 tracking-wide uppercase">
+                [01] CONFIGURATION
+              </span>
+            </div>
             <div className="divide-y divide-zinc-800/60">
               {infoRows.map(({ label, value, icon: Icon, mono, link }) => (
-                <div key={label} className="p-3.5 px-4 flex items-center justify-between text-xs">
-                  <span className="text-zinc-400 flex items-center gap-2">
-                    <Icon className="w-3.5 h-3.5 text-zinc-500" />
+                <div key={label} className="p-3 px-4 flex items-center justify-between text-xs">
+                  <span className="text-zinc-500 flex items-center gap-2">
+                    <Icon className="w-3.5 h-3.5 text-zinc-600" />
                     <span>{label}</span>
                   </span>
                   {link ? (
@@ -108,61 +111,65 @@ export default async function ProjectDetailPage({
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-mono text-zinc-200 hover:text-white underline truncate max-w-[200px]"
+                      className="font-mono text-emerald-400 hover:underline truncate max-w-[200px]"
                     >
                       {value}
                     </a>
                   ) : (
-                    <span className={`text-zinc-200 ${mono ? 'font-mono' : 'font-medium'} truncate max-w-[200px]`}>
+                    <span className={`text-zinc-200 ${mono ? 'font-mono' : 'font-semibold'} truncate max-w-[200px]`}>
                       {value}
                     </span>
                   )}
                 </div>
               ))}
             </div>
-          </Card>
+          </div>
 
           {/* API Key Card */}
-          <Card className="border-zinc-800 bg-zinc-900/60 shadow-lg">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
+          <div className="border border-zinc-800 rounded bg-zinc-950">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/60">
               <div className="flex items-center gap-2">
-                <Key className="w-4 h-4 text-zinc-400" />
-                <CardTitle className="text-sm">Secret API Key</CardTitle>
+                <Key className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-xs font-bold text-zinc-300 tracking-wide uppercase">
+                  [02] SECRET API KEY
+                </span>
               </div>
-              <span className="text-[10px] uppercase tracking-wider font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
-                Confidential
+              <span className="text-[10px] text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded font-bold">
+                CONFIDENTIAL
               </span>
-            </CardHeader>
-            <CardContent className="space-y-2 pt-2">
-              <p className="text-xs text-zinc-400">
+            </div>
+            <div className="p-4 space-y-2">
+              <p className="text-xs text-zinc-500">
                 Gunakan API key ini untuk mengautentikasi website klien Anda:
               </p>
-              <div className="font-mono text-xs text-zinc-100 bg-zinc-950 p-3 rounded-lg border border-zinc-800 select-all break-all shadow-inner">
+              <div className="font-mono text-xs text-emerald-400 bg-black p-3 rounded border border-zinc-800 select-all break-all leading-relaxed">
                 {project.apiKey}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         {/* Right 3 Cols: Activity Stream */}
-        <div className="col-span-3">
-          <Card className="border-zinc-800 bg-zinc-900/60 shadow-lg h-full">
-            <CardHeader className="pb-3 flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-zinc-400" />
-                <CardTitle className="text-sm">Instance Activity Logs</CardTitle>
-              </div>
-              <span className="text-[11px] font-mono text-zinc-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800">
-                Last {project.logs.length} Events
+        <div className="col-span-3 border border-zinc-800 rounded bg-zinc-950 flex flex-col">
+          <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/60">
+            <div className="flex items-center gap-2">
+              <Activity className="w-3.5 h-3.5 text-zinc-400" />
+              <span className="text-xs font-bold text-zinc-300 tracking-wide uppercase">
+                [03] INSTANCE AUDIT STREAM
               </span>
-            </CardHeader>
+            </div>
+            <span className="text-xs text-zinc-600">
+              {project.logs.length} events
+            </span>
+          </div>
+          <div className="flex-1">
             <LogTable logs={project.logs} />
-          </Card>
+          </div>
         </div>
       </div>
 
-      {/* Multi-Language & Native HTML Code Integration Snippet */}
-      <div className="pt-2">
+      {/* ── Integration Code Snippet ── */}
+      <div>
         <IntegrationSnippet apiKey={project.apiKey} domain={project.domain} />
       </div>
     </div>
