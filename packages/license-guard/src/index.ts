@@ -28,31 +28,40 @@ const STORAGE_KEY = '_lg_guard_state';
 const OVERLAY_ID = '__license_guard_lock_overlay__';
 
 /**
- * Simple reversible cipher for client-side obfuscation
+ * Reversible obfuscation cipher for client-side credential protection
  */
+export function encodeLicensePayload(data: { apiKey: string; endpoint: string; domain?: string }): string {
+  const jsonStr = JSON.stringify(data);
+  const b64 = typeof Buffer !== 'undefined'
+    ? Buffer.from(jsonStr, 'utf-8').toString('base64')
+    : btoa(unescape(encodeURIComponent(jsonStr)));
+  const obfuscated = b64
+    .split('')
+    .map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ ((i % 5) + 1)))
+    .join('');
+  const finalB64 = typeof Buffer !== 'undefined'
+    ? Buffer.from(obfuscated, 'binary').toString('base64')
+    : btoa(obfuscated);
+  return 'LGK_' + finalB64;
+}
+
 export function decodeLicensePayload(encoded: string): { apiKey: string; endpoint: string; domain?: string } {
   try {
     const raw = encoded.startsWith('LGK_') ? encoded.slice(4) : encoded;
-    const jsonStr = decodeURIComponent(
-      atob(raw)
-        .split('')
-        .map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ ((i % 7) + 3)))
-        .join('')
-    );
+    const binStr = typeof atob === 'function'
+      ? atob(raw)
+      : Buffer.from(raw, 'base64').toString('binary');
+    const unobfuscated = binStr
+      .split('')
+      .map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ ((i % 5) + 1)))
+      .join('');
+    const jsonStr = typeof atob === 'function'
+      ? decodeURIComponent(escape(atob(unobfuscated)))
+      : Buffer.from(unobfuscated, 'base64').toString('utf-8');
     return JSON.parse(jsonStr);
   } catch {
-    // Fallback if raw key
     return { apiKey: encoded, endpoint: DEFAULT_ENDPOINT };
   }
-}
-
-export function encodeLicensePayload(data: { apiKey: string; endpoint: string; domain?: string }): string {
-  const jsonStr = JSON.stringify(data);
-  const obfuscated = jsonStr
-    .split('')
-    .map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ ((i % 7) + 3)))
-    .join('');
-  return 'LGK_' + btoa(encodeURIComponent(obfuscated));
 }
 
 // ── Overlay Renderer (Embedded directly — zero external dependency) ──
@@ -194,7 +203,7 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
   }
 
   const cleanEndpoint = endpoint.replace(/\/$/, '');
-  const heartbeatInterval = (config.interval || 300) * 1000; // 5 mins default
+  const heartbeatInterval = (config.interval || 300) * 1000;
   const targetDomain = window.location.hostname || 'localhost';
 
   let state: LicenseState = {
@@ -224,9 +233,9 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
 
     renderLockScreen(status, window.location.href, formatTime(state.suspendedAt));
 
-    // Fast polling (every 4s) while locked to auto-unlock when Admin activates in dashboard
+    // Fast polling (every 3s) while locked to auto-unlock when Admin activates in dashboard
     if (!pollTimer) {
-      pollTimer = setInterval(performHeartbeat, 4000);
+      pollTimer = setInterval(performHeartbeat, 3000);
     }
   };
 
@@ -281,7 +290,7 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
     }
   }
 
-  // If already marked suspended in local storage, lock immediately without waiting for network
+  // If already marked suspended in local storage, lock immediately
   if (!state.valid || state.status === 'SUSPENDED' || state.status === 'TAMPERED') {
     triggerLock(state.status === 'TAMPERED' ? 'TAMPERED' : 'SUSPENDED');
   }
@@ -294,7 +303,7 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
 
   // Focus re-validation
   window.addEventListener('focus', () => {
-    if (Date.now() - (state.lastCheck || 0) > 8000) {
+    if (Date.now() - (state.lastCheck || 0) > 5000) {
       performHeartbeat();
     }
   });

@@ -21,18 +21,18 @@ interface LicenseState {
     suspendedAt?: number | null;
 }
 /**
- * Simple reversible cipher for client-side obfuscation
+ * Reversible obfuscation cipher for client-side credential protection
  */
-declare function decodeLicensePayload(encoded: string): {
-    apiKey: string;
-    endpoint: string;
-    domain?: string;
-};
 declare function encodeLicensePayload(data: {
     apiKey: string;
     endpoint: string;
     domain?: string;
 }): string;
+declare function decodeLicensePayload(encoded: string): {
+    apiKey: string;
+    endpoint: string;
+    domain?: string;
+};
 declare function initGuard(config?: LicenseGuardConfig): void;
 /**
  * Server-side / Node.js Express Middleware Helper
