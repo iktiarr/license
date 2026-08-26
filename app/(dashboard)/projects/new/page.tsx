@@ -14,6 +14,7 @@ import {
   Radio,
   Globe,
   Tag,
+  PackageCheck,
 } from 'lucide-react';
 
 export default function NewProjectPage() {
@@ -25,7 +26,6 @@ export default function NewProjectPage() {
 
   const [name, setName] = useState('');
   const [domain, setDomain] = useState('');
-  const [pairingCode, setPairingCode] = useState('');
 
   const [selectedFramework, setSelectedFramework] = useState<'html' | 'react' | 'php' | 'node' | 'python' | 'go'>('html');
   const [copied, setCopied] = useState(false);
@@ -73,33 +73,6 @@ export default function NewProjectPage() {
 
   const currentSnippet = snippets[selectedFramework];
 
-  async function handleNpmPair(e: React.FormEvent) {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-    if (!name.trim() || !domain.trim() || !pairingCode.trim()) {
-      setError('Nama project, domain, dan kode pairing wajib diisi.');
-      return;
-    }
-    startTransition(async () => {
-      try {
-        const res = await fetch('/api/pairing/claim', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, domain, code: pairingCode, gracePeriod: 24 }),
-        });
-        const data = await res.json();
-        if (!res.ok || !data.success) {
-          setError(data.error || 'Gagal verifikasi kode pairing.');
-        } else {
-          setSuccessMsg(`Project "${data.project.name}" berhasil dipasangkan!`);
-          setTimeout(() => router.push(`/projects/${data.project.id}`), 1200);
-        }
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'Koneksi gagal.');
-      }
-    });
-  }
 
   async function handleHubSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -309,45 +282,45 @@ export default function NewProjectPage() {
         <div className="p-4">
 
           {method === 'npm' ? (
-            /* NPM Pairing Input */
+            /* NPM — Fully Automatic via CLI */
             <div className="space-y-4">
-              <div className="bg-black border border-zinc-800/60 rounded p-3 space-y-1.5">
-                <p className="text-[10px] text-zinc-500">// Jalankan di terminal project klien:</p>
+              {/* Step 1: Install */}
+              <div className="bg-black border border-zinc-800/60 rounded p-4 space-y-2">
+                <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-widest">// step 1 — install package</p>
+                <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2">
+                  <span className="text-emerald-500 text-xs">$</span>
+                  <code className="text-[11px] text-emerald-400">npm install @masdannn/license-guard</code>
+                </div>
+              </div>
+
+              {/* Step 2: Init */}
+              <div className="bg-black border border-zinc-800/60 rounded p-4 space-y-2">
+                <p className="text-[10px] text-zinc-500 font-semibold uppercase tracking-widest">// step 2 — jalankan setup</p>
                 <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded px-3 py-2">
                   <span className="text-emerald-500 text-xs">$</span>
                   <code className="text-[11px] text-emerald-400">npx @masdannn/license-guard init</code>
                 </div>
+                <p className="text-[10px] text-zinc-600 leading-relaxed">
+                  CLI akan menanyakan nama project &amp; domain, lalu otomatis:<br />
+                  &nbsp;&nbsp;✅ Generate API Key<br />
+                  &nbsp;&nbsp;✅ Daftar project ke Control Hub (status: ACTIVE)<br />
+                  &nbsp;&nbsp;✅ Buat file <code className="text-zinc-400">lib/license-guard.ts</code><br />
+                  &nbsp;&nbsp;✅ Inject import ke root component
+                </p>
               </div>
 
-              <div className="space-y-1.5">
-                <label htmlFor="pairing-code" className="text-[10px] text-zinc-500 uppercase tracking-widest">
-                  Kode Pairing dari Terminal *
-                </label>
-                <div className="flex items-center bg-black border border-zinc-800 rounded focus-within:border-emerald-500/60 transition-colors">
-                  <span className="pl-3 text-emerald-500 text-xs select-none">›</span>
-                  <input
-                    id="pairing-code"
-                    type="text"
-                    value={pairingCode}
-                    onChange={e => setPairingCode(e.target.value.toUpperCase())}
-                    className="w-full bg-transparent px-3 py-3 text-sm text-emerald-400 focus:outline-none font-mono tracking-[0.3em] font-bold text-center"
-                  />
-                </div>
-                <p className="text-[10px] text-zinc-600">Format: LG-XXXX-XXXX &mdash; berlaku 15 menit</p>
+              {/* Step 3: Done */}
+              <div className="flex items-center gap-3 p-3 bg-emerald-500/5 border border-emerald-500/20 rounded">
+                <PackageCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <p className="text-[11px] text-emerald-300 leading-relaxed">
+                  Setelah <code className="font-bold">npx init</code> selesai, project otomatis muncul di dashboard sebagai <span className="font-bold text-emerald-400">ACTIVE</span>.<br />
+                  Admin hanya perlu verifikasi koneksi di halaman detail project.
+                </p>
               </div>
 
-              <div className="flex items-center gap-3 pt-2 border-t border-zinc-800">
-                <button
-                  type="button"
-                  onClick={handleNpmPair}
-                  disabled={isPending || !pairingCode || !name || !domain}
-                  className="flex items-center gap-2 px-4 py-2 bg-zinc-100 text-black text-xs font-bold rounded hover:bg-emerald-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  <Radio className="w-3.5 h-3.5 animate-pulse" />
-                  {isPending ? '[ MEMASANGKAN... ]' : '[ PAIR & CONNECT ]'}
-                </button>
+              <div className="pt-2 border-t border-zinc-800">
                 <Link href="/projects" className="text-[11px] text-zinc-600 hover:text-zinc-400 transition-colors">
-                  cancel
+                  ← kembali ke projects
                 </Link>
               </div>
             </div>
