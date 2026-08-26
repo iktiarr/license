@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import {
   Terminal,
   FolderKanban,
@@ -119,15 +120,14 @@ export default function Sidebar({ session }: SidebarProps) {
         </div>
 
         {/* Sign Out */}
-        <form action="/api/auth/signout" method="POST">
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded text-xs text-zinc-600 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer tracking-wider"
-          >
-            <LogOut className="w-3 h-3" />
-            <span>exit session</span>
-          </button>
-        </form>
+        <button
+          type="button"
+          onClick={() => signOut({ callbackUrl: '/login' })}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded text-xs text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer tracking-wider font-bold"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>[ EXIT SESSION ]</span>
+        </button>
       </div>
     </aside>
   );

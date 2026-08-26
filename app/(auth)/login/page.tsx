@@ -98,7 +98,7 @@ function LoginForm() {
                 name="identifier"
                 type="text"
                 required
-                placeholder="masdannn / admin@dev.com"
+                placeholder="username / email@example.com"
                 autoComplete="username"
                 className="w-full bg-transparent px-2.5 py-2 text-xs text-zinc-100 focus:outline-none font-mono placeholder:text-zinc-700"
               />

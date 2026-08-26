@@ -138,7 +138,7 @@ export default function RegisterPage() {
                   name="username"
                   type="text"
                   required
-                  placeholder="masdannn"
+                  placeholder="developer_name"
                   autoComplete="username"
                   className="w-full bg-transparent px-2.5 py-2 text-xs text-zinc-100 focus:outline-none font-mono placeholder:text-zinc-700"
                 />
@@ -158,7 +158,7 @@ export default function RegisterPage() {
                   name="email"
                   type="email"
                   required
-                  placeholder="developer@domain.com"
+                  placeholder="developer@example.com"
                   autoComplete="email"
                   className="w-full bg-transparent px-2.5 py-2 text-xs text-zinc-100 focus:outline-none font-mono placeholder:text-zinc-700"
                 />
