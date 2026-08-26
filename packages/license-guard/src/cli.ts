@@ -8,9 +8,6 @@ import crypto from 'crypto';
 
 const DEFAULT_ENDPOINT = 'https://license-tau-nine.vercel.app';
 
-// ─────────────────────────────────────────────────────────
-// Helpers
-// ─────────────────────────────────────────────────────────
 type Framework = 'nextjs' | 'react' | 'vue' | 'unknown';
 
 function detectFramework(cwd: string): Framework {
@@ -30,19 +27,27 @@ function generateApiKey(): string {
   return 'LG-' + crypto.randomBytes(24).toString('hex');
 }
 
-function prompt(question: string): Promise<string> {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  return new Promise(resolve => {
-    rl.question(question, answer => {
-      rl.close();
-      resolve(answer.trim());
-    });
+function createPromptHelper() {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
   });
+
+  const ask = (query: string): Promise<string> => {
+    return new Promise(resolve => {
+      rl.question(query, answer => {
+        resolve(answer.trim());
+      });
+    });
+  };
+
+  const close = () => {
+    rl.close();
+  };
+
+  return { ask, close };
 }
 
-// ─────────────────────────────────────────────────────────
-// Auto-Setup: Create lib/license-guard.ts + inject import
-// ─────────────────────────────────────────────────────────
 function setupFrameworkFiles(cwd: string, framework: Framework, apiKey: string, endpoint: string): string[] {
   const lines: string[] = [];
 
@@ -58,12 +63,11 @@ if (typeof window !== 'undefined') {
 `;
 
   if (framework === 'nextjs') {
-    let libDir = path.join(cwd, 'lib');
+    const libDir = path.join(cwd, 'lib');
     if (!fs.existsSync(libDir)) fs.mkdirSync(libDir, { recursive: true });
     fs.writeFileSync(path.join(libDir, 'license-guard.ts'), libContent, 'utf-8');
-    lines.push(`  ${pc.green('✅')} Dibuat: ${pc.bold('lib/license-guard.ts')}`);
+    lines.push(`  ${pc.green('✓')} Dibuat: ${pc.bold('lib/license-guard.ts')}`);
 
-    // Inject ke app/layout.tsx atau pages/_app.tsx
     const candidates = [
       { file: path.join(cwd, 'app', 'layout.tsx'), importLine: "import '@/lib/license-guard';" },
       { file: path.join(cwd, 'app', 'layout.jsx'), importLine: "import '@/lib/license-guard';" },
@@ -76,24 +80,23 @@ if (typeof window !== 'undefined') {
         const content = fs.readFileSync(file, 'utf-8');
         if (!content.includes('license-guard')) {
           fs.writeFileSync(file, importLine + '\n' + content, 'utf-8');
-          lines.push(`  ${pc.green('✅')} Import ditambahkan ke: ${pc.bold(path.relative(cwd, file).replace(/\\/g, '/'))}`);
+          lines.push(`  ${pc.green('✓')} Import ditambahkan ke: ${pc.bold(path.relative(cwd, file).replace(/\\/g, '/'))}`);
         } else {
-          lines.push(`  ${pc.yellow('⚠️')}  ${pc.bold(path.relative(cwd, file).replace(/\\/g, '/'))} sudah ada import (dilewati)`);
+          lines.push(`  ${pc.dim('·')} Import sudah ada di: ${pc.dim(path.relative(cwd, file).replace(/\\/g, '/'))}`);
         }
         injected = true;
         break;
       }
     }
     if (!injected) {
-      lines.push(`  ${pc.yellow('⚠️')}  Tambahkan manual di root component:`);
-      lines.push(`     ${pc.cyan("import '@/lib/license-guard';")}`);
+      lines.push(`  ${pc.yellow('!')} Tambahkan manual di root component: ${pc.cyan("import '@/lib/license-guard';")}`);
     }
 
   } else if (framework === 'react' || framework === 'vue') {
-    let libDir = path.join(cwd, 'src', 'lib');
+    const libDir = path.join(cwd, 'src', 'lib');
     if (!fs.existsSync(libDir)) fs.mkdirSync(libDir, { recursive: true });
     fs.writeFileSync(path.join(libDir, 'license-guard.ts'), libContent, 'utf-8');
-    lines.push(`  ${pc.green('✅')} Dibuat: ${pc.bold('src/lib/license-guard.ts')}`);
+    lines.push(`  ${pc.green('✓')} Dibuat: ${pc.bold('src/lib/license-guard.ts')}`);
 
     const candidates = framework === 'react'
       ? [path.join(cwd, 'src', 'main.tsx'), path.join(cwd, 'src', 'main.jsx'), path.join(cwd, 'src', 'App.tsx')]
@@ -106,22 +109,20 @@ if (typeof window !== 'undefined') {
         const content = fs.readFileSync(file, 'utf-8');
         if (!content.includes('license-guard')) {
           fs.writeFileSync(file, importLine + '\n' + content, 'utf-8');
-          lines.push(`  ${pc.green('✅')} Import ditambahkan ke: ${pc.bold(path.relative(cwd, file).replace(/\\/g, '/'))}`);
+          lines.push(`  ${pc.green('✓')} Import ditambahkan ke: ${pc.bold(path.relative(cwd, file).replace(/\\/g, '/'))}`);
         } else {
-          lines.push(`  ${pc.yellow('⚠️')}  ${pc.bold(path.relative(cwd, file).replace(/\\/g, '/'))} sudah ada import (dilewati)`);
+          lines.push(`  ${pc.dim('·')} Import sudah ada di: ${pc.dim(path.relative(cwd, file).replace(/\\/g, '/'))}`);
         }
         injected = true;
         break;
       }
     }
     if (!injected) {
-      lines.push(`  ${pc.yellow('⚠️')}  Tambahkan manual di ${pc.bold('src/main.ts')}:`);
-      lines.push(`     ${pc.cyan(importLine)}`);
+      lines.push(`  ${pc.yellow('!')} Tambahkan manual di ${pc.bold('src/main.ts')}: ${pc.cyan(importLine)}`);
     }
 
   } else {
-    lines.push(`  ${pc.yellow('⚠️')}  Framework tidak terdeteksi.`);
-    lines.push(`  Tambahkan manual di root aplikasi Anda:`);
+    lines.push(`  ${pc.yellow('!')} Tambahkan manual di root aplikasi:`);
     lines.push(`     ${pc.cyan(`import { initGuard } from '@masdannn/license-guard';`)}`);
     lines.push(`     ${pc.cyan(`initGuard({ apiKey: '${apiKey}' });`)}`);
   }
@@ -129,9 +130,6 @@ if (typeof window !== 'undefined') {
   return lines;
 }
 
-// ─────────────────────────────────────────────────────────
-// Main CLI
-// ─────────────────────────────────────────────────────────
 async function main() {
   const cwd = process.cwd();
   const endpoint = process.env.LICENSE_GUARD_SERVER || DEFAULT_ENDPOINT;
@@ -141,47 +139,57 @@ async function main() {
     nextjs: 'Next.js',
     react: 'React',
     vue: 'Vue',
-    unknown: 'Unknown',
+    unknown: 'Generic / Other',
   };
 
-  console.clear();
-  console.log(pc.bold(pc.green('\n  🛡️  LICENSE GUARD — SETUP')));
+  console.log(pc.bold(pc.green('\n  🛡️  LICENSE GUARD SETUP')));
   console.log(pc.dim('  ────────────────────────────────────────────────────────'));
   console.log(`  Framework : ${pc.cyan(frameworkLabel[framework])}`);
   console.log(`  Directory : ${pc.dim(cwd)}\n`);
 
-  // ── Cek apakah sudah pernah di-setup ──
-  const configPath = path.join(cwd, '.licenseguard.json');
-  if (fs.existsSync(configPath)) {
-    try {
-      const existing = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-      console.log(pc.yellow(`  ⚠️  Project sudah terdaftar sebelumnya:`));
-      console.log(`     Project ID : ${pc.bold(existing.projectId)}`);
-      console.log(`     Domain     : ${pc.bold(existing.domain)}`);
-      console.log(`     API Key    : ${pc.dim(existing.apiKey)}\n`);
-      const overwrite = await prompt(pc.yellow('  Ingin daftarkan ulang? (y/N): '));
-      if (overwrite.toLowerCase() !== 'y') {
-        console.log(pc.dim('\n  Setup dibatalkan.\n'));
-        process.exit(0);
-      }
-      console.log('');
-    } catch { /* lanjut */ }
-  }
-
-  // ── Input nama project & domain ──
-  const name = await prompt(pc.white('  Nama project  : '));
-  if (!name) { console.error(pc.red('  ❌ Nama project tidak boleh kosong.')); process.exit(1); }
-
-  const domain = await prompt(pc.white('  Domain website: '));
-  if (!domain) { console.error(pc.red('  ❌ Domain tidak boleh kosong.')); process.exit(1); }
-
-  console.log(pc.dim('\n  ────────────────────────────────────────────────────────'));
-  console.log(pc.yellow('  ⏳ Mendaftarkan project ke Control Hub...'));
-
-  // ── Generate API Key di sisi klien ──
-  const apiKey = generateApiKey();
+  const prompter = createPromptHelper();
 
   try {
+    const configPath = path.join(cwd, '.licenseguard.json');
+    if (fs.existsSync(configPath)) {
+      try {
+        const existing = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+        console.log(pc.yellow(`  ⚠️  Project sudah pernah di-setup:`));
+        console.log(`     Project : ${pc.bold(existing.name || existing.projectId)}`);
+        console.log(`     Domain  : ${pc.bold(existing.domain)}\n`);
+        const overwrite = await prompter.ask(pc.yellow('  Daftarkan ulang? (y/N): '));
+        if (overwrite.toLowerCase() !== 'y') {
+          console.log(pc.dim('\n  Setup dibatalkan.\n'));
+          prompter.close();
+          return;
+        }
+        console.log('');
+      } catch { /* ignore */ }
+    }
+
+    const name = await prompter.ask(pc.white('  Nama Project   : '));
+    if (!name) {
+      console.error(pc.red('\n  ❌ Nama project tidak boleh kosong.\n'));
+      prompter.close();
+      process.exitCode = 1;
+      return;
+    }
+
+    const domain = await prompter.ask(pc.white('  Domain Website : '));
+    if (!domain) {
+      console.error(pc.red('\n  ❌ Domain tidak boleh kosong.\n'));
+      prompter.close();
+      process.exitCode = 1;
+      return;
+    }
+
+    prompter.close();
+
+    console.log(pc.dim('\n  ────────────────────────────────────────────────────────'));
+    console.log(pc.yellow('  ⏳ Menghubungkan ke Control Hub...'));
+
+    const apiKey = generateApiKey();
+
     const res = await fetch(`${endpoint}/api/pairing/init`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -196,11 +204,12 @@ async function main() {
     const data = await res.json();
 
     if (!res.ok || !data.success) {
-      console.error(pc.red(`\n  ❌ Gagal mendaftarkan: ${data.error || 'Server error'}`));
-      process.exit(1);
+      console.error(pc.red(`\n  ❌ Gagal mendaftarkan: ${data.error || 'Server error'}\n`));
+      process.exitCode = 1;
+      return;
     }
 
-    // ── Simpan .licenseguard.json ──
+    // Simpan .licenseguard.json
     const configData = {
       projectId: data.projectId,
       apiKey,
@@ -212,27 +221,23 @@ async function main() {
     };
     fs.writeFileSync(configPath, JSON.stringify(configData, null, 2), 'utf-8');
 
-    // ── Setup file integrasi ──
-    console.log(pc.bold('\n  ⚡ Setup Otomatis:'));
+    console.log(pc.bold('\n  ⚡ Setup Selesai:'));
     const setupLines = setupFrameworkFiles(cwd, framework, apiKey, endpoint);
     setupLines.forEach(l => console.log(l));
-    console.log(`  ${pc.green('✅')} Config: ${pc.bold('.licenseguard.json')}`);
+    console.log(`  ${pc.green('✓')} Config: ${pc.bold('.licenseguard.json')}`);
 
-    // ── Hasil akhir ──
     console.log(pc.dim('\n  ────────────────────────────────────────────────────────'));
-    console.log(pc.bold(pc.green('  ✅ SETUP SELESAI — PROJECT TERDAFTAR & AKTIF!\n')));
+    console.log(pc.bold(pc.green('  ✅ STATUS: ACTIVE')));
     console.log(`  Project   : ${pc.bold(data.name)}`);
     console.log(`  Domain    : ${pc.bold(data.domain)}`);
-    console.log(`  Status    : ${pc.green('● ACTIVE')}`);
     console.log(`  API Key   : ${pc.dim(apiKey)}`);
-    console.log(`  Dashboard : ${pc.cyan(`${endpoint}/projects/${data.projectId}`)}\n`);
-    console.log(pc.dim('  Admin dapat mengecek status koneksi di dashboard di atas.'));
-    console.log(pc.bold(pc.green('\n  🛡️  Website Anda kini terlindungi oleh License Guard!\n')));
+    console.log(`  Dashboard : ${pc.cyan(`${endpoint}/projects/${data.projectId}`)}`);
+    console.log(pc.dim('  ────────────────────────────────────────────────────────\n'));
 
-    process.exit(0);
   } catch (err) {
-    console.error(pc.red(`\n  ❌ Gagal terhubung ke server: ${err instanceof Error ? err.message : err}`));
-    process.exit(1);
+    prompter.close();
+    console.error(pc.red(`\n  ❌ Error: ${err instanceof Error ? err.message : err}\n`));
+    process.exitCode = 1;
   }
 }
 
