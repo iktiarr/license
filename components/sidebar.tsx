@@ -11,16 +11,13 @@ import {
   LogOut,
   LayoutDashboard,
   Power,
+  CreditCard,
+  Users,
+  Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Session } from 'next-auth';
-
-const navItems = [
-  { href: '/', label: 'Overview', icon: LayoutDashboard, cmd: 'overview' },
-  { href: '/projects', label: 'Projects', icon: FolderKanban, cmd: 'projects' },
-  { href: '/logs', label: 'Logs', icon: ScrollText, cmd: 'logs' },
-  { href: '/settings', label: 'Settings', icon: Settings, cmd: 'settings' },
-];
+import { PlanTier, PLAN_CONFIGS } from '@/lib/plans';
 
 interface SidebarProps {
   session?: Session | null;
@@ -30,7 +27,26 @@ export default function Sidebar({ session }: SidebarProps) {
   const pathname = usePathname();
 
   const userName = session?.user?.name || session?.user?.email?.split('@')[0] || 'admin';
-  const userRole = (session?.user as { role?: string })?.role === 'ADMIN' ? 'root privileges' : 'developer account';
+  const role = (session?.user as { role?: string })?.role || 'DEVELOPER';
+  const isAdmin = role === 'ADMIN';
+  const planTier = ((session?.user as { plan?: PlanTier })?.plan || (isAdmin ? 'MAX' : 'FREE')) as PlanTier;
+  const planConfig = PLAN_CONFIGS[planTier] || PLAN_CONFIGS.FREE;
+
+  const baseNavItems = [
+    { href: '/', label: 'Overview', icon: LayoutDashboard, cmd: 'overview' },
+    { href: '/projects', label: 'Projects', icon: FolderKanban, cmd: 'projects' },
+    { href: '/logs', label: 'Logs', icon: ScrollText, cmd: 'logs' },
+    { href: '/billing', label: 'Pricing & Plan', icon: CreditCard, cmd: 'billing' },
+    { href: '/settings', label: 'Settings', icon: Settings, cmd: 'settings' },
+  ];
+
+  const navItems = isAdmin
+    ? [
+        ...baseNavItems.slice(0, 4),
+        { href: '/users', label: 'Users Hub', icon: Users, cmd: 'users' },
+        ...baseNavItems.slice(4),
+      ]
+    : baseNavItems;
 
   return (
     <aside className="w-[240px] shrink-0 h-screen bg-black border-r border-zinc-800 flex flex-col justify-between select-none font-mono">
@@ -57,10 +73,14 @@ export default function Sidebar({ session }: SidebarProps) {
         </div>
 
         {/* System Info Block */}
-        <div className="px-4 py-3 border-b border-zinc-800/60">
-          <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">System</p>
-          <p className="text-sm text-emerald-400 font-semibold tracking-wide">License Guard v1.0</p>
-          <p className="text-[11px] text-zinc-600 mt-0.5">Control Hub &bull; {userRole}</p>
+        <div className="px-4 py-3 border-b border-zinc-800/60 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Platform</p>
+            <p className="text-xs text-emerald-400 font-semibold tracking-wide">License Guard</p>
+          </div>
+          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${planConfig.badgeColor}`}>
+            {planConfig.name}
+          </span>
         </div>
 
         {/* Navigation Menu */}
@@ -107,14 +127,19 @@ export default function Sidebar({ session }: SidebarProps) {
 
       {/* Bottom: Profile & Sign Out */}
       <div className="border-t border-zinc-800 p-3 space-y-2">
-        {/* User Info */}
+        {/* User Info with Plan Badge */}
         <div className="flex items-center gap-2.5 px-2.5 py-2 rounded bg-zinc-900/50 border border-zinc-800/60">
-          <div className="w-6 h-6 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center">
-            <Power className="w-3 h-3 text-emerald-500" />
+          <div className="w-7 h-7 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center">
+            <Power className="w-3.5 h-3.5 text-emerald-500" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-zinc-300 truncate">{userName}</p>
-            <p className="text-[10px] text-zinc-600 truncate">{userRole}</p>
+            <p className="text-xs font-bold text-zinc-200 truncate">{userName}</p>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded border uppercase ${planConfig.badgeColor}`}>
+                {planConfig.name}
+              </span>
+              <span className="text-[10px] text-zinc-600 truncate">{isAdmin ? 'Admin' : 'Dev'}</span>
+            </div>
           </div>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
         </div>

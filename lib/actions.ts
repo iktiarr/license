@@ -3,19 +3,46 @@
 import { db } from '@/lib/db';
 import { signLicenseToken } from '@/lib/jwt';
 import { revalidatePath } from 'next/cache';
+import { auth } from '@/lib/auth';
+import { checkPlanAllowance, PlanTier } from '@/lib/plans';
+
 type ProjectStatus = 'ACTIVE' | 'SUSPENDED' | 'TAMPERED';
 
 // ── Create Project ──────────────────────────────────────────────────────────
 
 export async function createProject(formData: FormData) {
+  const session = await auth();
   const name = formData.get('name') as string;
   const domain = formData.get('domain') as string;
   const serverIp = formData.get('serverIp') as string;
   const gracePeriodRaw = formData.get('gracePeriod') as string;
   const gracePeriod = gracePeriodRaw ? parseInt(gracePeriodRaw, 10) : 24;
+  const frameworkType = (formData.get('frameworkType') as string) || 'NATIVE';
 
   if (!name || !domain) {
-    return { error: 'Name and Domain are required.' };
+    return { error: 'Nama project dan domain wajib diisi.' };
+  }
+
+  const userId = session?.user?.id;
+  const role = (session?.user as { role?: string })?.role;
+  const isAdmin = role === 'ADMIN';
+  const plan = ((session?.user as { plan?: PlanTier })?.plan || (isAdmin ? 'MAX' : 'FREE')) as PlanTier;
+
+  // Check quota if not admin
+  if (!isAdmin && userId) {
+    const userProjects = await db.project.findMany({
+      where: { userId },
+      select: { frameworkType: true },
+    });
+
+    const totalProjects = userProjects.length;
+    const frameworkProjects = userProjects.filter((p) => p.frameworkType === 'FRAMEWORK').length;
+    const isNewFramework = frameworkType === 'FRAMEWORK';
+
+    const allowance = checkPlanAllowance(plan, totalProjects, frameworkProjects, isNewFramework);
+    if (!allowance.allowed) {
+      return { error: allowance.reason || 'Kapasitas paket lisensi Anda telah tercapai.' };
+    }
   }
 
   try {
@@ -25,6 +52,8 @@ export async function createProject(formData: FormData) {
         domain: domain.trim().toLowerCase(),
         serverIp: serverIp?.trim() || null,
         gracePeriod,
+        frameworkType,
+        userId: userId || null,
       },
     });
 
@@ -32,7 +61,7 @@ export async function createProject(formData: FormData) {
       data: {
         projectId: project.id,
         event: 'REGISTER',
-        metadata: { name: project.name, domain: project.domain },
+        metadata: { name: project.name, domain: project.domain, frameworkType },
       },
     });
 
@@ -42,9 +71,9 @@ export async function createProject(formData: FormData) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error';
     if (msg.includes('Unique constraint')) {
-      return { error: 'A project with this domain already exists.' };
+      return { error: 'Project dengan domain ini sudah terdaftar.' };
     }
-    return { error: 'Failed to create project.' };
+    return { error: 'Gagal membuat project.' };
   }
 }
 

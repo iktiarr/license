@@ -2,6 +2,7 @@ import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import { PlanTier } from '@/lib/plans';
 
 // If NEXTAUTH_URL was accidentally set to localhost in production on Vercel,
 // sanitize it so NextAuth dynamically determines the live domain via trustHost.
@@ -52,6 +53,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 email: user.email,
                 name: user.username,
                 role: user.role,
+                plan: user.plan as PlanTier,
+                phone: user.phone,
               };
             }
           }
@@ -72,6 +75,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             email: adminEmail,
             name: 'Root Admin',
             role: 'ADMIN',
+            plan: 'MAX' as PlanTier,
+            phone: '085143975550',
           };
         }
 
@@ -91,7 +96,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id;
         token.role = (user as any).role || 'DEVELOPER';
+        token.plan = (user as any).plan || 'FREE';
         token.name = user.name;
+        token.phone = (user as any).phone || '';
       }
       return token;
     },
@@ -99,6 +106,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token) {
         session.user.id = token.id as string;
         (session.user as any).role = token.role as string;
+        (session.user as any).plan = (token.plan as PlanTier) || 'FREE';
+        (session.user as any).phone = token.phone as string;
       }
       return session;
     },

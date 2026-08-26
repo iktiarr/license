@@ -19,16 +19,25 @@ enum PairingStatus {
   EXPIRED
 }
 
+enum PlanTier {
+  FREE
+  PLUS
+  PRO
+  MAX
+}
+
 model User {
-  id        String    @id @default(cuid())
-  username  String    @unique
-  email     String    @unique
-  phone     String
-  password  String    // bcrypt hashed
-  role      String    @default("DEVELOPER") // "ADMIN" | "DEVELOPER"
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  projects  Project[]
+  id            String    @id @default(cuid())
+  username      String    @unique
+  email         String    @unique
+  phone         String
+  password      String    // bcrypt hashed
+  role          String    @default("DEVELOPER") // "ADMIN" | "DEVELOPER"
+  plan          PlanTier  @default(FREE)
+  planExpiresAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  projects      Project[]
 
   @@map("users")
 }
@@ -42,6 +51,7 @@ model Project {
   status        ProjectStatus @default(ACTIVE)
   gracePeriod   Int           @default(24) // dalam jam
   lastHeartbeat DateTime?
+  frameworkType String        @default("NATIVE") // "NATIVE" | "FRAMEWORK"
   userId        String?
   user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt     DateTime      @default(now())
