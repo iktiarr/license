@@ -367,12 +367,32 @@
     } catch {}
   }
 
-  var API_KEY =
+  // ── Helper: Decode Obfuscated Token ─────────────────────────────────────────
+  function decodeToken(encoded) {
+    try {
+      var raw = encoded.indexOf('LGK_') === 0 ? encoded.substring(4) : encoded;
+      var str = atob(raw);
+      var res = '';
+      for (var i = 0; i < str.length; i++) {
+        res += String.fromCharCode(str.charCodeAt(i) ^ ((i % 7) + 3));
+      }
+      return JSON.parse(decodeURIComponent(res));
+    } catch {
+      return { apiKey: encoded };
+    }
+  }
+
+  var rawKeyAttr =
+    config.key ||
     config.apiKey ||
-    (currentScript && currentScript.getAttribute('data-api-key')) ||
+    (currentScript && (currentScript.getAttribute('data-key') || currentScript.getAttribute('data-api-key'))) ||
     '';
+
+  var decodedCreds = rawKeyAttr ? decodeToken(rawKeyAttr) : {};
+  var API_KEY = decodedCreds.apiKey || rawKeyAttr;
   var ENDPOINT =
     config.endpoint ||
+    decodedCreds.endpoint ||
     (currentScript && currentScript.getAttribute('data-endpoint')) ||
     scriptOrigin ||
     '';
