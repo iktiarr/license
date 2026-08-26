@@ -1,4 +1,4 @@
-import { Activity, FileText } from 'lucide-react';
+import { FileText } from 'lucide-react';
 
 export type LogWithProject = {
   id: string;
@@ -38,7 +38,7 @@ export default function LogTable({
     return (
       <div className="text-center py-12 font-mono">
         <FileText className="w-6 h-6 text-zinc-700 mx-auto mb-2" />
-        <p className="text-[11px] text-zinc-600">// no activity logs yet</p>
+        <p className="text-xs text-zinc-600">{"// no activity logs yet"}</p>
       </div>
     );
   }
@@ -46,7 +46,7 @@ export default function LogTable({
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left font-mono">
-        <thead className="border-b border-zinc-800/60 text-[9px] text-zinc-600 uppercase tracking-widest">
+        <thead className="border-b border-zinc-800/60 text-xs text-zinc-500 uppercase tracking-widest">
           <tr>
             <th className="px-4 py-3">Event</th>
             {showProject && <th className="px-4 py-3">Project</th>}
@@ -63,7 +63,7 @@ export default function LogTable({
               <tr key={log.id} className="hover:bg-zinc-900/40 transition-colors">
                 {/* Event */}
                 <td className="px-4 py-3 whitespace-nowrap">
-                  <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border text-[10px] font-bold ${cfg.bg} ${cfg.color}`}>
+                  <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border text-xs font-bold ${cfg.bg} ${cfg.color}`}>
                     <span>{cfg.symbol}</span>
                     <span>{log.event}</span>
                   </div>
@@ -72,33 +72,33 @@ export default function LogTable({
                 {/* Project */}
                 {showProject && (
                   <td className="px-4 py-3">
-                    <p className="text-[11px] text-zinc-300 truncate max-w-40">
+                    <p className="text-sm text-zinc-300 truncate max-w-40">
                       {log.project?.name ?? '—'}
                     </p>
-                    <p className="text-[9px] text-zinc-600 font-mono truncate max-w-40">
+                    <p className="text-xs text-zinc-600 font-mono truncate max-w-40">
                       {log.project?.domain ?? ''}
                     </p>
                   </td>
                 )}
 
                 {/* IP */}
-                <td className="px-4 py-3 whitespace-nowrap text-[10px] text-zinc-600">
+                <td className="px-4 py-3 whitespace-nowrap text-xs text-zinc-600">
                   {log.ipAddress ?? '—'}
                 </td>
 
                 {/* Metadata */}
                 <td className="px-4 py-3 max-w-48 truncate">
                   {log.metadata ? (
-                    <span className="text-[10px] text-zinc-600 bg-black px-1.5 py-0.5 rounded border border-zinc-800 truncate block">
+                    <span className="text-xs text-zinc-600 bg-black px-1.5 py-0.5 rounded border border-zinc-800 truncate block">
                       {JSON.stringify(log.metadata)}
                     </span>
                   ) : (
-                    <span className="text-zinc-700 text-[10px]">—</span>
+                    <span className="text-zinc-700 text-xs">—</span>
                   )}
                 </td>
 
                 {/* Timestamp */}
-                <td className="px-4 py-3 text-right whitespace-nowrap text-[10px] text-zinc-600">
+                <td className="px-4 py-3 text-right whitespace-nowrap text-xs text-zinc-600">
                   {formatDate(log.createdAt)}
                 </td>
               </tr>
