@@ -43,7 +43,15 @@ function createPromptHelper() {
   };
 
   const close = () => {
-    rl.close();
+    try {
+      rl.close();
+      if (process.stdin && typeof process.stdin.pause === 'function') {
+        process.stdin.pause();
+      }
+      if (process.stdin && typeof process.stdin.unref === 'function') {
+        process.stdin.unref();
+      }
+    } catch { /* ignore */ }
   };
 
   return { ask, close };
