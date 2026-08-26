@@ -144,16 +144,38 @@ export default function NewProjectPage() {
       </div>
 
       {/* ── NPM Info Banner ── */}
-      <div className="flex items-start gap-3 p-3 mb-5 rounded border border-zinc-800 bg-zinc-900/40">
-        <Terminal className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
-        <div className="text-[11px] text-zinc-500 leading-relaxed">
-          <span className="text-zinc-300 font-semibold">Menggunakan React, Next.js, atau Vue?</span>
-          {' '}Gunakan CLI yang lebih mudah:{' '}
-          <code className="text-emerald-400 bg-black px-1.5 py-0.5 rounded border border-zinc-800">
-            npx @masdannn/license-guard init
-          </code>
-          {' '}— otomatis setup semua tanpa perlu masuk dashboard.
+      <div className="flex items-center justify-between gap-3 p-3 mb-5 rounded border border-zinc-800 bg-zinc-900/40">
+        <div className="flex items-start gap-3">
+          <Terminal className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+          <div className="text-xs text-zinc-400 leading-relaxed">
+            <span className="text-zinc-200 font-semibold">Menggunakan React, Next.js, atau Vue?</span>
+            {' '}Jalankan CLI:{' '}
+            <code className="text-emerald-400 bg-black px-2 py-0.5 rounded border border-zinc-800 font-bold">
+              npx @masdannn/license-guard init
+            </code>
+          </div>
         </div>
+        <button
+          type="button"
+          onClick={() => {
+            navigator.clipboard.writeText('npx @masdannn/license-guard init');
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          }}
+          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-zinc-900 border border-zinc-700 text-zinc-200 rounded hover:bg-emerald-400 hover:text-black hover:border-emerald-400 transition-all cursor-pointer"
+        >
+          {copied ? (
+            <>
+              <Check className="w-3.5 h-3.5 text-emerald-400" />
+              <span>COPIED!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3.5 h-3.5" />
+              <span>[ COPY ]</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* ── Alerts ── */}
