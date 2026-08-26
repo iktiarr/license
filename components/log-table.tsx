@@ -1,13 +1,4 @@
-import {
-  LogIn,
-  Activity,
-  PauseCircle,
-  PlayCircle,
-  AlertTriangle,
-  Radio,
-  FileText,
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Activity, FileText } from 'lucide-react';
 
 export type LogWithProject = {
   id: string;
@@ -19,22 +10,21 @@ export type LogWithProject = {
   project?: { name: string; domain: string };
 };
 
-const eventConfig: Record<
-  string,
-  { label: string; icon: typeof Activity; variant: 'success' | 'destructive' | 'warning' | 'default' }
-> = {
-  REGISTER: { label: 'Register', icon: LogIn, variant: 'default' },
-  HEARTBEAT: { label: 'Heartbeat', icon: Radio, variant: 'success' },
-  SUSPENDED: { label: 'Suspended', icon: PauseCircle, variant: 'destructive' },
-  ACTIVATED: { label: 'Activated', icon: PlayCircle, variant: 'success' },
-  TAMPER_ATTEMPT: { label: 'Tamper Alert', icon: AlertTriangle, variant: 'warning' },
+const eventCfg: Record<string, { symbol: string; color: string; bg: string }> = {
+  REGISTER:       { symbol: '+', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  ACTIVE:         { symbol: '▶', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  ACTIVATED:      { symbol: '▶', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
+  SUSPENDED:      { symbol: '■', color: 'text-rose-400',    bg: 'bg-rose-500/10 border-rose-500/20' },
+  DELETED:        { symbol: '×', color: 'text-zinc-500',    bg: 'bg-zinc-800/40 border-zinc-700/30' },
+  TAMPERED:       { symbol: '!', color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20' },
+  TAMPER_ATTEMPT: { symbol: '!', color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/20' },
 };
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(date));
+    day: '2-digit', month: '2-digit', year: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+  }).format(new Date(date)).replace(',', '');
 }
 
 export default function LogTable({
@@ -46,67 +36,69 @@ export default function LogTable({
 }) {
   if (logs.length === 0) {
     return (
-      <div className="text-center py-12">
-        <FileText className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-        <p className="text-zinc-500 text-xs">No activity logs recorded yet</p>
+      <div className="text-center py-12 font-mono">
+        <FileText className="w-6 h-6 text-zinc-700 mx-auto mb-2" />
+        <p className="text-[11px] text-zinc-600">// no activity logs yet</p>
       </div>
     );
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-xs text-zinc-300">
-        <thead className="bg-zinc-950/60 border-b border-zinc-800/80 text-[11px] font-mono text-zinc-400 uppercase tracking-wider">
+      <table className="w-full text-left font-mono">
+        <thead className="border-b border-zinc-800/60 text-[9px] text-zinc-600 uppercase tracking-widest">
           <tr>
             <th className="px-4 py-3">Event</th>
             {showProject && <th className="px-4 py-3">Project</th>}
-            <th className="px-4 py-3">IP Address</th>
+            <th className="px-4 py-3">IP</th>
             <th className="px-4 py-3">Details</th>
             <th className="px-4 py-3 text-right">Timestamp</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-800/50">
+        <tbody className="divide-y divide-zinc-800/40">
           {logs.map((log) => {
-            const event = eventConfig[log.event] ?? {
-              label: log.event,
-              icon: Activity,
-              variant: 'default',
-            };
-            const Icon = event.icon;
+            const cfg = eventCfg[log.event] ?? { symbol: '·', color: 'text-zinc-500', bg: 'bg-zinc-900 border-zinc-800' };
 
             return (
-              <tr key={log.id} className="hover:bg-zinc-800/30 transition-colors">
-                <td className="px-4 py-3.5 whitespace-nowrap">
-                  <Badge variant={event.variant} dot>
-                    <Icon className="w-3 h-3 mr-1" />
-                    <span>{event.label}</span>
-                  </Badge>
+              <tr key={log.id} className="hover:bg-zinc-900/40 transition-colors">
+                {/* Event */}
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded border text-[10px] font-bold ${cfg.bg} ${cfg.color}`}>
+                    <span>{cfg.symbol}</span>
+                    <span>{log.event}</span>
+                  </div>
                 </td>
+
+                {/* Project */}
                 {showProject && (
-                  <td className="px-4 py-3.5">
-                    <p className="font-semibold text-zinc-200 truncate max-w-[160px]">
+                  <td className="px-4 py-3">
+                    <p className="text-[11px] text-zinc-300 truncate max-w-40">
                       {log.project?.name ?? '—'}
                     </p>
-                    <p className="text-[10px] text-zinc-400 font-mono truncate max-w-[160px]">
+                    <p className="text-[9px] text-zinc-600 font-mono truncate max-w-40">
                       {log.project?.domain ?? ''}
                     </p>
                   </td>
                 )}
-                <td className="px-4 py-3.5 whitespace-nowrap">
-                  <span className="font-mono text-xs text-zinc-400">
-                    {log.ipAddress ?? '—'}
-                  </span>
+
+                {/* IP */}
+                <td className="px-4 py-3 whitespace-nowrap text-[10px] text-zinc-600">
+                  {log.ipAddress ?? '—'}
                 </td>
-                <td className="px-4 py-3.5 max-w-[200px] truncate">
+
+                {/* Metadata */}
+                <td className="px-4 py-3 max-w-48 truncate">
                   {log.metadata ? (
-                    <span className="font-mono text-[11px] text-zinc-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800/80 truncate block">
+                    <span className="text-[10px] text-zinc-600 bg-black px-1.5 py-0.5 rounded border border-zinc-800 truncate block">
                       {JSON.stringify(log.metadata)}
                     </span>
                   ) : (
-                    <span className="text-zinc-600">—</span>
+                    <span className="text-zinc-700 text-[10px]">—</span>
                   )}
                 </td>
-                <td className="px-4 py-3.5 text-right whitespace-nowrap font-mono text-[11px] text-zinc-400">
+
+                {/* Timestamp */}
+                <td className="px-4 py-3 text-right whitespace-nowrap text-[10px] text-zinc-600">
                   {formatDate(log.createdAt)}
                 </td>
               </tr>

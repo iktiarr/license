@@ -1,11 +1,18 @@
 import type { Metadata } from 'next';
 import { db } from '@/lib/db';
-import { ScrollText } from 'lucide-react';
 import LogTable from '@/components/log-table';
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
-export const metadata: Metadata = { title: 'Activity Logs — License Guard' };
+export const metadata: Metadata = { title: 'Logs — License Guard' };
+
+const eventMeta: Record<string, { symbol: string; color: string }> = {
+  REGISTER: { symbol: '+', color: 'text-emerald-400' },
+  ACTIVE: { symbol: '▶', color: 'text-emerald-400' },
+  SUSPENDED: { symbol: '■', color: 'text-rose-400' },
+  DELETED: { symbol: '×', color: 'text-zinc-500' },
+  TAMPERED: { symbol: '!', color: 'text-amber-400' },
+  TAMPER_ATTEMPT: { symbol: '!', color: 'text-amber-400' },
+  ACTIVATED: { symbol: '▶', color: 'text-emerald-400' },
+};
 
 export default async function LogsPage() {
   const logs = await db.activityLog.findMany({
@@ -22,45 +29,48 @@ export default async function LogsPage() {
   }, {});
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
-      {/* Header */}
-      <div className="border-b border-zinc-800/80 pb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          <ScrollText className="w-6 h-6 text-zinc-400" />
-          <span>System Activity Logs</span>
-        </h1>
-        <p className="text-xs text-zinc-400 mt-1">
-          Audit trail of all license heartbeats, authentications, and tamper events
+    <div className="font-mono space-y-5">
+
+      {/* ── Header ── */}
+      <div className="border-b border-zinc-800 pb-4">
+        <div className="flex items-center gap-2 text-xs text-zinc-400">
+          <span className="text-emerald-500">$</span>
+          <span className="text-zinc-300 font-semibold">tail -f ./system.log</span>
+        </div>
+        <p className="text-[10px] text-zinc-600 mt-0.5 pl-4">
+          // {logs.length} records loaded &mdash; audit trail semua event lisensi
         </p>
       </div>
 
-      {/* Event Summary Badges */}
+      {/* ── Event Summary ── */}
       <div className="flex flex-wrap gap-2">
-        {Object.entries(counts).map(([event, count]) => (
-          <Badge key={event} variant="secondary" className="px-3 py-1 text-xs gap-2">
-            <span className="font-mono text-zinc-300">{event}</span>
-            <span className="bg-zinc-800 text-white px-1.5 py-0.5 rounded text-[10px] font-bold">
-              {count}
-            </span>
-          </Badge>
-        ))}
+        {Object.entries(counts).map(([event, count]) => {
+          const meta = eventMeta[event] ?? { symbol: '·', color: 'text-zinc-500' };
+          return (
+            <div
+              key={event}
+              className="flex items-center gap-2 px-3 py-1.5 bg-zinc-950 border border-zinc-800 rounded text-[10px]"
+            >
+              <span className={`font-bold ${meta.color}`}>{meta.symbol}</span>
+              <span className="text-zinc-400">{event}</span>
+              <span className="bg-zinc-800 text-zinc-300 px-1.5 py-0.5 rounded font-bold text-[9px]">
+                {count}
+              </span>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Logs Table Card */}
-      <Card className="border-zinc-800 bg-zinc-900/60 shadow-lg">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div>
-            <CardTitle className="text-sm font-semibold">Audit Stream</CardTitle>
-            <CardDescription className="text-xs">
-              Chronological log of events across all client instances
-            </CardDescription>
-          </div>
-          <span className="text-xs font-mono text-zinc-400 bg-zinc-950 px-2.5 py-1 rounded-md border border-zinc-800">
-            {logs.length} Records Loaded
+      {/* ── Log Table ── */}
+      <div className="border border-zinc-800 rounded bg-zinc-950">
+        <div className="flex items-center justify-between px-4 py-2.5 border-b border-zinc-800 bg-zinc-900/60">
+          <span className="text-[10px] font-semibold text-zinc-400 tracking-wider uppercase">
+            audit stream
           </span>
-        </CardHeader>
+          <span className="text-[10px] text-zinc-600">{logs.length} records</span>
+        </div>
         <LogTable logs={logs} showProject />
-      </Card>
+      </div>
     </div>
   );
 }
