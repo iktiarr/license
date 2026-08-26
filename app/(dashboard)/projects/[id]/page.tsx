@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
 import { db } from '@/lib/db';
 import LogTable from '@/components/log-table';
 import ProjectControls from './controls';
@@ -14,6 +13,8 @@ import {
   Key,
   Activity,
   ShieldCheck,
+  AlertCircle,
+  FolderKanban,
 } from 'lucide-react';
 
 export const metadata: Metadata = { title: 'Project Detail — License Guard' };
@@ -46,7 +47,83 @@ export default async function ProjectDetailPage({
     },
   });
 
-  if (!project) notFound();
+  // ── Graceful Fallback if Project Not Found (Instead of raw 404) ──
+  if (!project) {
+    const availableProjects = await db.project.findMany({
+      take: 5,
+      orderBy: { updatedAt: 'desc' },
+      select: { id: true, name: true, domain: true, status: true },
+    });
+
+    return (
+      <div className="font-mono space-y-6 max-w-4xl">
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>cd ../projects</span>
+        </Link>
+
+        <div className="border border-zinc-800 rounded bg-zinc-950 p-6 space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-rose-500/10 border border-rose-500/30 rounded text-rose-400">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-zinc-100">
+                Project Not Found (404)
+              </h1>
+              <p className="text-xs text-zinc-500 mt-0.5">
+                ID: <span className="font-mono text-zinc-400">{id}</span>
+              </p>
+            </div>
+          </div>
+
+          <p className="text-xs text-zinc-400 leading-relaxed border-t border-zinc-800/80 pt-3">
+            Project dengan ID ini tidak ditemukan di database. Kemungkinan project telah didaftarkan ulang dengan ID baru via CLI atau telah dihapus.
+          </p>
+
+          <div className="flex items-center gap-3 pt-2">
+            <Link
+              href="/projects"
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-100 text-black text-xs font-bold rounded hover:bg-emerald-400 transition-colors"
+            >
+              <FolderKanban className="w-3.5 h-3.5" />
+              <span>[ LIHAT DAFTAR PROJECTS ]</span>
+            </Link>
+          </div>
+
+          {availableProjects.length > 0 && (
+            <div className="border-t border-zinc-800/80 pt-4 mt-4 space-y-2">
+              <p className="text-xs text-zinc-500 font-bold uppercase tracking-wider">
+                Project yang Tersedia Saat Ini:
+              </p>
+              <div className="divide-y divide-zinc-800/50">
+                {availableProjects.map((p) => (
+                  <Link
+                    key={p.id}
+                    href={`/projects/${p.id}`}
+                    className="flex items-center justify-between py-2.5 px-3 rounded hover:bg-zinc-900 transition-colors group"
+                  >
+                    <div>
+                      <span className="text-xs font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors">
+                        {p.name}
+                      </span>
+                      <span className="text-xs text-zinc-500 ml-2">({p.domain})</span>
+                    </div>
+                    <span className="text-[10px] text-emerald-400 font-bold font-mono">
+                      [ LIHAT ] →
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   const infoRows = [
     { label: 'Target Domain', value: project.domain, icon: Globe, mono: true, link: `https://${project.domain}` },
