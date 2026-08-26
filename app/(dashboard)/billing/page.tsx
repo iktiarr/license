@@ -1,13 +1,13 @@
 import { auth } from '@/lib/auth';
 import { PLAN_CONFIGS, PlanTier, getWhatsAppUpgradeUrl, WHATSAPP_DISPLAY } from '@/lib/plans';
-import { Check, Zap, MessageSquare, Shield, Sparkles, ArrowUpRight, Crown, Layers, AlertCircle } from 'lucide-react';
-import Link from 'next/link';
+import { Check, MessageSquare, Shield, ArrowUpRight, Crown, Layers } from 'lucide-react';
 
 export const metadata = { title: 'Subscription & Billing — License Guard' };
 
 export default async function BillingPage() {
   const session = await auth();
-  const currentPlan = ((session?.user as { plan?: PlanTier })?.plan || 'FREE') as PlanTier;
+  const isAdmin = (session?.user as { role?: string })?.role === 'ADMIN';
+  const currentPlan = (isAdmin ? 'MAX' : ((session?.user as { plan?: PlanTier })?.plan || 'FREE')) as PlanTier;
   const user = {
     username: session?.user?.name || 'Developer',
     email: session?.user?.email || '—',
@@ -30,7 +30,7 @@ export default async function BillingPage() {
               Subscription &amp; Monetization Tiers
             </h1>
             <p className="text-xs text-zinc-500 mt-1 pl-4">
-              // Pilih paket lisensi yang sesuai dengan kebutuhan kapasitas deployment website Anda
+              {"// Pilih paket lisensi yang sesuai dengan kebutuhan kapasitas deployment website Anda"}
             </p>
           </div>
 

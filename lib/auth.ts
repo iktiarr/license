@@ -4,8 +4,8 @@ import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { PlanTier } from '@/lib/plans';
 
-// If NEXTAUTH_URL was accidentally set to localhost in production on Vercel,
-// sanitize it so NextAuth dynamically determines the live domain via trustHost.
+const adminEmailDefault = 'admin@licenseguard.dev';
+
 if (process.env.NODE_ENV === 'production') {
   if (process.env.NEXTAUTH_URL?.includes('localhost')) {
     delete process.env.NEXTAUTH_URL;
@@ -33,8 +33,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const identifier = String(credentials.email).trim().toLowerCase();
         const inputPassword = String(credentials.password).trim();
+        const adminEmail = (process.env.ADMIN_EMAIL || adminEmailDefault).trim().toLowerCase();
+        const adminPassword = (process.env.ADMIN_PASSWORD || 'Admin@1234').trim();
 
-        // 1. Cek User di database (bisa login via Email atau Username)
+        // 1. Cek Root Admin via Environment Variables
+        const isRootAdminMatch = (identifier === adminEmail || identifier === 'admin') && inputPassword === adminPassword;
+        if (isRootAdminMatch) {
+          return {
+            id: 'root-admin',
+            email: adminEmail,
+            name: 'Root Administrator',
+            role: 'ADMIN',
+            plan: 'MAX' as PlanTier,
+            phone: '085143975550',
+          };
+        }
+
+        // 2. Cek User di database
         try {
           const user = await db.user.findFirst({
             where: {
@@ -48,36 +63,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (user && user.password) {
             const isPasswordValid = await bcrypt.compare(inputPassword, user.password);
             if (isPasswordValid) {
+              const isAdmin = user.role === 'ADMIN' || user.email.toLowerCase() === adminEmail || user.username.toLowerCase() === 'admin';
               return {
                 id: user.id,
                 email: user.email,
                 name: user.username,
-                role: user.role,
-                plan: user.plan as PlanTier,
+                role: isAdmin ? 'ADMIN' : user.role,
+                plan: isAdmin ? ('MAX' as PlanTier) : (user.plan as PlanTier),
                 phone: user.phone,
               };
             }
           }
         } catch (dbErr) {
           console.error('[auth/authorize] DB query error:', dbErr);
-        }
-
-        // 2. Admin Environment Fallback (Root System Admin)
-        const adminEmail = (process.env.ADMIN_EMAIL || 'admin@licenseguard.dev').trim().toLowerCase();
-        const adminPassword = (process.env.ADMIN_PASSWORD || 'Admin@1234').trim();
-
-        const emailMatch = identifier === adminEmail || identifier === 'admin';
-        const passwordMatch = inputPassword === adminPassword;
-
-        if (emailMatch && passwordMatch) {
-          return {
-            id: 'root-admin',
-            email: adminEmail,
-            name: 'Root Admin',
-            role: 'ADMIN',
-            plan: 'MAX' as PlanTier,
-            phone: '085143975550',
-          };
         }
 
         return null;
@@ -93,10 +91,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async jwt({ token, user }) {
+      const adminEmail = (process.env.ADMIN_EMAIL || adminEmailDefault).trim().toLowerCase();
       if (user) {
         token.id = user.id;
-        token.role = (user as any).role || 'DEVELOPER';
-        token.plan = (user as any).plan || 'FREE';
+        const isAdmin = (user as any).role === 'ADMIN' || (user as any).email?.toLowerCase() === adminEmail || (user as any).name?.toLowerCase() === 'admin';
+        token.role = isAdmin ? 'ADMIN' : ((user as any).role || 'DEVELOPER');
+        token.plan = isAdmin ? 'MAX' : ((user as any).plan || 'FREE');
         token.name = user.name;
         token.phone = (user as any).phone || '';
       }
@@ -104,9 +104,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (token) {
+        const isAdmin = token.role === 'ADMIN';
         session.user.id = token.id as string;
-        (session.user as any).role = token.role as string;
-        (session.user as any).plan = (token.plan as PlanTier) || 'FREE';
+        (session.user as any).role = isAdmin ? 'ADMIN' : (token.role as string || 'DEVELOPER');
+        (session.user as any).plan = (isAdmin ? 'MAX' : (token.plan as PlanTier)) || (isAdmin ? 'MAX' : 'FREE');
         (session.user as any).phone = token.phone as string;
       }
       return session;
