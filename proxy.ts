@@ -6,7 +6,7 @@ export const proxy = auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
 
-  const isAuthPage = nextUrl.pathname.startsWith('/login');
+  const isAuthPage = nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register');
   const isApiAuth = nextUrl.pathname.startsWith('/api/auth');
   const isLicenseApi = nextUrl.pathname.startsWith('/api/license');
   const isPairingApi = nextUrl.pathname.startsWith('/api/pairing');

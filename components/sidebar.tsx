@@ -12,6 +12,7 @@ import {
   Power,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { Session } from 'next-auth';
 
 const navItems = [
   { href: '/', label: 'Overview', icon: LayoutDashboard, cmd: 'overview' },
@@ -20,8 +21,15 @@ const navItems = [
   { href: '/settings', label: 'Settings', icon: Settings, cmd: 'settings' },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+  session?: Session | null;
+}
+
+export default function Sidebar({ session }: SidebarProps) {
   const pathname = usePathname();
+
+  const userName = session?.user?.name || session?.user?.email?.split('@')[0] || 'admin';
+  const userRole = (session?.user as { role?: string })?.role === 'ADMIN' ? 'root privileges' : 'developer account';
 
   return (
     <aside className="w-[240px] shrink-0 h-screen bg-black border-r border-zinc-800 flex flex-col justify-between select-none font-mono">
@@ -51,7 +59,7 @@ export default function Sidebar() {
         <div className="px-4 py-3 border-b border-zinc-800/60">
           <p className="text-xs text-zinc-500 uppercase tracking-widest mb-1">System</p>
           <p className="text-sm text-emerald-400 font-semibold tracking-wide">License Guard v1.0</p>
-          <p className="text-[11px] text-zinc-600 mt-0.5">Control Hub &bull; Admin Access</p>
+          <p className="text-[11px] text-zinc-600 mt-0.5">Control Hub &bull; {userRole}</p>
         </div>
 
         {/* Navigation Menu */}
@@ -96,16 +104,16 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* Bottom: Admin Profile & Sign Out */}
+      {/* Bottom: Profile & Sign Out */}
       <div className="border-t border-zinc-800 p-3 space-y-2">
-        {/* Admin Info */}
+        {/* User Info */}
         <div className="flex items-center gap-2.5 px-2.5 py-2 rounded bg-zinc-900/50 border border-zinc-800/60">
           <div className="w-6 h-6 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center">
             <Power className="w-3 h-3 text-emerald-500" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold text-zinc-300 truncate">admin@guard</p>
-          <p className="text-[10px] text-zinc-600 truncate">root privileges</p>
+            <p className="text-xs font-semibold text-zinc-300 truncate">{userName}</p>
+            <p className="text-[10px] text-zinc-600 truncate">{userRole}</p>
           </div>
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
         </div>

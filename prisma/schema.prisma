@@ -19,6 +19,20 @@ enum PairingStatus {
   EXPIRED
 }
 
+model User {
+  id        String    @id @default(cuid())
+  username  String    @unique
+  email     String    @unique
+  phone     String
+  password  String    // bcrypt hashed
+  role      String    @default("DEVELOPER") // "ADMIN" | "DEVELOPER"
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  projects  Project[]
+
+  @@map("users")
+}
+
 model Project {
   id            String        @id @default(cuid())
   apiKey        String        @unique @default(uuid())
@@ -28,6 +42,8 @@ model Project {
   status        ProjectStatus @default(ACTIVE)
   gracePeriod   Int           @default(24) // dalam jam
   lastHeartbeat DateTime?
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   logs          ActivityLog[]
