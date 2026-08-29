@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-import{a as b,b as f}from"./chunk-Q3L3C6IH.mjs";import a from"fs";import r from"path";import K from"readline";import e from"picocolors";import A from"crypto";var y="https://license-tau-nine.vercel.app",j="^1.0.8";function E(o){let s=r.join(o,"package.json");if(!a.existsSync(s))return"unknown";try{let n=JSON.parse(a.readFileSync(s,"utf-8")),i={...n.dependencies,...n.devDependencies};if(i.next)return"nextjs";if(i.vue)return"vue";if(i.react)return"react"}catch{}return"unknown"}function x(o){let s=r.join(o,"package.json");if(!a.existsSync(s))return!1;try{let n=JSON.parse(a.readFileSync(s,"utf-8"));return n.dependencies||(n.dependencies={}),n.dependencies["@masdannn/license-guard"]=j,a.writeFileSync(s,JSON.stringify(n,null,2),"utf-8"),!0}catch{return!1}}function L(){return"LG-"+A.randomBytes(24).toString("hex")}function P(){let o=K.createInterface({input:process.stdin,output:process.stdout});return{ask:i=>new Promise(l=>{o.question(i,t=>{l(t.trim())})}),close:()=>{try{o.close(),process.stdin&&typeof process.stdin.pause=="function"&&process.stdin.pause(),process.stdin&&typeof process.stdin.unref=="function"&&process.stdin.unref()}catch{}}}}function N(o,s,n){let i=[];x(o)&&i.push(`  ${e.green("\u2713")} Dependency: ${e.bold("@masdannn/license-guard"+j)}`);let l=`'use client';
+import{a as A,b as j,d as I}from"./chunk-54APESLN.mjs";import i from"fs";import o from"path";import w from"readline";import e from"picocolors";import _ from"crypto";import{execSync as C}from"child_process";var v="https://license-tau-nine.vercel.app",$="2.0.4",x="^2.0.4";function N(n){if(i.existsSync(o.join(n,"pubspec.yaml")))return{framework:"flutter",label:"Flutter / Dart App"};let t=o.join(n,"package.json");if(i.existsSync(t))try{let s=JSON.parse(i.readFileSync(t,"utf-8")),l={...s.dependencies,...s.devDependencies};if(l.next)return{framework:"nextjs",label:"Next.js (App/Pages Router)"};if(l.nuxt)return{framework:"nuxt",label:"Nuxt.js (Vue 3 SSR)"};if(l.astro)return{framework:"astro",label:"Astro Web Framework"};if(l["@sveltejs/kit"]||l.svelte)return{framework:"vite-svelte",label:"Svelte / SvelteKit"};if(l.vue||l["@vitejs/plugin-vue"])return{framework:"vite-vue",label:"Vite + Vue.js"};if(l.react&&(l.vite||l["@vitejs/plugin-react"]))return{framework:"vite-react",label:"Vite + React.js"};if(l.react)return{framework:"vite-react",label:"React.js Web App"};if(l.express||l.fastify||l.koa)return{framework:"express",label:"Node.js / Express Backend"}}catch{}return i.existsSync(o.join(n,"composer.json"))||i.existsSync(o.join(n,"index.php"))?{framework:"php",label:"PHP Native / Laravel"}:i.existsSync(o.join(n,"index.html"))?{framework:"html",label:"HTML / Vanilla JavaScript"}:{framework:"unknown",label:"Universal JavaScript"}}function G(n){return i.existsSync(o.join(n,"pnpm-lock.yaml"))?"pnpm":i.existsSync(o.join(n,"yarn.lock"))?"yarn":i.existsSync(o.join(n,"bun.lockb"))||i.existsSync(o.join(n,"bun.lock"))?"bun":"npm"}function E(n){let t=o.join(n,"package.json");if(!i.existsSync(t))return!1;try{let s=JSON.parse(i.readFileSync(t,"utf-8"));return s.dependencies||(s.dependencies={}),s.dependencies["@masdannn/license-guard"]=x,i.writeFileSync(t,JSON.stringify(s,null,2),"utf-8"),!0}catch{return!1}}function O(){return"LG-"+_.randomBytes(24).toString("hex")}function D(){let n=w.createInterface({input:process.stdin,output:process.stdout});return{ask:l=>new Promise(a=>{n.question(l,r=>{a(r.trim())})}),close:()=>{try{n.close(),process.stdin&&typeof process.stdin.pause=="function"&&process.stdin.pause(),process.stdin&&typeof process.stdin.unref=="function"&&process.stdin.unref()}catch{}}}}function k(){console.log(e.bold(e.cyan(`
+\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557`))),console.log(e.bold(e.cyan("\u2551"))+"  "+e.bold(e.white("\u{1F6E1}\uFE0F  CENTRALIZED LICENSE GUARD CLI"))+" "+e.yellow(`(v${$})`)+"            "+e.bold(e.cyan("\u2551"))),console.log(e.bold(e.cyan("\u2551"))+"  "+e.dim("Proteksi Lisensi, Anti-Tamper & Remote Killswitch")+"      "+e.bold(e.cyan("\u2551"))),console.log(e.bold(e.cyan(`\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D
+`)))}function K(n,t,s,l,a,r){let c=[],u={version:$,project:l,domain:a,endpoint:r,key:s,updatedAt:new Date().toISOString()};if(i.writeFileSync(o.join(n,".licenseguard.json"),JSON.stringify(u,null,2),"utf-8"),c.push(`  ${e.green("\u2713")} Konfigurasi Backup: ${e.bold(".licenseguard.json")}`),t==="nextjs"){E(n),c.push(`  ${e.green("\u2713")} Dependency: ${e.bold("@masdannn/license-guard "+x)}`);let d=o.join(n,"lib");i.existsSync(d)||i.mkdirSync(d,{recursive:!0});let b=`'use client';
 
-// \u26A1 Auto-generated by @masdannn/license-guard \u2014 JANGAN DIHAPUS
+// \u26A1 Auto-generated by @masdannn/license-guard (v2) \u2014 JANGAN DIHAPUS
 import { initGuard } from '@masdannn/license-guard';
 import { useEffect } from 'react';
 
-const LICENSE_KEY = '${n}';
+const LICENSE_KEY = '${s}';
 
 if (typeof window !== 'undefined') {
   initGuard({ key: LICENSE_KEY });
@@ -17,45 +19,179 @@ export function LicenseGuard() {
   }, []);
   return null;
 }
-`;if(s==="nextjs"){let t=r.join(o,"lib");a.existsSync(t)||a.mkdirSync(t,{recursive:!0}),a.writeFileSync(r.join(t,"license-guard.ts"),l,"utf-8"),i.push(`  ${e.green("\u2713")} Dibuat: ${e.bold("lib/license-guard.ts")} (encrypted key)`);let d=[{file:r.join(o,"app","layout.tsx"),isAppRouter:!0},{file:r.join(o,"app","layout.jsx"),isAppRouter:!0},{file:r.join(o,"pages","_app.tsx"),isAppRouter:!1},{file:r.join(o,"pages","_app.jsx"),isAppRouter:!1}],u=!1;for(let{file:c,isAppRouter:g}of d)if(a.existsSync(c)){let p=a.readFileSync(c,"utf-8");g?p.includes("LicenseGuard")?i.push(`  ${e.dim("\xB7")} Komponen aktif di: ${e.dim(r.relative(o,c).replace(/\\/g,"/"))}`):(p=`import { LicenseGuard } from '@/lib/license-guard';
-`+p,p.includes("<body")&&(p=p.replace(/(<body[^>]*>)/i,`$1
-        <LicenseGuard />`)),a.writeFileSync(c,p,"utf-8"),i.push(`  ${e.green("\u2713")} Komponen ditambahkan ke: ${e.bold(r.relative(o,c).replace(/\\/g,"/"))}`)):p.includes("license-guard")||(a.writeFileSync(c,`import '@/lib/license-guard';
-`+p,"utf-8"),i.push(`  ${e.green("\u2713")} Import ditambahkan ke: ${e.bold(r.relative(o,c).replace(/\\/g,"/"))}`)),u=!0;break}u||i.push(`  ${e.yellow("!")} Tambahkan <LicenseGuard /> di root layout: ${e.cyan("import { LicenseGuard } from '@/lib/license-guard';")}`)}else if(s==="react"||s==="vue"){let t=r.join(o,"src","lib");a.existsSync(t)||a.mkdirSync(t,{recursive:!0}),a.writeFileSync(r.join(t,"license-guard.ts"),l,"utf-8"),i.push(`  ${e.green("\u2713")} Dibuat: ${e.bold("src/lib/license-guard.ts")} (encrypted key)`);let d=s==="react"?[r.join(o,"src","main.tsx"),r.join(o,"src","main.jsx"),r.join(o,"src","App.tsx")]:[r.join(o,"src","main.ts"),r.join(o,"src","main.js")],u="import './lib/license-guard';",c=!1;for(let g of d)if(a.existsSync(g)){let p=a.readFileSync(g,"utf-8");p.includes("license-guard")?i.push(`  ${e.dim("\xB7")} Import aktif di: ${e.dim(r.relative(o,g).replace(/\\/g,"/"))}`):(a.writeFileSync(g,u+`
-`+p,"utf-8"),i.push(`  ${e.green("\u2713")} Import ditambahkan ke: ${e.bold(r.relative(o,g).replace(/\\/g,"/"))}`)),c=!0;break}c||i.push(`  ${e.yellow("!")} Tambahkan manual di ${e.bold("src/main.ts")}: ${e.cyan(u)}`)}else i.push(`  ${e.yellow("!")} Tambahkan manual di root aplikasi:`),i.push(`     ${e.cyan("import { initGuard } from '@masdannn/license-guard';")}`),i.push(`     ${e.cyan(`initGuard({ key: '${n}' });`)}`);return i}function F(){console.log(e.bold(e.green(`
-  \u{1F6E1}\uFE0F  CENTRALIZED LICENSE GUARD CLI`))),console.log(e.dim("  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500")),console.log("  Penggunaan: "+e.cyan(`npx @masdannn/license-guard [perintah]
-`)),console.log(e.bold("  DAFTAR PERINTAH:")),console.log(`    ${e.green("init")}     ${e.dim("(default)")} Inisialisasi / perbarui pendaftaran project secara otomatis`),console.log(`    ${e.green("view")}     Lihat detail lisensi, status koneksi live di server, dan dashboard`),console.log(`    ${e.green("fix")}      Perbaiki / regenerasi file lib dan import yang hilang`),console.log(`    ${e.green("new")}      Daftarkan ulang dengan API Key baru (Reset Kredensial)`),console.log(`    ${e.green("test")}     Uji konektivitas heartbeat langsung ke server`),console.log(`    ${e.green("--help")}   Tampilkan panduan bantuan ini`),console.log(e.dim(`
-  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`)),console.log(e.dim(`  Dokumentasi: https://license-tau-nine.vercel.app/settings
-`))}async function v(o){let s=r.join(o,".licenseguard.json");if(!a.existsSync(s)){console.log(e.red(`
-  \u274C File konfigurasi .licenseguard.json tidak ditemukan.`)),console.log(e.yellow(`  Jalankan: npx @masdannn/license-guard init
-`));return}try{let n=JSON.parse(a.readFileSync(s,"utf-8")),i=n.licenseKey||n.apiKey,l=n.licenseKey?f(n.licenseKey):{apiKey:n.apiKey,endpoint:n.endpoint},t=l.endpoint||n.endpoint||y;console.log(e.bold(e.green(`
-  \u{1F6E1}\uFE0F  INFORMASI LISENSI INSTANCE`))),console.log(e.dim("  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500")),console.log(`  Project ID : ${e.bold(n.projectId||"\u2014")}`),console.log(`  Name       : ${e.bold(n.name||"\u2014")}`),console.log(`  Domain     : ${e.bold(n.domain||"\u2014")}`),console.log(`  Framework  : ${e.cyan(n.framework||"Unknown")}`),console.log(`  Key Token  : ${e.dim((i||"").slice(0,24)+"...")}`),console.log(`  Dashboard  : ${e.cyan(`${t}/projects/${n.projectId||""}`)}`),console.log(e.dim("  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500")),console.log(e.yellow("  \u23F3 Mengecek status live di server...")),(await fetch(`${t}/api/license/heartbeat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({apiKey:l.apiKey,domain:n.domain})})).status===200?console.log(`  Live Status: ${e.green("\u25CF ACTIVE (Terhubung & Terlindungi)")}
-`):console.log(`  Live Status: ${e.red("\u25A0 SUSPENDED / LOCKED")}
-`)}catch(n){console.error(e.red(`
-  \u274C Gagal membaca info: ${n instanceof Error?n.message:n}
-`))}}async function T(o){let s=r.join(o,".licenseguard.json");if(!a.existsSync(s)){console.log(e.red(`
-  \u274C Tidak ada file .licenseguard.json.`)),console.log(e.yellow(`  Jalankan setup baru: npx @masdannn/license-guard init
-`));return}let n=JSON.parse(a.readFileSync(s,"utf-8")),i=E(o),l=n.endpoint||y,t=n.apiKey||(n.licenseKey?f(n.licenseKey).apiKey:""),d=b({apiKey:t,endpoint:l,domain:n.domain});console.log(e.bold(e.green(`
-  \u{1F527} MEMPERBAIKI INTEGRASI LICENSE GUARD`))),console.log(e.dim("  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500")),N(o,i,d).forEach(g=>console.log(g));let c={...n,licenseKey:d,fixedAt:new Date().toISOString()};a.writeFileSync(s,JSON.stringify(c,null,2),"utf-8"),console.log(`  ${e.green("\u2713")} Config: ${e.bold(".licenseguard.json")}`),console.log(e.dim("  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500")),console.log(e.bold(e.green(`  \u2705 Integrasi berhasil diperbaiki & siap digunakan!
-`)))}async function C(o){let s=r.join(o,".licenseguard.json");if(!a.existsSync(s)){console.log(e.red(`
-  \u274C File konfigurasi tidak ditemukan. Jalankan setup terlebih dahulu.
-`));return}let n=JSON.parse(a.readFileSync(s,"utf-8")),i=n.licenseKey?f(n.licenseKey):{apiKey:n.apiKey,endpoint:n.endpoint},l=i.endpoint||n.endpoint||y;console.log(e.bold(e.green(`
-  \u26A1 TESTING LICENSE GUARD CONNECTION`))),console.log(e.dim("  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500")),console.log(`  Endpoint : ${e.dim(l)}`),console.log(`  Domain   : ${e.bold(n.domain||"localhost")}`),console.log(e.yellow("  \u23F3 Mengirim tes heartbeat..."));try{let t=await fetch(`${l}/api/license/heartbeat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({apiKey:i.apiKey,domain:n.domain})}),d=await t.json();console.log(e.dim("  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500")),t.status===200&&d.valid?(console.log(e.bold(e.green("  \u2705 KONEKSI BERHASIL \u2014 LISENSI VALID & AKTIF"))),console.log(`  Status      : ${e.green(d.status)}`),console.log(`  Grace Period: ${e.dim(d.gracePeriod+" jam")}
-`)):(console.log(e.bold(e.red("  \u274C LISENSI DINONAKTIFKAN ATAU INVALID"))),console.log(`  Status      : ${e.red(d.status||"SUSPENDED")}`),console.log(`  Pesan       : ${e.yellow(d.error||"Akses ditangguhkan")}
-`))}catch(t){console.error(e.red(`
-  \u274C Gagal terhubung: ${t instanceof Error?t.message:t}
-`))}}async function O(o){let s=process.env.LICENSE_GUARD_SERVER||y,n=E(o),i={nextjs:"Next.js",react:"React",vue:"Vue",unknown:"Generic / Other"};console.log(e.bold(e.green(`
-  \u{1F6E1}\uFE0F  LICENSE GUARD SETUP`))),console.log(e.dim("  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500")),console.log(`  Framework : ${e.cyan(i[n])}`),console.log(`  Directory : ${e.dim(o)}
-`);let l="",t="",d=r.join(o,".licenseguard.json");if(a.existsSync(d))try{let c=JSON.parse(a.readFileSync(d,"utf-8"));l=c.name||"",t=c.domain||"",console.log(e.dim("  // Memperbarui konfigurasi yang sudah ada:")),l&&console.log(`  // Nama sebelumnya  : ${e.bold(l)}`),t&&console.log(`  // Domain sebelumnya: ${e.bold(t)}
-`)}catch{}let u=P();try{let g=await u.ask(l?e.white(`  Nama Project [${l}]: `):e.white("  Nama Project   : "))||l;if(!g){console.error(e.red(`
-  \u274C Nama project tidak boleh kosong.
-`)),u.close(),process.exitCode=1;return}let k=await u.ask(t?e.white(`  Domain Website [${t}]: `):e.white("  Domain Website : "))||t;if(!k){console.error(e.red(`
-  \u274C Domain tidak boleh kosong.
-`)),u.close(),process.exitCode=1;return}u.close(),console.log(e.dim(`
-  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`)),console.log(e.yellow("  \u23F3 Menghubungkan ke Control Hub..."));let S=L(),h=await fetch(`${s}/api/pairing/init`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:g,domain:k,apiKey:S,framework:i[n]})}),m=await h.json();if(!h.ok||!m.success){console.error(e.red(`
-  \u274C Gagal mendaftarkan: ${m.error||"Server error"}
-`)),process.exitCode=1;return}let $=b({apiKey:S,endpoint:s,domain:m.domain}),I={projectId:m.projectId,licenseKey:$,domain:m.domain,name:m.name,endpoint:s,framework:i[n],registeredAt:new Date().toISOString()};a.writeFileSync(d,JSON.stringify(I,null,2),"utf-8"),console.log(e.bold(`
-  \u26A1 Setup Selesai:`)),N(o,n,$).forEach(w=>console.log(w)),console.log(`  ${e.green("\u2713")} Config: ${e.bold(".licenseguard.json")} (encrypted)`),console.log(e.dim(`
-  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500`));let D=m.status==="SUSPENDED"?e.red:e.green;console.log(`  Status    : ${D("\u25CF "+m.status)} ${m.status==="SUSPENDED"?e.dim("(dipertahankan)"):""}`),console.log(`  Project   : ${e.bold(m.name)}`),console.log(`  Domain    : ${e.bold(m.domain)}`),console.log(`  Dashboard : ${e.cyan(`${s}/projects/${m.projectId}`)}`),console.log(e.dim(`  \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
-`))}catch(c){u.close(),console.error(e.red(`
-  \u274C Error: ${c instanceof Error?c.message:c}
-`)),process.exitCode=1}}async function G(){let s=(process.argv.slice(2)[0]||"init").toLowerCase(),n=process.cwd();switch(s){case"view":case"status":case"info":await v(n);break;case"fix":case"repair":await T(n);break;case"new":case"reset":case"update":case"reinit":case"init":default:await O(n);break;case"test":case"check":await C(n);break;case"--help":case"-h":case"help":F();break}}G();
+`;i.writeFileSync(o.join(d,"license-guard.ts"),b,"utf-8"),c.push(`  ${e.green("\u2713")} Dibuat: ${e.bold("lib/license-guard.ts")}`);let f=[{file:o.join(n,"app","layout.tsx"),isAppRouter:!0},{file:o.join(n,"app","layout.jsx"),isAppRouter:!0},{file:o.join(n,"pages","_app.tsx"),isAppRouter:!1},{file:o.join(n,"pages","_app.jsx"),isAppRouter:!1}],y=!1;for(let{file:g,isAppRouter:p}of f)if(i.existsSync(g)){let m=i.readFileSync(g,"utf-8");p?m.includes("LicenseGuard")||(m=`import { LicenseGuard } from '@/lib/license-guard';
+`+m,m.includes("<body")&&(m=m.replace(/(<body[^>]*>)/i,`$1
+        <LicenseGuard />`)),i.writeFileSync(g,m,"utf-8"),c.push(`  ${e.green("\u2713")} Komponen diinjeksi ke: ${e.bold(o.relative(n,g).replace(/\\/g,"/"))}`)):m.includes("license-guard")||(i.writeFileSync(g,`import '@/lib/license-guard';
+`+m,"utf-8"),c.push(`  ${e.green("\u2713")} Import diinjeksi ke: ${e.bold(o.relative(n,g).replace(/\\/g,"/"))}`)),y=!0;break}y||c.push(`  ${e.yellow("!")} Tambahkan <LicenseGuard /> di root layout: ${e.cyan("import { LicenseGuard } from '@/lib/license-guard';")}`)}else if(t==="vite-react"||t==="vite-vue"||t==="vite-svelte"){E(n),c.push(`  ${e.green("\u2713")} Dependency: ${e.bold("@masdannn/license-guard "+x)}`);let d=o.join(n,"src","lib");i.existsSync(d)||i.mkdirSync(d,{recursive:!0});let b=`// \u26A1 Auto-generated by @masdannn/license-guard (v2) \u2014 JANGAN DIHAPUS
+import { initGuard } from '@masdannn/license-guard';
+
+const LICENSE_KEY = '${s}';
+
+if (typeof window !== 'undefined') {
+  initGuard({ key: LICENSE_KEY });
+}
+
+export { initGuard };
+`;i.writeFileSync(o.join(d,"license-guard.ts"),b,"utf-8"),c.push(`  ${e.green("\u2713")} Dibuat: ${e.bold("src/lib/license-guard.ts")}`);let f=[o.join(n,"src","main.tsx"),o.join(n,"src","main.jsx"),o.join(n,"src","main.ts"),o.join(n,"src","main.js"),o.join(n,"src","index.tsx"),o.join(n,"src","App.tsx"),o.join(n,"src","App.vue")],y=!1;for(let g of f)if(i.existsSync(g)){let p=i.readFileSync(g,"utf-8");p.includes("license-guard")||(p=`import './lib/license-guard';
+`+p,i.writeFileSync(g,p,"utf-8"),c.push(`  ${e.green("\u2713")} Import diinjeksi ke: ${e.bold(o.relative(n,g).replace(/\\/g,"/"))}`)),y=!0;break}y||c.push(`  ${e.yellow("!")} Tambahkan di main entry file: ${e.cyan("import './lib/license-guard';")}`)}else if(t==="nuxt"){E(n);let d=o.join(n,"plugins");i.existsSync(d)||i.mkdirSync(d,{recursive:!0});let b=`import { initGuard } from '@masdannn/license-guard';
+
+export default defineNuxtPlugin(() => {
+  if (process.client) {
+    initGuard({ key: '${s}' });
+  }
+});
+`;i.writeFileSync(o.join(d,"license-guard.client.ts"),b,"utf-8"),c.push(`  ${e.green("\u2713")} Dibuat Nuxt Plugin: ${e.bold("plugins/license-guard.client.ts")}`)}else if(t==="flutter"){let d=o.join(n,"lib");i.existsSync(d)||i.mkdirSync(d,{recursive:!0});let b=`// \u26A1 Auto-generated by @masdannn/license-guard (v2) for Flutter \u2014 JANGAN DIHAPUS
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class LicenseGuard {
+  static const String licenseKey = '${s}';
+  static const String endpoint = '${r}';
+  static Timer? _timer;
+
+  static void init(BuildContext context) {
+    _performCheck(context);
+    _timer = Timer.periodic(const Duration(minutes: 5), (_) => _performCheck(context));
+  }
+
+  static Future<void> _performCheck(BuildContext context) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$endpoint/api/license/heartbeat'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'apiKey': '${j(s).apiKey}',
+          'domain': '${a}',
+        }),
+      );
+
+      if (response.statusCode == 403 || response.statusCode == 401) {
+        _showLockScreen(context);
+      }
+    } catch (_) {}
+  }
+
+  static void _showLockScreen(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+          title: const Text('\u{1F6E1}\uFE0F Lisensi Ditangguhkan', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.red)),
+          content: const Text('Akses aplikasi ini dinonaktifkan oleh administrator sistem.'),
+        ),
+      ),
+    );
+  }
+}
+`;i.writeFileSync(o.join(d,"license_guard.dart"),b,"utf-8"),c.push(`  ${e.green("\u2713")} Dibuat Dart Guard: ${e.bold("lib/license_guard.dart")}`),c.push(`  ${e.cyan("\u2139")} Panggil di main.dart: ${e.bold("LicenseGuard.init(context);")}`)}else{let d=`/**
+ * \u26A1 Auto-generated by @masdannn/license-guard (v2) \u2014 JANGAN DIHAPUS
+ */
+(function() {
+  var key = "${s}";
+  var endpoint = "${r}";
+  var domain = "${a}";
+
+  function check() {
+    fetch(endpoint + "/api/license/heartbeat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        apiKey: "${j(s).apiKey}",
+        domain: window.location.hostname || domain
+      })
+    }).then(function(r) {
+      if (r.status === 403 || r.status === 401) lock();
+    }).catch(function(){});
+  }
+
+  function lock() {
+    if (document.getElementById("__license_guard_lock_overlay__")) return;
+    var div = document.createElement("div");
+    div.id = "__license_guard_lock_overlay__";
+    div.style = "position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999999;background:#fff;display:flex;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;padding:20px;";
+    div.innerHTML = "<div><h1 style='color:#ef4444;'>\u{1F6E1}\uFE0F Akses Ditangguhkan</h1><p style='color:#555;'>Akses ke website ini dinonaktifkan oleh administrator.</p></div>";
+    document.body.appendChild(div);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", check);
+  } else {
+    check();
+  }
+  setInterval(check, 300000);
+})();
+`;i.writeFileSync(o.join(n,"license-guard.js"),d,"utf-8"),c.push(`  ${e.green("\u2713")} Dibuat: ${e.bold("license-guard.js")}`);let b=o.join(n,"index.html");if(i.existsSync(b)){let f=i.readFileSync(b,"utf-8");f.includes("license-guard.js")||(f=f.replace("</head>",`  <script src="license-guard.js"></script>
+</head>`),i.writeFileSync(b,f,"utf-8"),c.push(`  ${e.green("\u2713")} Tag script diinjeksi ke: ${e.bold("index.html")}`))}}return c}async function R(n){k(),console.log(e.bold(e.white(`\u{1F4E6} INFORMASI VERSI LICENSE GUARD
+`))),console.log(`  Versi CLI           : ${e.bold(e.green("v"+$))}`);let t=o.join(n,".licenseguard.json");if(i.existsSync(t))try{let s=JSON.parse(i.readFileSync(t,"utf-8"));console.log(`  Versi Konfigurasi   : ${e.bold(e.cyan("v"+(s.version||$)))}`),console.log(`  Project Terdaftar   : ${e.bold(s.project||"\u2014")}`),console.log(`  Domain Terproteksi  : ${e.bold(s.domain||"\u2014")}`)}catch{}console.log("")}async function B(n){k(),console.log(e.bold(e.yellow(`\u{1F504} MEMPERBARUI PACKAGE LICENSE GUARD KE VERSI TERBARU...
+`)));let t=G(n);console.log(e.dim("Menggunakan Package Manager: ")+e.bold(e.cyan(t)));let s=t==="pnpm"?"pnpm add @masdannn/license-guard@latest":t==="yarn"?"yarn add @masdannn/license-guard@latest":t==="bun"?"bun add @masdannn/license-guard@latest":"npm install @masdannn/license-guard@latest";try{console.log(e.dim(`Menjalankan: ${s}...`)),C(s,{cwd:n,stdio:"inherit"});let l=o.join(n,".licenseguard.json");if(i.existsSync(l))try{let a=JSON.parse(i.readFileSync(l,"utf-8"));a.version=$,a.updatedAt=new Date().toISOString(),i.writeFileSync(l,JSON.stringify(a,null,2),"utf-8"),console.log(`  ${e.green("\u2713")} Konfigurasi .licenseguard.json diperbarui.`)}catch{}console.log(e.bold(e.green(`
+\u{1F389} Pembaruan Berhasil!`))),console.log(e.dim(`@masdannn/license-guard kini telah diperbarui ke versi paling stabil.
+`))}catch(l){console.log(e.red(`
+\u274C Gagal memperbarui package: ${l instanceof Error?l.message:String(l)}
+`))}}function U(n){k(),console.log(e.bold(e.yellow("\u{1F9F9} PROSES FINALISASI & PEMBERSIHAN (FINISH / DETACH)"))),console.log(e.dim(`Menghapus seluruh file konfigurasi lisensi dan dependensi dari proyek ini...
+`));let t=[o.join(n,".licenseguard.json"),o.join(n,"lib","license-guard.ts"),o.join(n,"src","lib","license-guard.ts"),o.join(n,"plugins","license-guard.client.ts"),o.join(n,"lib","license_guard.dart"),o.join(n,"license-guard.js")];for(let a of t)if(i.existsSync(a))try{i.unlinkSync(a),console.log(`  ${e.green("\u2713")} Berkas Dihapus: ${e.bold(o.relative(n,a).replace(/\\/g,"/"))}`)}catch{}let s=[o.join(n,"app","layout.tsx"),o.join(n,"app","layout.jsx"),o.join(n,"pages","_app.tsx"),o.join(n,"pages","_app.jsx"),o.join(n,"src","main.tsx"),o.join(n,"src","main.jsx"),o.join(n,"src","main.ts"),o.join(n,"src","main.js"),o.join(n,"src","App.tsx"),o.join(n,"src","App.vue"),o.join(n,"index.html")];for(let a of s)if(i.existsSync(a))try{let r=i.readFileSync(a,"utf-8"),c=!1;r.includes(`import { LicenseGuard } from '@/lib/license-guard';
+`)&&(r=r.replace(`import { LicenseGuard } from '@/lib/license-guard';
+`,""),c=!0),r.includes(`
+        <LicenseGuard />`)&&(r=r.replace(`
+        <LicenseGuard />`,""),c=!0),r.includes(`import '@/lib/license-guard';
+`)&&(r=r.replace(`import '@/lib/license-guard';
+`,""),c=!0),r.includes(`import './lib/license-guard';
+`)&&(r=r.replace(`import './lib/license-guard';
+`,""),c=!0),r.includes(`  <script src="license-guard.js"></script>
+`)&&(r=r.replace(`  <script src="license-guard.js"></script>
+`,""),c=!0),c&&(i.writeFileSync(a,r,"utf-8"),console.log(`  ${e.green("\u2713")} Injeksi Dibersihkan dari: ${e.bold(o.relative(n,a).replace(/\\/g,"/"))}`))}catch{}let l=o.join(n,"package.json");if(i.existsSync(l))try{let a=JSON.parse(i.readFileSync(l,"utf-8")),r=!1;a.dependencies&&a.dependencies["@masdannn/license-guard"]&&(delete a.dependencies["@masdannn/license-guard"],r=!0),a.devDependencies&&a.devDependencies["@masdannn/license-guard"]&&(delete a.devDependencies["@masdannn/license-guard"],r=!0),r&&(i.writeFileSync(l,JSON.stringify(a,null,2),"utf-8"),console.log(`  ${e.green("\u2713")} Dependensi Dicabut dari: ${e.bold("package.json")}`))}catch{}console.log(e.bold(e.green(`
+\u{1F389} Finalisasi Selesai!`))),console.log(e.dim(`Proyek Anda kini telah bersih secara total dan tidak lagi terikat proteksi License Guard.
+`))}async function J(n){k(),console.log(e.bold(e.white(`\u{1FA7A} LICENSE GUARD HEALTH CHECK & DIAGNOSTIC
+`)));let t=0,s=0;s++;let l=process.version;console.log("  [1/5] Lingkungan Runtime Node.js:"),console.log(`        \u2022 Node Version : ${e.bold(l)}`),console.log(`        \u2022 Platform     : ${e.bold(process.platform)} (${process.arch})`),console.log(`        \u2022 Working Dir  : ${e.dim(n)}`),console.log(`        ${e.green("\u2713")} Runtime environment siap.
+`),t++,s++;let{framework:a,label:r}=N(n);console.log("  [2/5] Deteksi Framework & Bahasa:"),console.log(`        \u2022 Tipe Framework: ${e.bold(e.cyan(r))}`),a!=="unknown"?(console.log(`        ${e.green("\u2713")} Framework didukung penuh.
+`),t++):(console.log(`        ${e.yellow("!")} Framework universal/generic.
+`),t++),s++,console.log("  [3/5] Integritas Berkas Konfigurasi (.licenseguard.json):");let c=o.join(n,".licenseguard.json"),u=null;if(i.existsSync(c))try{u=JSON.parse(i.readFileSync(c,"utf-8")),u&&u.key&&u.domain?(console.log(`        \u2022 Status File : ${e.green("Ditemukan & Valid")}`),console.log(`        \u2022 Project     : ${e.bold(u.project||"\u2014")}`),console.log(`        \u2022 Domain      : ${e.bold(u.domain||"\u2014")}`),console.log(`        \u2022 Endpoint    : ${e.dim(u.endpoint||v)}`),console.log(`        ${e.green("\u2713")} Konfigurasi lokal lengkap.
+`),t++):console.log(`        ${e.red("\u2717")} Berkas .licenseguard.json rusak atau tidak lengkap.
+`)}catch{console.log(`        ${e.red("\u2717")} Format JSON pada .licenseguard.json tidak valid.
+`)}else console.log(`        ${e.yellow("!")} .licenseguard.json tidak ditemukan. Jalankan "npx @masdannn/license-guard init" terlebih dahulu.
+`);s++,console.log("  [4/5] Pemasangan Berkas Guard di Source Code:");let b=[o.join(n,"lib","license-guard.ts"),o.join(n,"src","lib","license-guard.ts"),o.join(n,"plugins","license-guard.client.ts"),o.join(n,"lib","license_guard.dart"),o.join(n,"license-guard.js")].find(m=>i.existsSync(m));b?(console.log(`        \u2022 Berkas Guard : ${e.bold(e.green(o.relative(n,b).replace(/\\/g,"/")))}`),console.log(`        ${e.green("\u2713")} File helper proteksi terpasang di proyek.
+`),t++):console.log(`        ${e.yellow("!")} File helper proteksi belum dibuat.
+`),s++,console.log("  [5/5] Uji Konektivitas Server & Latency Ping:");let f=(u?.endpoint||v).replace(/\/$/,""),y=u?.key?j(u.key).apiKey:"TEST_DIAGNOSTIC",g=u?.domain||"localhost",p=Date.now();try{let m=await fetch(`${f}/api/license/heartbeat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({apiKey:y,domain:g}),signal:AbortSignal.timeout(6e3)}),h=Date.now()-p,S=await m.json();console.log(`        \u2022 Endpoint Server : ${e.dim(f)}`),console.log(`        \u2022 Latency Respon  : ${e.bold(h<300?e.green(`\u26A1 ${h}ms`):e.yellow(`\u23F3 ${h}ms`))}`),console.log(`        \u2022 Status Lisensi  : ${m.status===200&&S.status==="ACTIVE"?e.bold(e.green("ACTIVE (Normal \u2713)")):e.bold(e.yellow(S.status||"RESPONSE "+m.status))}`),console.log(`        ${e.green("\u2713")} Komunikasi jaringan dengan server normal.
+`),t++}catch(m){console.log(`        ${e.red("\u2717")} Gagal menghubungi endpoint server (${m instanceof Error?m.message:String(m)}).
+`)}console.log(e.bold(e.cyan("\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557"))),t===s?(console.log(e.bold(e.cyan("\u2551"))+"  "+e.bold(e.green(`\u2705 HASIL DIAGNOSTIK: 100% SEHAT (${t}/${s} Pengecekan Lolos)`))+"  "+e.bold(e.cyan("\u2551"))),console.log(e.bold(e.cyan("\u2551"))+"  "+e.dim("Semua konfigurasi, file helper, dan koneksi server aman.")+"  "+e.bold(e.cyan("\u2551")))):(console.log(e.bold(e.cyan("\u2551"))+"  "+e.bold(e.yellow(`\u26A0\uFE0F HASIL DIAGNOSTIK: ${t}/${s} Pengecekan Lolos`))+"            "+e.bold(e.cyan("\u2551"))),console.log(e.bold(e.cyan("\u2551"))+"  "+e.dim("Beberapa konfigurasi perlu diperiksa sesuai laporan.")+"      "+e.bold(e.cyan("\u2551")))),console.log(e.bold(e.cyan(`\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D
+`)))}async function H(n,t,s){k(),console.log(e.bold(e.yellow(`\u{1F6A8} EMERGENCY BYPASS & OFFLINE UNLOCK TOOL
+`)));let l=o.join(n,".licenseguard.json"),a={};if(i.existsSync(l))try{a=JSON.parse(i.readFileSync(l,"utf-8"))}catch{}if(t==="--disable"||t==="--off"||s==="--disable"||s==="--off"){a.bypass&&(delete a.bypass,i.writeFileSync(l,JSON.stringify(a,null,2),"utf-8"));let y=[o.join(n,"lib","license-guard.ts"),o.join(n,"src","lib","license-guard.ts")];for(let g of y)if(i.existsSync(g))try{let p=i.readFileSync(g,"utf-8");p.includes("localStorage.setItem('_lg_emergency_bypass', 'true');")&&(p=p.replace(`if (typeof window !== 'undefined') { try { localStorage.setItem('_lg_emergency_bypass', 'true'); } catch {} }
+`,""),p=p.replace(`if (typeof window !== 'undefined') { try { localStorage.removeItem('_lg_emergency_bypass'); } catch {} }
+`,""),p=`if (typeof window !== 'undefined') { try { localStorage.removeItem('_lg_emergency_bypass'); } catch {} }
+`+p,i.writeFileSync(g,p,"utf-8"))}catch{}console.log(`  ${e.green("\u2713")} Mode Emergency Bypass telah ${e.bold("DINONAKTIFKAN")}.`),console.log(e.dim(`  Sistem kini kembali memverifikasi lisensi secara normal ke server pusat.
+`));return}if(!a.key){console.log(e.red("\u274C File .licenseguard.json tidak ditemukan.")),console.log(e.dim(`Jalankan "npx @masdannn/license-guard init" terlebih dahulu.
+`));return}let r=j(a.key),c=r.apiKey,u=a.domain||r.domain||"localhost",d=t?.trim();if(!d){let y=D();console.log(e.dim("Project Terdaftar : ")+e.bold(a.project||"\u2014")),console.log(e.dim("Domain            : ")+e.bold(u)),console.log(e.dim(`Dapatkan token ini di dashboard project detail Anda.
+`)),d=await y.ask(e.bold("Masukkan Emergency Bypass Token (format: EBP-xxxxxxxx): ")),y.close()}if(!d){console.log(e.red(`
+\u274C Token darurat tidak boleh kosong.
+`));return}if(!I(d,c,u)){console.log(e.bold(e.red(`
+\u274C Token Darurat Tidak Valid!`))),console.log(e.dim(`Token yang dimasukkan tidak cocok dengan kredensial project "${a.project||u}".`)),console.log(e.dim(`Periksa kembali Emergency Bypass Key di Dashboard Project Anda.
+`));return}a.bypass={active:!0,token:d,activatedAt:new Date().toISOString()},i.writeFileSync(l,JSON.stringify(a,null,2),"utf-8");let f=[o.join(n,"lib","license-guard.ts"),o.join(n,"src","lib","license-guard.ts")];for(let y of f)if(i.existsSync(y))try{let g=i.readFileSync(y,"utf-8");g.includes("localStorage.setItem('_lg_emergency_bypass', 'true');")||(g=`if (typeof window !== 'undefined') { try { localStorage.setItem('_lg_emergency_bypass', 'true'); } catch {} }
+`+g,i.writeFileSync(y,g,"utf-8"))}catch{}console.log(e.bold(e.green(`
+\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557`))),console.log(e.bold(e.green("\u2551"))+"  "+e.bold(e.white("\u{1F389} EMERGENCY BYPASS BERHASIL DIAKTIFKAN!"))+"            "+e.bold(e.green("\u2551"))),console.log(e.bold(e.green("\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563"))),console.log(e.bold(e.green("\u2551"))+`  Project Name : ${e.bold((a.project||"\u2014").padEnd(41).slice(0,41))}`+e.bold(e.green("\u2551"))),console.log(e.bold(e.green("\u2551"))+`  Domain       : ${e.bold(u.padEnd(41).slice(0,41))}`+e.bold(e.green("\u2551"))),console.log(e.bold(e.green("\u2551"))+`  Bypass Token : ${e.yellow(d.padEnd(41).slice(0,41))}`+e.bold(e.green("\u2551"))),console.log(e.bold(e.green("\u2551"))+`  Status Akses : ${e.green(e.bold("UNLOCKED (Offline Fail-Safe)".padEnd(41)))}`+e.bold(e.green("\u2551"))),console.log(e.bold(e.green(`\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D
+`))),console.log(e.dim("Untuk mengembalikan ke mode proteksi online normal sewaktu-waktu:")),console.log(e.cyan(`\u{1F449} npx @masdannn/license-guard bypass --disable
+`))}async function M(n){k(),console.log(e.bold(`\u{1F50D} MEMERIKSA STATUS LISENSI REMOTE...
+`));let t={},s=o.join(n,".licenseguard.json");if(i.existsSync(s))try{t=JSON.parse(i.readFileSync(s,"utf-8"))}catch{}if(!t.key){console.log(e.red("\u274C File .licenseguard.json tidak ditemukan atau belum diinisialisasi.")),console.log(e.dim(`Jalankan "npx @masdannn/license-guard init" terlebih dahulu.
+`));return}let l=j(t.key),a=t.endpoint||l.endpoint||v,r=l.apiKey,c=t.domain||l.domain||"localhost";try{let u=await fetch(`${a.replace(/\/$/,"")}/api/license/heartbeat`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({apiKey:r,domain:c})}),d=await u.json();console.log(e.bold(e.white("Detail Project:"))),console.log(`  Project Name : ${e.bold(e.cyan(t.project||"\u2014"))}`),console.log(`  Domain       : ${e.bold(c)}`),console.log(`  Endpoint     : ${e.dim(a)}`),console.log(`  API Key      : ${e.dim(r?r.slice(0,8)+"...":"\u2014")}
+`),u.status===200&&d.valid&&d.status==="ACTIVE"?(console.log(e.bold(e.green("  STATUS: ACTIVE (LISENSI AKTIF & VALID \u2713)"))),console.log(e.dim(`  Website klien berjalan normal tanpa pembatasan.
+`))):d.status==="SUSPENDED"||u.status===403?(console.log(e.bold(e.red("  STATUS: SUSPENDED (DITANGGUHKAN \u23F8\uFE0F)"))),console.log(e.dim(`  Akses website ditangguhkan oleh Administrator di Dashboard.
+`))):d.status==="TAMPERED"?(console.log(e.bold(e.red("  STATUS: TAMPERED (MODIFIKASI TIDAK SAH \u26A0\uFE0F)"))),console.log(e.dim(`  Domain tidak cocok atau file lisensi dimodifikasi.
+`))):(console.log(e.bold(e.yellow(`  STATUS: ${d.status||"UNKNOWN"}`))),d.error&&console.log(`  Pesan: ${d.error}
+`))}catch(u){console.log(e.red(`\u274C Gagal menghubungi server: ${u instanceof Error?u.message:String(u)}
+`))}}async function V(){let n=process.argv.slice(2),t=process.cwd(),s=n[0]?.toLowerCase();if(s==="version"||n.includes("--version")||n.includes("-v")){await R(t);return}if(s==="update"){await B(t);return}if(s==="finish"||s==="clean"||s==="detach"||s==="uninstall"){U(t);return}if(s==="doctor"||s==="diag"||s==="check"){await J(t);return}if(s==="bypass"||s==="unlock"||s==="recover"){await H(t,n[1],n[2]);return}if(s==="status"||s==="view"||s==="info"||s==="test"){await M(t);return}if(n.includes("--help")||n.includes("-h")){k(),console.log(e.bold("Penggunaan:")),console.log("  npx @masdannn/license-guard             Inisialisasi & pairing lisensi"),console.log("  npx @masdannn/license-guard init        Inisialisasi project baru"),console.log(`  npx @masdannn/license-guard status      Cek status lisensi aktif dari server
+`);return}k();let{framework:l,label:a}=N(t);console.log(e.dim("Terdeteksi Environment: ")+e.bold(e.cyan(a))+`
+`);let r=o.basename(t),c=D();try{let d=await c.ask(e.bold("1. Nama Project")+e.dim(` (default: ${r}): `))||r,f=await c.ask(e.bold("2. Domain Website Target")+e.dim(" (contoh: tokoklien.com / localhost:3000): "))||"localhost:3000",g=(await c.ask(e.bold("3. Email Akun Developer")+e.dim(" (terdaftar di License Guard Hub): "))).trim();if(c.close(),!g||!/^\S+@\S+\.\S+$/.test(g)){console.log(e.red(`
+\u274C Email tidak valid. Pastikan memasukkan alamat email yang benar.
+`));return}console.log(e.dim(`
+Menghubungkan ke Central License Guard Server...`));let p=v,m=O(),h=await fetch(`${p.replace(/\/$/,"")}/api/pairing/init`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:d,domain:f,email:g,apiKey:m,framework:l})}),S=await h.json();if(!h.ok||!S.success){console.log(e.bold(e.red(`
+\u274C Inisialisasi Lisensi Gagal:`))),console.log(e.red(`   ${S.error||"Server menolak pendaftaran lisensi."}`)),console.log(e.dim(`
+Tips:`)),console.log(e.dim(`  \u2022 Pastikan email "${g}" telah terdaftar di dashboard License Guard.`)),console.log(e.dim("  \u2022 Periksa apakah kuota project domain akun Anda masih mencukupi.")),console.log(e.dim(`  \u2022 Buka dashboard di: ${p}/billing
+`));return}let T=S.project?.apiKey||m,F=A({apiKey:T,endpoint:p,domain:f});console.log(e.bold(e.white(`
+Menyiapkan berkas proteksi lisensi:`)));let P=K(t,l,F,d,f,p);for(let L of P)console.log(L);console.log(e.bold(e.green(`
+\u2554\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2557`))),console.log(e.bold(e.green("\u2551"))+"  "+e.bold(e.white("\u2705 LISENSI BERHASIL DIINISIALISASI & TERHUBUNG!"))+"         "+e.bold(e.green("\u2551"))),console.log(e.bold(e.green("\u2560\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2563"))),console.log(e.bold(e.green("\u2551"))+`  Project Name : ${e.bold(d.padEnd(41).slice(0,41))}`+e.bold(e.green("\u2551"))),console.log(e.bold(e.green("\u2551"))+`  Domain Target: ${e.bold(f.padEnd(41).slice(0,41))}`+e.bold(e.green("\u2551"))),console.log(e.bold(e.green("\u2551"))+`  Akun Pemilik : ${e.cyan(g.padEnd(41).slice(0,41))}`+e.bold(e.green("\u2551"))),console.log(e.bold(e.green("\u2551"))+`  Framework    : ${e.yellow(a.padEnd(41).slice(0,41))}`+e.bold(e.green("\u2551"))),console.log(e.bold(e.green("\u2551"))+`  Status       : ${e.green(e.bold("ACTIVE (Terproteksi Real-time)".padEnd(41)))}`+e.bold(e.green("\u2551"))),console.log(e.bold(e.green(`\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u255D
+`))),console.log(e.dim("Buka dashboard untuk memantau status atau mengaktifkan killswitch:")),console.log(e.cyan(`\u{1F449} ${p}/projects/${S.project?.id||""}
+`))}catch(u){c.close(),console.log(e.red(`
+\u274C Terjadi kesalahan: ${u instanceof Error?u.message:String(u)}
+`))}}V();

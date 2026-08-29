@@ -1,10 +1,16 @@
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import UsersTable from '@/components/users-table';
-import { Users as UsersIcon, ShieldAlert, ArrowLeft } from 'lucide-react';
+import { ShieldAlert, ArrowLeft, CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { getDynamicPlanConfigs } from '@/lib/plans';
 
-export const metadata = { title: 'User Management — License Guard' };
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export const metadata = { title: 'Manajemen Pengguna — License Guard' };
 
 export default async function UsersManagementPage() {
   const session = await auth();
@@ -12,45 +18,53 @@ export default async function UsersManagementPage() {
 
   if (!isAdmin) {
     return (
-      <div className="font-mono space-y-6 max-w-2xl">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>cd ../overview</span>
-        </Link>
+      <div className="space-y-6 max-w-2xl">
+        <Button asChild variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900">
+          <Link href="/">
+            <ArrowLeft className="w-4 h-4 mr-1.5" />
+            <span>Kembali ke Dashboard</span>
+          </Link>
+        </Button>
 
-        <div className="p-6 rounded border border-rose-500/30 bg-zinc-950 space-y-4">
-          <div className="flex items-center gap-3">
-            <ShieldAlert className="w-6 h-6 text-rose-500" />
-            <h1 className="text-sm font-bold text-zinc-100 uppercase tracking-wide">
-              Access Restricted (Admin Only)
-            </h1>
+        <Card className="p-6 border-slate-200 bg-white">
+          <div className="flex items-start gap-3">
+            <div className="p-2.5 bg-rose-50 border border-rose-100 rounded-xl text-rose-600 shrink-0">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <h1 className="text-base font-bold text-slate-900">
+                Akses Terbatas (Khusus Administrator)
+              </h1>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Halaman Manajemen Pengguna ini hanya dapat diakses oleh akun Root Administrator untuk mengelola paket lisensi dan verifikasi akun developer.
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-zinc-400 leading-relaxed">
-            Halaman Manajemen Pengguna ini hanya dapat diakses oleh akun Root Administrator untuk mengelola paket lisensi dan verifikasi pembayaran developer.
-          </p>
-        </div>
+        </Card>
       </div>
     );
   }
 
-  const rawUsers = await db.user.findMany({
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      username: true,
-      email: true,
-      phone: true,
-      role: true,
-      plan: true,
-      createdAt: true,
-      projects: {
-        select: { id: true },
+  const [rawUsers, dynamicPlanConfigs] = await Promise.all([
+    db.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        phone: true,
+        role: true,
+        plan: true,
+        planExpiresAt: true,
+        createdAt: true,
+        updatedAt: true,
+        projects: {
+          select: { id: true },
+        },
       },
-    },
-  });
+    }),
+    getDynamicPlanConfigs(),
+  ]);
 
   const users = rawUsers.map((u) => ({
     id: u.id,
@@ -59,6 +73,8 @@ export default async function UsersManagementPage() {
     phone: u.phone,
     role: u.role,
     plan: u.plan,
+    planStartedAt: u.updatedAt ? u.updatedAt.toISOString() : u.createdAt.toISOString(),
+    planExpiresAt: u.planExpiresAt ? u.planExpiresAt.toISOString() : null,
     createdAt: u.createdAt,
     projectsCount: u.projects.length,
   }));
@@ -67,31 +83,38 @@ export default async function UsersManagementPage() {
   const paidCount = users.filter((u) => u.plan !== 'FREE').length;
 
   return (
-    <div className="font-mono space-y-6 max-w-6xl">
+    <div className="space-y-6">
       {/* ── Header ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-zinc-800 pb-4 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 text-xs text-zinc-400">
-            <span className="text-emerald-500">$</span>
-            <span className="text-zinc-300 font-semibold">get_users --all-accounts</span>
-          </div>
-          <p className="text-xs text-zinc-600 mt-1 pl-4">
-            // {users.length} developer terdaftar &mdash; {paidCount} berbayar (Plus/Pro/Max), {freeCount} gratis
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            Manajemen Pengguna &amp; Developer
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            {users.length} akun terdaftar ({paidCount} paket berbayar, {freeCount} paket gratis)
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Link
-            href="/billing"
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 border border-zinc-700 text-zinc-200 text-xs font-bold rounded hover:bg-emerald-400 hover:text-black hover:border-emerald-400 transition-all"
-          >
-            <span>[ DAFTAR HARGA PAKET ]</span>
+        <Button asChild variant="outline" className="text-xs h-9 font-semibold self-start sm:self-auto">
+          <Link href="/billing">
+            <CreditCard className="w-4 h-4 mr-1.5" />
+            <span>Lihat Daftar Harga Paket</span>
           </Link>
-        </div>
+        </Button>
       </div>
 
-      {/* ── Users Table ── */}
-      <UsersTable initialUsers={users} />
+      {/* ── Users Table Card ── */}
+      <Card className="border-slate-200 bg-white overflow-hidden">
+        <CardHeader className="py-4 px-5 border-b border-slate-100 flex flex-row items-center justify-between">
+          <CardTitle className="text-sm font-bold text-slate-900">Daftar Semua Akun Developer</CardTitle>
+          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+            {users.length} Total Akun
+          </span>
+        </CardHeader>
+        <CardContent className="p-0">
+          <UsersTable initialUsers={users} planConfigs={dynamicPlanConfigs} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

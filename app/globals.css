@@ -2,25 +2,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-/* ── Design Tokens (Monochrome / High Contrast) ───────────────────────────── */
+/* ── Design Tokens (Shadcn Clean Light Theme) ────────────────────────────── */
 @theme inline {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'Cascadia Code', 'Fira Code', ui-monospace, monospace;
 
-  /* Status Colors (Preserved for high visibility) */
-  --color-status-active: #10b981;
-  --color-status-suspended: #ef4444;
-  --color-status-tampered: #f59e0b;
+  /* Status Colors */
+  --color-status-active: #059669;
+  --color-status-suspended: #e11d48;
+  --color-status-tampered: #d97706;
 }
 
-/* ── Base Styles (Desktop Only) ───────────────────────────────────────────── */
+/* ── Base Styles (Mobile & Desktop Responsive) ────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
 html {
   height: 100%;
-  font-size: 17px;
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -28,64 +28,32 @@ html {
 body {
   height: 100%;
   font-family: var(--font-sans);
-  background-color: #09090b;
-  color: #fafafa;
-  min-width: 1024px;
+  background-color: #f8fafc;
+  color: #0f172a;
   overflow-x: hidden;
 }
 
-/* ── Custom Dark Scrollbar ────────────────────────────────────────────────── */
+/* ── Clean Light Scrollbar ────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #09090b;
+  background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #94a3b8;
 }
 
-/* ── Animations ───────────────────────────────────────────────────────────── */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
-
-/* ── Component Classes ────────────────────────────────────────────────────── */
-.card-mono {
-  background-color: #121215;
-  border: 1px solid #27272a;
+/* ── Clean Utility Classes ────────────────────────────────────────────────── */
+.glass-card {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
   border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-.code-block-mono {
-  font-family: var(--font-mono);
-  background-color: #09090b;
-  border: 1px solid #27272a;
-  color: #e4e4e7;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.8125rem;
-  overflow-x: auto;
-}

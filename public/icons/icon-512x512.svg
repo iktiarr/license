@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="keyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#ffffff" />
+  <rect x="24" y="24" width="464" height="464" rx="88" fill="#f8fafc" stroke="#e2e8f0" stroke-width="8" />
+  <!-- Shield outline -->
+  <path d="M256 72 L392 136 V248 C392 344 332 416 256 448 C180 416 120 344 120 248 V136 Z" fill="url(#shieldGrad)" />
+  <!-- Inner Key/Lock symbol -->
+  <circle cx="256" cy="220" r="44" fill="#ffffff" />
+  <rect x="246" y="248" width="20" height="88" rx="8" fill="#ffffff" />
+  <rect x="246" y="296" width="36" height="18" rx="4" fill="#ffffff" />
+  <rect x="246" y="324" width="28" height="18" rx="4" fill="#ffffff" />
+  <circle cx="256" cy="220" r="22" fill="url(#shieldGrad)" />
+</svg>

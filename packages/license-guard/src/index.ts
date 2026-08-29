@@ -1,6 +1,6 @@
 /**
- * @masdannn/license-guard — Client SDK Runtime
- * Fully self-contained, offline-resilient & anti-tamper client guard SDK.
+ * @masdannn/license-guard — Client SDK Runtime (v2.0.0)
+ * Universal, offline-resilient, Vite/SPA-friendly, and anti-tamper client guard SDK.
  */
 
 export interface LicenseGuardConfig {
@@ -12,7 +12,7 @@ export interface LicenseGuardConfig {
   endpoint?: string;
   domain?: string;
   redirect?: string;
-  interval?: number; // interval in seconds (default 300)
+  interval?: number; // heartbeat interval in seconds (default 300)
 }
 
 export interface LicenseState {
@@ -21,10 +21,11 @@ export interface LicenseState {
   token?: string | null;
   lastCheck?: number;
   suspendedAt?: number | null;
+  tamperReason?: string;
 }
 
 const DEFAULT_ENDPOINT = 'https://license-tau-nine.vercel.app';
-const STORAGE_KEY = '_lg_guard_state';
+const STORAGE_KEY = '_lg_guard_state_v2';
 const OVERLAY_ID = '__license_guard_lock_overlay__';
 
 /**
@@ -32,45 +33,90 @@ const OVERLAY_ID = '__license_guard_lock_overlay__';
  */
 export function encodeLicensePayload(data: { apiKey: string; endpoint: string; domain?: string }): string {
   const jsonStr = JSON.stringify(data);
-  const b64 = typeof Buffer !== 'undefined'
-    ? Buffer.from(jsonStr, 'utf-8').toString('base64')
-    : btoa(unescape(encodeURIComponent(jsonStr)));
+  const b64 =
+    typeof Buffer !== 'undefined'
+      ? Buffer.from(jsonStr, 'utf-8').toString('base64')
+      : btoa(unescape(encodeURIComponent(jsonStr)));
   const obfuscated = b64
     .split('')
     .map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ ((i % 5) + 1)))
     .join('');
-  const finalB64 = typeof Buffer !== 'undefined'
-    ? Buffer.from(obfuscated, 'binary').toString('base64')
-    : btoa(obfuscated);
+  const finalB64 =
+    typeof Buffer !== 'undefined'
+      ? Buffer.from(obfuscated, 'binary').toString('base64')
+      : btoa(obfuscated);
   return 'LGK_' + finalB64;
 }
 
 export function decodeLicensePayload(encoded: string): { apiKey: string; endpoint: string; domain?: string } {
   try {
     const raw = encoded.startsWith('LGK_') ? encoded.slice(4) : encoded;
-    const binStr = typeof atob === 'function'
-      ? atob(raw)
-      : Buffer.from(raw, 'base64').toString('binary');
+    const binStr =
+      typeof atob === 'function'
+        ? atob(raw)
+        : Buffer.from(raw, 'base64').toString('binary');
     const unobfuscated = binStr
       .split('')
       .map((c, i) => String.fromCharCode(c.charCodeAt(0) ^ ((i % 5) + 1)))
       .join('');
-    const jsonStr = typeof atob === 'function'
-      ? decodeURIComponent(escape(atob(unobfuscated)))
-      : Buffer.from(unobfuscated, 'base64').toString('utf-8');
+    const jsonStr =
+      typeof atob === 'function'
+        ? decodeURIComponent(escape(atob(unobfuscated)))
+        : Buffer.from(unobfuscated, 'base64').toString('utf-8');
     return JSON.parse(jsonStr);
   } catch {
     return { apiKey: encoded, endpoint: DEFAULT_ENDPOINT };
   }
 }
 
-// ── Overlay Renderer (Embedded directly — zero external dependency) ──
-function renderLockScreen(reason: string, pageUrl: string, suspendedTime: string) {
-  if (typeof document === 'undefined') return;
-  if (document.getElementById(OVERLAY_ID)) return;
+export function generateEmergencyBypassToken(apiKey: string, domain: string): string {
+  const secret = 'EBP_SALT_masdannn_guard_98f4';
+  let hash = 0;
+  const str = `${apiKey}:${domain}:${secret}`;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  const hex = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+  const part2 = Math.abs(hash ^ 0x5a5a5a5a).toString(16).toUpperCase().padStart(8, '0');
+  return `EBP-${hex}${part2}`;
+}
 
-  const overlay = document.createElement('div');
+export function validateEmergencyBypassToken(token: string, apiKey: string, domain: string): boolean {
+  if (!token || !token.startsWith('EBP-')) return false;
+  const expected = generateEmergencyBypassToken(apiKey, domain);
+  return token.toUpperCase() === expected.toUpperCase();
+}
+
+// ── Overlay Renderer (Embedded directly — zero external CSS dependency) ──
+function renderLockScreen(reason: string, pageUrl: string, suspendedTime: string, customHtml?: string | null) {
+  if (typeof document === 'undefined') return;
+
+  let overlay = document.getElementById(OVERLAY_ID);
+  if (overlay) return;
+
+  overlay = document.createElement('div');
   overlay.id = OVERLAY_ID;
+
+  if (customHtml && customHtml.trim()) {
+    overlay.style.cssText = [
+      'position: fixed !important',
+      'top: 0 !important',
+      'left: 0 !important',
+      'width: 100vw !important',
+      'height: 100vh !important',
+      'z-index: 2147483647 !important',
+      'background: #ffffff !important',
+      'margin: 0 !important',
+      'padding: 0 !important',
+      'overflow: auto !important',
+      'pointer-events: auto !important',
+    ].join(';');
+    overlay.innerHTML = customHtml;
+    document.body.appendChild(overlay);
+    return;
+  }
+
   overlay.style.cssText = [
     'position: fixed !important',
     'top: 0 !important',
@@ -88,61 +134,68 @@ function renderLockScreen(reason: string, pageUrl: string, suspendedTime: string
     'overflow-y: auto !important',
     'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important',
     'color: #09090b !important',
+    'pointer-events: auto !important',
   ].join(';');
+
+  const reasonTitle =
+    reason === 'TAMPERED'
+      ? 'Akses Dibatasi: Modifikasi Tidak Sah'
+      : 'Akses Halaman Ditangguhkan';
 
   const reasonText =
     reason === 'TAMPERED'
-      ? 'Domain Mismatch / Modifikasi Tidak Sah'
+      ? 'Domain Mismatch / File Lisensi Dimodifikasi'
       : 'Lisensi Dinonaktifkan oleh Administrator';
 
   overlay.innerHTML = `
-    <div style="max-width:640px;width:100%;margin:auto;text-align:center;animation:lgFade 0.3s ease-out;">
-      <div style="width:90px;height:90px;margin:0 auto 20px;background:#fef2f2;border:2px solid #fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <div style="max-width:620px;width:100%;margin:auto;text-align:center;animation:lgFade 0.3s ease-out;">
+      <div style="width:84px;height:84px;margin:0 auto 20px;background:#fef2f2;border:2px solid #fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"/>
           <line x1="12" y1="8" x2="12" y2="12"/>
           <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
       </div>
 
-      <h1 style="margin:0 0 12px;font-size:32px;font-weight:800;letter-spacing:-0.03em;color:#09090b;line-height:1.2;">
-        Halaman Ditangguhkan
+      <h1 style="margin:0 0 12px;font-size:28px;font-weight:800;letter-spacing:-0.03em;color:#09090b;line-height:1.25;">
+        ${reasonTitle}
       </h1>
 
-      <p style="margin:0 auto 28px;font-size:15px;line-height:1.6;color:#52525b;max-width:520px;">
-        Akses ke halaman ini sementara ditangguhkan. Silakan hubungi pengelola atau administrator sistem untuk mengaktifkan kembali lisensi Anda.
+      <p style="margin:0 auto 24px;font-size:14px;line-height:1.6;color:#52525b;max-width:480px;">
+        Akses ke website ini sementara ditangguhkan oleh pengelola lisensi. Website akan aktif kembali secara otomatis begitu lisensi dipulihkan di dashboard admin.
       </p>
 
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:20px;text-align:left;font-size:13px;line-height:1.6;margin-bottom:28px;">
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px;text-align:left;font-size:13px;line-height:1.6;margin-bottom:24px;">
         <div style="padding-bottom:10px;border-bottom:1px solid #e2e8f0;">
-          <div style="color:#64748b;font-size:12px;font-weight:600;margin-bottom:4px;">Target URL:</div>
-          <div style="color:#09090b;font-family:ui-monospace,SFMono-Regular,monospace;font-size:13px;font-weight:600;word-break:break-all;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;">
+          <div style="color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Domain Terdeteksi:</div>
+          <div style="color:#09090b;font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;font-weight:600;word-break:break-all;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:7px 10px;">
             ${pageUrl}
           </div>
         </div>
 
-        <div style="padding:10px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+        <div style="padding:9px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
           <span style="color:#64748b;font-size:12px;font-weight:600;">Waktu Penangguhan:</span>
-          <span style="color:#09090b;font-family:ui-monospace,SFMono-Regular,monospace;font-size:13px;font-weight:700;">
+          <span style="color:#09090b;font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;font-weight:700;">
             ${suspendedTime}
           </span>
         </div>
 
-        <div style="padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
+        <div style="padding-top:9px;display:flex;justify-content:space-between;align-items:center;">
           <span style="color:#64748b;font-size:12px;font-weight:600;">Status Lisensi:</span>
-          <span style="color:#ef4444;font-size:13px;font-weight:700;">
+          <span style="color:#ef4444;font-size:12px;font-weight:700;">
             ${reasonText}
           </span>
         </div>
       </div>
 
-      <div style="font-size:12px;color:#a1a1aa;display:flex;align-items:center;justify-content:center;gap:6px;">
-        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;"></span>
-        <span>Protected by Centralized License Guard</span>
+      <div style="font-size:11px;color:#a1a1aa;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;animation:lgPulse 1.5s infinite;"></span>
+        <span>Centralized License Guard v2.0 &bull; Auto-Sync Active</span>
       </div>
     </div>
     <style>
-      @keyframes lgFade{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+      @keyframes lgFade{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+      @keyframes lgPulse{0%,100%{opacity:1}50%{opacity:0.3}}
     </style>
   `;
 
@@ -151,7 +204,7 @@ function renderLockScreen(reason: string, pageUrl: string, suspendedTime: string
 
   const append = () => {
     if (document.body && !document.getElementById(OVERLAY_ID)) {
-      document.body.appendChild(overlay);
+      document.body.appendChild(overlay!);
     }
   };
 
@@ -164,12 +217,22 @@ function renderLockScreen(reason: string, pageUrl: string, suspendedTime: string
 
 function removeLockScreen() {
   if (typeof document === 'undefined') return;
+
   const overlay = document.getElementById(OVERLAY_ID);
   if (overlay && overlay.parentNode) {
     overlay.parentNode.removeChild(overlay);
   }
+
+  // Restore scrolling and interactivity cleanly in Vite / React / Vue SPAs
   document.documentElement.style.overflow = '';
   document.body.style.overflow = '';
+
+  // Dispatch custom window event so framework components can re-render if needed
+  if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+    try {
+      window.dispatchEvent(new CustomEvent('license-guard:unlocked', { detail: { unlocked: true } }));
+    } catch { /* ignore */ }
+  }
 }
 
 function formatTime(ts: number | null | undefined): string {
@@ -187,7 +250,16 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
   if (initialized) return;
   initialized = true;
 
-  // Extract credentials from key or plain config
+  // Check if Emergency Bypass is active
+  try {
+    const bypassActive = localStorage.getItem('_lg_emergency_bypass');
+    if (bypassActive === 'true') {
+      removeLockScreen();
+      return;
+    }
+  } catch { /* ignore */ }
+
+  // Extract credentials from key or fallback
   let apiKey = config.apiKey || '';
   let endpoint = config.endpoint || DEFAULT_ENDPOINT;
 
@@ -197,8 +269,12 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
     endpoint = decoded.endpoint || endpoint;
   }
 
+  // Anti-tamper check: if key is completely missing at runtime
   if (!apiKey) {
-    console.warn('[@masdannn/license-guard] No license key provided.');
+    console.warn('[@masdannn/license-guard] License configuration key is missing or corrupted.');
+    // Trigger tamper lock and report telemetry
+    renderLockScreen('TAMPERED', window.location.href, formatTime(Date.now()));
+    reportTamperTelemetry(endpoint, 'License key missing or stripped from source code');
     return;
   }
 
@@ -218,7 +294,7 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
     if (cached) state = JSON.parse(cached);
   } catch { /* ignore */ }
 
-  const triggerLock = (status: 'SUSPENDED' | 'TAMPERED') => {
+  const triggerLock = (status: 'SUSPENDED' | 'TAMPERED', customHtml?: string | null) => {
     state.valid = false;
     state.status = status;
     if (!state.suspendedAt) state.suspendedAt = Date.now();
@@ -231,9 +307,9 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
       return;
     }
 
-    renderLockScreen(status, window.location.href, formatTime(state.suspendedAt));
+    renderLockScreen(status, window.location.href, formatTime(state.suspendedAt), customHtml);
 
-    // Fast polling (every 3s) while locked to auto-unlock when Admin activates in dashboard
+    // Rapid polling (every 3s) while locked to auto-unlock instantly when Admin activates in dashboard
     if (!pollTimer) {
       pollTimer = setInterval(performHeartbeat, 3000);
     }
@@ -266,21 +342,26 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
       });
 
       if (res.status === 200) {
-        const data = (await res.json()) as { valid?: boolean; status?: 'ACTIVE' | 'SUSPENDED' | 'TAMPERED' };
+        const data = (await res.json()) as {
+          valid?: boolean;
+          status?: 'ACTIVE' | 'SUSPENDED' | 'TAMPERED';
+          customHtml?: string;
+        };
+        state.lastCheck = Date.now();
+
         if (data.valid && data.status === 'ACTIVE') {
-          state.lastCheck = Date.now();
           triggerUnlock();
         } else {
           const s = data.status === 'TAMPERED' ? 'TAMPERED' : 'SUSPENDED';
-          triggerLock(s);
+          triggerLock(s, data.customHtml);
         }
       } else if (res.status === 403 || res.status === 401) {
-        let errStatus: 'SUSPENDED' | 'TAMPERED' = 'SUSPENDED';
-        try {
-          const errData = await res.json();
-          if (errData.status) errStatus = errData.status;
-        } catch { /* ignore */ }
-        triggerLock(errStatus);
+        const data = (await res.json()) as {
+          status?: 'SUSPENDED' | 'TAMPERED';
+          customHtml?: string;
+        };
+        state.lastCheck = Date.now();
+        triggerLock(data.status || 'SUSPENDED', data.customHtml);
       }
     } catch {
       // Network tolerance — only lock if already previously marked invalid
@@ -308,7 +389,7 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
     }
   });
 
-  // Anti-tamper: re-inject overlay if removed from DevTools
+  // Anti-tamper: re-inject overlay if removed via DevTools
   if (typeof window !== 'undefined' && window.MutationObserver) {
     const observer = new MutationObserver(() => {
       if (!state.valid && !document.getElementById(OVERLAY_ID) && document.body) {
@@ -317,6 +398,21 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
     });
     observer.observe(document.documentElement, { childList: true, subtree: true });
   }
+}
+
+async function reportTamperTelemetry(endpoint: string, reason: string) {
+  try {
+    const targetDomain = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
+    await fetch(`${endpoint.replace(/\/$/, '')}/api/license/heartbeat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        apiKey: 'TAMPER_REPORT',
+        domain: targetDomain,
+        tamperReason: reason,
+      }),
+    });
+  } catch { /* ignore */ }
 }
 
 /**
@@ -334,7 +430,11 @@ export function guardMiddleware(config: { key?: string; apiKey?: string; endpoin
 
   const targetDomain = config.domain || 'localhost';
 
-  return async function (req: any, res: any, next: any) {
+  return async function (
+    req: { headers?: Record<string, string | string[] | undefined>; hostname?: string },
+    res: { status: (code: number) => { json: (body: unknown) => void; send: (body: string) => void } },
+    next: () => void
+  ) {
     try {
       const response = await fetch(`${endpoint.replace(/\/$/, '')}/api/license/heartbeat`, {
         method: 'POST',
@@ -353,4 +453,14 @@ export function guardMiddleware(config: { key?: string; apiKey?: string; endpoin
       if (next) next();
     }
   };
+}
+
+/**
+ * Universal React / Next.js Component Export (Build-Safe)
+ */
+export function LicenseGuard({ key }: { key?: string }) {
+  if (typeof window !== 'undefined') {
+    initGuard({ key });
+  }
+  return null;
 }

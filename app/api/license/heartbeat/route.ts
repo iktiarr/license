@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { signLicenseToken } from '@/lib/jwt';
 import { jsonWithCors, handleOptions } from '@/lib/cors';
-import { isDomainMatch } from '@/lib/domain';
+import { isDomainMatch, normalizeDomain } from '@/lib/domain';
 import { NextRequest } from 'next/server';
 
 export async function OPTIONS() {
@@ -10,19 +10,64 @@ export async function OPTIONS() {
 
 /**
  * POST /api/license/heartbeat
- * Body: { apiKey: string, domain: string, serverIp?: string }
+ * Body: { apiKey: string, domain: string, serverIp?: string, tamperReason?: string }
  *
  * Catatan: Heartbeat rutin HANYA memperbarui lastHeartbeat di data Project
  * dan TIDAK dicatat ke ActivityLog agar database tidak penuh.
+ * Namun jika terdeteksi modifikasi / tamper attempt, log dicatat ke ActivityLog.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { apiKey, domain, serverIp } = body as {
+    const { apiKey, domain, serverIp, tamperReason } = body as {
       apiKey?: string;
       domain?: string;
       serverIp?: string;
+      tamperReason?: string;
     };
+
+    const ip =
+      request.headers.get('x-forwarded-for') ??
+      request.headers.get('x-real-ip') ??
+      null;
+
+    const requestDomain = domain || 'localhost';
+    const cleanRequestDomain = normalizeDomain(requestDomain);
+
+    // 1. Handle Tamper Telemetry from SDK
+    if (tamperReason || apiKey === 'TAMPER_REPORT') {
+      const project = await db.project.findFirst({
+        where: {
+          OR: [
+            { domain: cleanRequestDomain },
+            apiKey && apiKey !== 'TAMPER_REPORT' ? { apiKey } : {},
+          ],
+        },
+      });
+
+      if (project) {
+        await db.activityLog.create({
+          data: {
+            projectId: project.id,
+            event: 'TAMPER_ATTEMPT',
+            ipAddress: ip,
+            metadata: {
+              reason: tamperReason || 'Client license configuration missing or tampered',
+              domain: requestDomain,
+            },
+          },
+        });
+      }
+
+      return jsonWithCors(
+        {
+          error: 'Tamper attempt recorded: ' + (tamperReason || 'Configuration tampered'),
+          valid: false,
+          status: 'TAMPERED',
+        },
+        { status: 403 }
+      );
+    }
 
     if (!apiKey) {
       return jsonWithCors(
@@ -31,18 +76,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const project = await db.project.findUnique({ where: { apiKey } });
+    const project = await db.project.findUnique({
+      where: { apiKey },
+      include: {
+        template: {
+          select: { id: true, name: true, htmlContent: true },
+        },
+      },
+    });
 
     if (!project) {
       return jsonWithCors({ error: 'Invalid API key', valid: false }, { status: 401 });
     }
-
-    const ip =
-      request.headers.get('x-forwarded-for') ??
-      request.headers.get('x-real-ip') ??
-      null;
-
-    const requestDomain = domain || 'localhost';
 
     // Domain tamper check using smart matcher
     if (!isDomainMatch(project.domain, requestDomain)) {
@@ -65,6 +110,7 @@ export async function POST(request: NextRequest) {
           error: 'Domain mismatch — tamper detected',
           valid: false,
           status: 'TAMPERED',
+          customHtml: project.template?.htmlContent || null,
         },
         { status: 403 }
       );
@@ -72,7 +118,11 @@ export async function POST(request: NextRequest) {
 
     // Check if project is suspended by Admin (tanpa insert log rutin)
     if (project.status === 'SUSPENDED') {
-      return jsonWithCors({ valid: false, status: 'SUSPENDED' }, { status: 403 });
+      return jsonWithCors({
+        valid: false,
+        status: 'SUSPENDED',
+        customHtml: project.template?.htmlContent || null,
+      }, { status: 403 });
     }
 
     // Update heartbeat timestamp & server IP pada data Project

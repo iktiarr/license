@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { signLicenseToken } from '@/lib/jwt';
 import { revalidatePath } from 'next/cache';
 import { auth } from '@/lib/auth';
-import { checkPlanAllowance, PlanTier } from '@/lib/plans';
+import { PlanTier } from '@/lib/plans';
 
 type ProjectStatus = 'ACTIVE' | 'SUSPENDED' | 'TAMPERED';
 
@@ -26,24 +26,27 @@ export async function createProject(formData: FormData) {
   const userId = session?.user?.id;
   const role = (session?.user as { role?: string })?.role;
   const isAdmin = role === 'ADMIN';
-  const plan = ((session?.user as { plan?: PlanTier })?.plan || (isAdmin ? 'MAX' : 'FREE')) as PlanTier;
 
   // Check quota if not admin
   if (!isAdmin && userId) {
-    const userProjects = await db.project.findMany({
-      where: { userId },
-      select: { frameworkType: true },
+    const { getPlanConfigById } = await import('@/lib/plans');
+    const liveUser = await db.user.findUnique({
+      where: { id: userId },
+      select: { plan: true },
     });
+    const userPlanTier = (liveUser?.plan || 'FREE') as PlanTier;
+    const planConfig = await getPlanConfigById(userPlanTier);
 
-    const totalProjects = userProjects.length;
-    const frameworkProjects = userProjects.filter((p) => p.frameworkType === 'FRAMEWORK').length;
-    const isNewFramework = frameworkType === 'FRAMEWORK';
+    const totalProjects = await db.project.count({ where: { userId } });
 
-    const allowance = checkPlanAllowance(plan, totalProjects, frameworkProjects, isNewFramework);
-    if (!allowance.allowed) {
-      return { error: allowance.reason || 'Kapasitas paket lisensi Anda telah tercapai.' };
+    if (totalProjects >= planConfig.maxProjects) {
+      return {
+        error: `Batas domain tercapai (${totalProjects}/${planConfig.maxProjects}). Paket ${planConfig.name} hanya mengizinkan maksimal ${planConfig.maxProjects} domain. Silakan upgrade paket Anda di menu Pricing.`,
+      };
     }
   }
+
+  const customApiKey = (formData.get('apiKey') as string)?.trim();
 
   try {
     const project = await db.project.create({
@@ -54,6 +57,7 @@ export async function createProject(formData: FormData) {
         gracePeriod,
         frameworkType,
         userId: userId || null,
+        ...(customApiKey ? { apiKey: customApiKey } : {}),
       },
     });
 

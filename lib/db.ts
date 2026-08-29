@@ -5,7 +5,7 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-function createPrismaClient(): PrismaClient {
+export function createPrismaClient(): PrismaClient {
   const connectionString =
     process.env.DATABASE_URL ||
     'postgresql://dummy:dummy@localhost:5432/dummy';
@@ -13,18 +13,18 @@ function createPrismaClient(): PrismaClient {
   return new PrismaClient({ adapter });
 }
 
-function getPrismaClient(): PrismaClient {
-  if (!globalForPrisma.prisma || !(globalForPrisma.prisma as any).user) {
+export function getPrismaClient(): PrismaClient {
+  if (!globalForPrisma.prisma) {
     globalForPrisma.prisma = createPrismaClient();
   }
   return globalForPrisma.prisma;
 }
 
-// Export dynamic Proxy to ensure fresh PrismaClient models (user, project, logs) in development hot-reloading
+// Export dynamic Proxy to ensure fresh PrismaClient models (user, project, logs, planSetting) in development hot-reloading
 export const db: PrismaClient = new Proxy({} as PrismaClient, {
   get(_target, prop) {
     const client = getPrismaClient();
-    const val = (client as any)[prop];
+    const val = Reflect.get(client, prop, client);
     if (typeof val === 'function') {
       return val.bind(client);
     }

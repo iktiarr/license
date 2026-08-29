@@ -94,21 +94,87 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const adminEmail = (process.env.ADMIN_EMAIL || adminEmailDefault).trim().toLowerCase();
       if (user) {
         token.id = user.id;
-        const isAdmin = (user as any).role === 'ADMIN' || (user as any).email?.toLowerCase() === adminEmail || (user as any).name?.toLowerCase() === 'admin';
-        token.role = isAdmin ? 'ADMIN' : ((user as any).role || 'DEVELOPER');
-        token.plan = isAdmin ? 'MAX' : ((user as any).plan || 'FREE');
+        const isAdmin = (user as { role?: string }).role === 'ADMIN' || (user as { email?: string }).email?.toLowerCase() === adminEmail || user.name?.toLowerCase() === 'admin';
+        token.role = isAdmin ? 'ADMIN' : ((user as { role?: string }).role || 'DEVELOPER');
+        token.plan = isAdmin ? 'MAX' : ((user as { plan?: PlanTier }).plan || 'FREE');
         token.name = user.name;
-        token.phone = (user as any).phone || '';
+        token.phone = (user as { phone?: string }).phone || '';
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
         const isAdmin = token.role === 'ADMIN';
-        session.user.id = token.id as string;
-        (session.user as any).role = isAdmin ? 'ADMIN' : (token.role as string || 'DEVELOPER');
-        (session.user as any).plan = (isAdmin ? 'MAX' : (token.plan as PlanTier)) || (isAdmin ? 'MAX' : 'FREE');
-        (session.user as any).phone = token.phone as string;
+        const userId = token.id as string;
+        session.user.id = userId;
+
+        if (isAdmin || userId === 'root-admin') {
+          (session.user as { role?: string }).role = 'ADMIN';
+          (session.user as { plan?: PlanTier }).plan = 'MAX' as PlanTier;
+          (session.user as { phone?: string }).phone = token.phone as string;
+        } else {
+          // Always query live user state from database so admin plan upgrades apply immediately without re-login!
+          try {
+            const liveUser = await db.user.findUnique({
+              where: { id: userId },
+              select: {
+                role: true,
+                plan: true,
+                phone: true,
+                username: true,
+                planExpiresAt: true,
+                updatedAt: true,
+                createdAt: true,
+              },
+            });
+            if (liveUser) {
+              const liveIsAdmin = liveUser.role === 'ADMIN';
+              let currentPlan = liveUser.plan as PlanTier;
+              let isExpired = false;
+              let daysLeft: number | null = null;
+
+              // Check if paid subscription has expired (Auto-Downgrade to FREE)
+              if (!liveIsAdmin && currentPlan !== 'FREE' && liveUser.planExpiresAt) {
+                const now = new Date();
+                const expiryDate = new Date(liveUser.planExpiresAt);
+
+                if (expiryDate < now) {
+                  // Plan has expired -> Auto downgrade in DB
+                  try {
+                    await db.user.update({
+                      where: { id: userId },
+                      data: { plan: 'FREE' },
+                    });
+                  } catch { /* ignore */ }
+                  currentPlan = 'FREE';
+                  isExpired = true;
+                } else {
+                  daysLeft = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                }
+              }
+
+              (session.user as { role?: string }).role = liveIsAdmin ? 'ADMIN' : liveUser.role;
+              (session.user as { plan?: PlanTier }).plan = liveIsAdmin ? ('MAX' as PlanTier) : currentPlan;
+              (session.user as { phone?: string }).phone = liveUser.phone;
+              (session.user as { planExpiresAt?: string | null }).planExpiresAt = liveUser.planExpiresAt ? liveUser.planExpiresAt.toISOString() : null;
+              (session.user as { planStartedAt?: string | null }).planStartedAt = liveUser.updatedAt ? liveUser.updatedAt.toISOString() : liveUser.createdAt.toISOString();
+              (session.user as { planDaysLeft?: number | null }).planDaysLeft = daysLeft;
+              (session.user as { isPlanExpired?: boolean }).isPlanExpired = isExpired;
+
+              if (liveUser.username) {
+                session.user.name = liveUser.username;
+              }
+            } else {
+              (session.user as { role?: string }).role = (token.role as string) || 'DEVELOPER';
+              (session.user as { plan?: PlanTier }).plan = (token.plan as PlanTier) || 'FREE';
+              (session.user as { phone?: string }).phone = token.phone as string;
+            }
+          } catch {
+            (session.user as { role?: string }).role = (token.role as string) || 'DEVELOPER';
+            (session.user as { plan?: PlanTier }).plan = (token.plan as PlanTier) || 'FREE';
+            (session.user as { phone?: string }).phone = token.phone as string;
+          }
+        }
       }
       return session;
     },

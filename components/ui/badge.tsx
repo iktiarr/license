@@ -3,22 +3,24 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1.5 rounded-md px-2.5 py-0.5 text-xs font-semibold tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2',
+  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2',
   {
     variants: {
       variant: {
         default:
-          'border border-zinc-700 bg-zinc-800 text-zinc-100',
+          'border border-slate-200 bg-slate-900 text-white',
         secondary:
-          'border border-zinc-800 bg-zinc-900 text-zinc-400',
+          'border border-slate-200 bg-slate-100 text-slate-700',
         outline:
-          'border border-zinc-700 text-zinc-300',
+          'border border-slate-300 text-slate-700 bg-white',
         success:
-          'border border-emerald-500/30 bg-emerald-500/10 text-emerald-400',
+          'border border-emerald-200 bg-emerald-50 text-emerald-700 font-medium',
         destructive:
-          'border border-rose-500/30 bg-rose-500/10 text-rose-400',
+          'border border-rose-200 bg-rose-50 text-rose-700 font-medium',
         warning:
-          'border border-amber-500/30 bg-amber-500/10 text-amber-400',
+          'border border-amber-200 bg-amber-50 text-amber-700 font-medium',
+        info:
+          'border border-sky-200 bg-sky-50 text-sky-700 font-medium',
       },
     },
     defaultVariants: {
@@ -40,10 +42,11 @@ function Badge({ className, variant, dot = false, children, ...props }: BadgePro
         <span
           className={cn(
             'inline-block h-1.5 w-1.5 rounded-full',
-            variant === 'success' && 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse',
-            variant === 'destructive' && 'bg-rose-400 shadow-[0_0_8px_rgba(248,113,113,0.6)]',
-            variant === 'warning' && 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]',
-            (!variant || variant === 'default' || variant === 'secondary' || variant === 'outline') && 'bg-zinc-400'
+            variant === 'success' && 'bg-emerald-500',
+            variant === 'destructive' && 'bg-rose-500',
+            variant === 'warning' && 'bg-amber-500',
+            variant === 'info' && 'bg-sky-500',
+            (!variant || variant === 'default' || variant === 'secondary' || variant === 'outline') && 'bg-slate-400'
           )}
         />
       )}
@@ -53,3 +56,4 @@ function Badge({ className, variant, dot = false, children, ...props }: BadgePro
 }
 
 export { Badge, badgeVariants };
+

@@ -4,154 +4,168 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import {
-  Terminal,
   FolderKanban,
   ScrollText,
   Settings,
   LogOut,
   LayoutDashboard,
-  Power,
   CreditCard,
   Users,
-  Sparkles,
+  Shield,
+  LayoutTemplate,
+  X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Session } from 'next-auth';
 import { PlanTier, PLAN_CONFIGS } from '@/lib/plans';
+import { InstallAppButton } from '@/components/pwa-installer';
 
 interface SidebarProps {
   session?: Session | null;
+  onClose?: () => void;
 }
 
-export default function Sidebar({ session }: SidebarProps) {
+export default function Sidebar({ session, onClose }: SidebarProps) {
   const pathname = usePathname();
 
-  const userName = session?.user?.name || session?.user?.email?.split('@')[0] || 'admin';
+  const userName = session?.user?.name || session?.user?.email?.split('@')[0] || 'Developer';
+  const userEmail = session?.user?.email || '';
   const role = (session?.user as { role?: string })?.role || 'DEVELOPER';
   const isAdmin = role === 'ADMIN';
   const planTier = ((session?.user as { plan?: PlanTier })?.plan || (isAdmin ? 'MAX' : 'FREE')) as PlanTier;
   const planConfig = PLAN_CONFIGS[planTier] || PLAN_CONFIGS.FREE;
 
   const baseNavItems = [
-    { href: '/', label: 'Overview', icon: LayoutDashboard, cmd: 'overview' },
-    { href: '/projects', label: 'Projects', icon: FolderKanban, cmd: 'projects' },
-    { href: '/logs', label: 'Logs', icon: ScrollText, cmd: 'logs' },
-    { href: '/billing', label: 'Pricing & Plan', icon: CreditCard, cmd: 'billing' },
-    { href: '/settings', label: 'Settings', icon: Settings, cmd: 'settings' },
+    { href: '/', label: 'Overview', icon: LayoutDashboard },
+    { href: '/projects', label: 'Projects', icon: FolderKanban },
+    {
+      href: '/templates',
+      label: 'Layar Kunci',
+      icon: LayoutTemplate,
+      badge: planTier === 'PRO' || planTier === 'MAX' || isAdmin ? undefined : 'PRO',
+    },
+    { href: '/logs', label: 'Audit Logs', icon: ScrollText },
+    { href: '/billing', label: 'Pricing & Plan', icon: CreditCard },
+    { href: '/settings', label: 'Settings', icon: Settings },
   ];
 
   const navItems = isAdmin
     ? [
-        ...baseNavItems.slice(0, 4),
-        { href: '/users', label: 'Users Hub', icon: Users, cmd: 'users' },
-        ...baseNavItems.slice(4),
+        ...baseNavItems.slice(0, 5),
+        { href: '/users', label: 'User Management', icon: Users, badge: undefined },
+        ...baseNavItems.slice(5),
       ]
     : baseNavItems;
 
   return (
-    <aside className="w-[240px] shrink-0 h-screen bg-black border-r border-zinc-800 flex flex-col justify-between select-none font-mono">
-      {/* Top: Brand Header */}
-      <div>
-        {/* Titlebar */}
-        <div className="h-14 px-4 border-b border-zinc-800 flex items-center gap-3">
-          <div className="flex gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
-          </div>
-          <div className="flex items-center gap-2">
-            <Terminal className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs text-zinc-300 font-semibold tracking-wider">
-              root@guard<span className="text-zinc-500">:~$</span>
-            </span>
-          </div>
-          {/* Live indicator */}
-          <span
-            className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.9)] animate-pulse"
-            title="System Live"
-          />
+    <aside className="w-64 h-full bg-white border-r border-slate-200 flex flex-col justify-between select-none">
+      {/* Top: Brand Header & Navigation */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Brand Header */}
+        <div className="h-16 px-5 border-b border-slate-100 flex items-center justify-between">
+          <Link
+            href="/"
+            onClick={onClose}
+            className="flex items-center gap-2.5 font-semibold text-slate-900 group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-sm group-hover:bg-slate-800 transition-colors">
+              <Shield className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <span className="text-sm font-bold tracking-tight text-slate-900 block leading-tight">
+                License Guard
+              </span>
+              <span className="text-[11px] font-normal text-slate-500 block leading-tight">
+                Control Hub
+              </span>
+            </div>
+          </Link>
+
+          {/* Close button for mobile drawer */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
-        {/* System Info Block */}
-        <div className="px-4 py-3 border-b border-zinc-800/60 flex items-center justify-between">
-          <div>
-            <p className="text-[10px] text-zinc-500 uppercase tracking-widest">Platform</p>
-            <p className="text-xs text-emerald-400 font-semibold tracking-wide">License Guard</p>
+        {/* Navigation Menu */}
+        <div className="p-3 space-y-1">
+          <p className="px-3 py-2 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+            Menu Utama
+          </p>
+          <nav className="space-y-0.5">
+            {navItems.map(({ href, label, icon: Icon, badge }) => {
+              const isActive =
+                href === '/'
+                  ? pathname === '/'
+                  : pathname.startsWith(href);
+
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={onClose}
+                  className={cn(
+                    'flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-slate-100 text-slate-900 font-semibold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  )}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon
+                      className={cn(
+                        'w-4 h-4 shrink-0 transition-colors',
+                        isActive ? 'text-slate-900' : 'text-slate-400'
+                      )}
+                    />
+                    <span className="truncate">{label}</span>
+                  </div>
+                  {badge && (
+                    <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      {badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
+
+      {/* Bottom: PWA, Profile Card & Logout */}
+      <div className="p-3 border-t border-slate-100 space-y-3 bg-slate-50/50">
+        {/* PWA Download Button */}
+        <div className="px-1">
+          <InstallAppButton className="w-full justify-center shadow-xs" />
+        </div>
+
+        {/* User Card */}
+        <div className="p-3 rounded-xl bg-white border border-slate-200/80 shadow-xs flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold shrink-0">
+            {userName.charAt(0).toUpperCase()}
           </div>
-          <span className={`text-[10px] font-bold px-2 py-0.5 rounded border uppercase ${planConfig.badgeColor}`}>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-slate-900 truncate">{userName}</p>
+            <p className="text-[11px] text-slate-500 truncate">{userEmail || (isAdmin ? 'Root Administrator' : 'Developer')}</p>
+          </div>
+          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
             {planConfig.name}
           </span>
         </div>
 
-        {/* Navigation Menu */}
-        <nav className="p-3 space-y-0.5">
-          <p className="px-2.5 py-2 text-xs font-semibold text-zinc-600 uppercase tracking-widest">
-            {"// navigation"}
-          </p>
-          {navItems.map(({ href, label, icon: Icon, cmd }) => {
-            const isActive =
-              href === '/'
-                ? pathname === '/'
-                : pathname.startsWith(href);
-
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'flex items-center gap-2.5 px-3 py-2.5 rounded text-sm transition-all duration-150 group',
-                  isActive
-                    ? 'bg-zinc-900 text-emerald-400 border border-zinc-800'
-                    : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-900/60'
-                )}
-              >
-                {/* Prompt indicator */}
-                <span className={cn(
-                  'text-[10px] transition-colors',
-                  isActive ? 'text-emerald-500' : 'text-zinc-700 group-hover:text-zinc-500'
-                )}>
-                  {isActive ? '▶' : '·'}
-                </span>
-                <Icon className={cn('w-4 h-4 shrink-0', isActive ? 'text-emerald-400' : 'text-zinc-600 group-hover:text-zinc-400')} />
-                <span className="tracking-wide text-sm">{label}</span>
-                {isActive && (
-                  <span className="ml-auto text-[10px] text-zinc-600 font-mono">
-                    {cmd}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Bottom: Profile & Sign Out */}
-      <div className="border-t border-zinc-800 p-3 space-y-2">
-        {/* User Info with Plan Badge */}
-        <div className="flex items-center gap-2.5 px-2.5 py-2 rounded bg-zinc-900/50 border border-zinc-800/60">
-          <div className="w-7 h-7 rounded bg-zinc-800 border border-zinc-700 flex items-center justify-center">
-            <Power className="w-3.5 h-3.5 text-emerald-500" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold text-zinc-200 truncate">{userName}</p>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded border uppercase ${planConfig.badgeColor}`}>
-                {planConfig.name}
-              </span>
-              <span className="text-[10px] text-zinc-600 truncate">{isAdmin ? 'Admin' : 'Dev'}</span>
-            </div>
-          </div>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-        </div>
-
-        {/* Sign Out */}
+        {/* Sign Out Button */}
         <button
           type="button"
           onClick={() => signOut({ callbackUrl: '/login' })}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded text-xs text-zinc-500 hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer tracking-wider font-bold"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border border-transparent hover:border-rose-100"
         >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>[ EXIT SESSION ]</span>
+          <LogOut className="w-4 h-4" />
+          <span>Keluar Sesi</span>
         </button>
       </div>
     </aside>

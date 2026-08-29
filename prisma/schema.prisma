@@ -34,10 +34,12 @@ model User {
   password      String    // bcrypt hashed
   role          String    @default("DEVELOPER") // "ADMIN" | "DEVELOPER"
   plan          PlanTier  @default(FREE)
+  planStartedAt DateTime?
   planExpiresAt DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   projects      Project[]
+  lockTemplates LockTemplate[]
 
   @@map("users")
 }
@@ -54,11 +56,27 @@ model Project {
   frameworkType String        @default("NATIVE") // "NATIVE" | "FRAMEWORK"
   userId        String?
   user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  templateId    String?
+  template      LockTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   logs          ActivityLog[]
 
   @@map("projects")
+}
+
+model LockTemplate {
+  id          String    @id @default(cuid())
+  name        String
+  htmlContent String    @db.Text
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isDefault   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  projects    Project[]
+
+  @@map("lock_templates")
 }
 
 model ActivityLog {
@@ -86,3 +104,17 @@ model PairingSession {
   @@index([code])
   @@map("pairing_sessions")
 }
+
+model PlanSetting {
+  id            String   @id // "FREE", "PLUS", "PRO", "MAX"
+  name          String
+  price         Int
+  maxProjects   Int      // banyaknya domain
+  retentionDays Int      // log dari penggunaan (hari)
+  tagline       String   @default("")
+  features      String[]
+  updatedAt     DateTime @updatedAt
+
+  @@map("plan_settings")
+}
+

@@ -1,6 +1,6 @@
 /**
- * @masdannn/license-guard — Client SDK Runtime
- * Fully self-contained, offline-resilient & anti-tamper client guard SDK.
+ * @masdannn/license-guard — Client SDK Runtime (v2.0.0)
+ * Universal, offline-resilient, Vite/SPA-friendly, and anti-tamper client guard SDK.
  */
 interface LicenseGuardConfig {
     /**
@@ -19,6 +19,7 @@ interface LicenseState {
     token?: string | null;
     lastCheck?: number;
     suspendedAt?: number | null;
+    tamperReason?: string;
 }
 /**
  * Reversible obfuscation cipher for client-side credential protection
@@ -33,6 +34,8 @@ declare function decodeLicensePayload(encoded: string): {
     endpoint: string;
     domain?: string;
 };
+declare function generateEmergencyBypassToken(apiKey: string, domain: string): string;
+declare function validateEmergencyBypassToken(token: string, apiKey: string, domain: string): boolean;
 declare function initGuard(config?: LicenseGuardConfig): void;
 /**
  * Server-side / Node.js Express Middleware Helper
@@ -42,6 +45,20 @@ declare function guardMiddleware(config: {
     apiKey?: string;
     endpoint?: string;
     domain?: string;
-}): (req: any, res: any, next: any) => Promise<any>;
+}): (req: {
+    headers?: Record<string, string | string[] | undefined>;
+    hostname?: string;
+}, res: {
+    status: (code: number) => {
+        json: (body: unknown) => void;
+        send: (body: string) => void;
+    };
+}, next: () => void) => Promise<void>;
+/**
+ * Universal React / Next.js Component Export (Build-Safe)
+ */
+declare function LicenseGuard({ key }: {
+    key?: string;
+}): null;
 
-export { type LicenseGuardConfig, type LicenseState, decodeLicensePayload, encodeLicensePayload, guardMiddleware, initGuard };
+export { LicenseGuard, type LicenseGuardConfig, type LicenseState, decodeLicensePayload, encodeLicensePayload, generateEmergencyBypassToken, guardMiddleware, initGuard, validateEmergencyBypassToken };

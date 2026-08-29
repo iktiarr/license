@@ -1,7 +1,7 @@
 {
   "name": "@masdannn/license-guard",
-  "version": "1.0.8",
-  "description": "Centralized Remote License Guard Client SDK & CLI Pairing Tool",
+  "version": "2.0.4",
+  "description": "Centralized Remote License Guard Client SDK & Multi-Platform CLI (v2)",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -22,7 +22,13 @@
     "guard",
     "security",
     "client-sdk",
-    "anti-tamper"
+    "anti-tamper",
+    "nextjs",
+    "vite",
+    "react",
+    "vue",
+    "flutter",
+    "php"
   ],
   "author": "Iktiar Ramadani",
   "license": "MIT",

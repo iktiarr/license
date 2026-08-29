@@ -4,14 +4,17 @@ import { signIn } from 'next-auth/react';
 import { useState, useTransition, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Terminal, Eye, EyeOff, ShieldAlert, CheckCircle2, ArrowRight, UserPlus, Lock, User } from 'lucide-react';
+import { Shield, Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, Lock, Mail } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 function LoginForm() {
   const searchParams = useSearchParams();
   const isRegistered = searchParams.get('registered') === 'true';
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const infoMsg = isRegistered ? 'REGISTRATION OK: Akun developer berhasil dibuat. Silakan login.' : '';
+  const infoMsg = isRegistered ? 'Akun developer berhasil dibuat. Silakan masuk ke dashboard.' : '';
   const [isPending, startTransition] = useTransition();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -22,7 +25,7 @@ function LoginForm() {
     const password = (formData.get('password') as string || '').trim();
 
     if (!identifier || !password) {
-      setError('VALIDATION ERROR: Username/Email dan password wajib diisi.');
+      setError('Username/Email dan password wajib diisi.');
       return;
     }
 
@@ -34,7 +37,7 @@ function LoginForm() {
       });
 
       if (result?.error) {
-        setError('ACCESS DENIED: Username/Email atau Password salah.');
+        setError('Username/Email atau Password tidak cocok.');
       } else {
         const callbackUrl = searchParams.get('callbackUrl') || '/';
         window.location.href = callbackUrl;
@@ -43,143 +46,118 @@ function LoginForm() {
   }
 
   return (
-    <div className="relative w-full max-w-sm border border-zinc-800 bg-zinc-950/95 rounded-xl shadow-2xl backdrop-blur-md overflow-hidden">
-      {/* Terminal Titlebar */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-zinc-900/90 border-b border-zinc-800/80 text-xs">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80" />
-          <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+    <Card className="w-full max-w-md shadow-lg border-slate-200 bg-white">
+      <CardHeader className="text-center space-y-2 pb-6">
+        <div className="mx-auto w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center shadow-md">
+          <Shield className="w-6 h-6 text-emerald-400" />
         </div>
-        <div className="flex items-center gap-1.5 text-zinc-400 text-xs">
-          <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="text-zinc-200 font-bold tracking-wider">root@guard:~$ auth --login</span>
-        </div>
-        <span className="w-2.5 h-2.5" />
-      </div>
+        <CardTitle className="text-xl font-bold text-slate-900">Masuk ke License Guard</CardTitle>
+        <CardDescription className="text-xs text-slate-500">
+          Kelola lisensi, domain target, dan remote killswitch aplikasi Anda
+        </CardDescription>
+      </CardHeader>
 
-      <div className="p-6 space-y-5">
-        {/* Header Info */}
-        <div className="border-b border-zinc-800/80 pb-3">
-          <h1 className="text-sm font-bold text-zinc-100 tracking-wide uppercase">
-            Developer Login Hub
-          </h1>
-          <p className="text-xs text-zinc-500 mt-0.5">
-            {"// Masuk untuk mengelola lisensi & instance klien"}
-          </p>
-        </div>
-
-        {/* Feedback Messages */}
+      <CardContent className="space-y-4">
+        {/* Info or Error Alerts */}
         {infoMsg && (
-          <div className="flex items-start gap-2 p-3 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs">
-            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2.5 p-3 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <span>{infoMsg}</span>
           </div>
         )}
 
         {error && (
-          <div className="flex items-start gap-2 p-3 rounded border border-rose-500/30 bg-rose-500/10 text-rose-400 text-xs animate-shake">
-            <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="flex items-start gap-2.5 p-3 rounded-lg border border-rose-200 bg-rose-50 text-rose-800 text-xs">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
             <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email / Username Field */}
-          <div className="space-y-1">
-            <label htmlFor="identifier" className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-zinc-400 font-bold">
-              <User className="w-3.5 h-3.5 text-emerald-400" />
-              <span>[ USERNAME ATAU EMAIL ]</span>
+          <div className="space-y-1.5">
+            <label htmlFor="identifier" className="text-xs font-semibold text-slate-700 block">
+              Username atau Alamat Email
             </label>
-            <div className="relative flex items-center bg-black border border-zinc-800 rounded-lg focus-within:border-emerald-500/80 focus-within:ring-1 focus-within:ring-emerald-500/40 transition-all">
-              <span className="pl-3 text-emerald-500 text-xs select-none">&gt;</span>
-              <input
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400">
+                <Mail className="w-4 h-4" />
+              </span>
+              <Input
                 id="identifier"
                 name="identifier"
                 type="text"
                 required
-                placeholder="username / email@example.com"
+                placeholder="nama_user atau dev@example.com"
                 autoComplete="username"
-                className="w-full bg-transparent px-2.5 py-2 text-xs text-zinc-100 focus:outline-none font-mono placeholder:text-zinc-700"
+                className="pl-9 h-10 text-sm"
               />
             </div>
           </div>
 
-          {/* Password Field */}
-          <div className="space-y-1">
-            <label htmlFor="password" className="flex items-center gap-1.5 text-xs uppercase tracking-wider text-zinc-400 font-bold">
-              <Lock className="w-3.5 h-3.5 text-emerald-400" />
-              <span>[ PASSWORD / KEY ]</span>
-            </label>
-            <div className="relative flex items-center bg-black border border-zinc-800 rounded-lg focus-within:border-emerald-500/80 focus-within:ring-1 focus-within:ring-emerald-500/40 transition-all">
-              <span className="pl-3 text-emerald-500 text-xs select-none">&gt;</span>
-              <input
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="text-xs font-semibold text-slate-700 block">
+                Password
+              </label>
+            </div>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-slate-400">
+                <Lock className="w-4 h-4" />
+              </span>
+              <Input
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
                 required
                 placeholder="••••••••"
                 autoComplete="current-password"
-                className="w-full bg-transparent px-2.5 py-2 pr-9 text-xs text-zinc-100 focus:outline-none font-mono placeholder:text-zinc-700"
+                className="pl-9 pr-10 h-10 text-sm"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2.5 text-zinc-500 hover:text-zinc-300 transition-colors p-1 cursor-pointer"
+                className="absolute right-3 text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+                title={showPassword ? 'Sembunyikan password' : 'Lihat password'}
               >
-                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
-          {/* Submit Button */}
-          <button
+          <Button
             id="login-submit"
             type="submit"
             disabled={isPending}
-            className="w-full mt-3 py-2.5 px-4 bg-zinc-100 hover:bg-emerald-400 text-black font-bold text-xs uppercase tracking-wider rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg"
+            className="w-full h-10 mt-2 font-semibold text-sm bg-slate-900 hover:bg-slate-800 text-white cursor-pointer"
           >
             {isPending ? (
-              <span>[ AUTHENTICATING... ]</span>
+              <span>Memproses...</span>
             ) : (
-              <>
-                <span>[ ACCESS SYSTEM ]</span>
-                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-              </>
+              <span className="flex items-center justify-center gap-2">
+                <span>Masuk Sekarang</span>
+                <ArrowRight className="w-4 h-4" />
+              </span>
             )}
-          </button>
+          </Button>
         </form>
+      </CardContent>
 
-        {/* Footer Link to Register */}
-        <div className="border-t border-zinc-800/80 pt-3 text-center">
-          <Link
-            href="/register"
-            className="text-xs text-zinc-500 hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5"
-          >
-            <UserPlus className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Developer baru?</span>
-            <span className="font-bold underline text-zinc-300 hover:text-emerald-400">cd ../register</span>
+      <CardFooter className="flex justify-center border-t border-slate-100 py-4 bg-slate-50/50 rounded-b-xl">
+        <p className="text-xs text-slate-500">
+          Belum memiliki akun developer?{' '}
+          <Link href="/register" className="font-semibold text-slate-900 hover:underline">
+            Daftar di sini
           </Link>
-        </div>
-      </div>
-    </div>
+        </p>
+      </CardFooter>
+    </Card>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-black text-zinc-100 flex items-center justify-center p-4 font-mono select-none relative overflow-hidden">
-      {/* Background Matrix/Grid Texture */}
-      <div
-        className="fixed inset-0 opacity-[0.03] pointer-events-none"
-        style={{
-          backgroundImage:
-            'linear-gradient(#10b981 1px, transparent 1px), linear-gradient(90deg, #10b981 1px, transparent 1px)',
-          backgroundSize: '32px 32px',
-        }}
-      />
-
-      <Suspense fallback={<div className="text-zinc-500 text-xs font-mono">Loading authentication interface...</div>}>
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-4">
+      <Suspense fallback={<div className="text-slate-500 text-xs">Memuat form login...</div>}>
         <LoginForm />
       </Suspense>
     </div>

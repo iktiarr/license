@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useTransition } from 'react';
-import { Eye, PauseCircle, PlayCircle } from 'lucide-react';
+import { useTransition, useState } from 'react';
+import { Eye, PauseCircle, PlayCircle, Copy, Check, Globe } from 'lucide-react';
 import { updateProjectStatus } from '@/lib/actions';
+import StatusBadge from '@/components/status-badge';
+import { Button } from '@/components/ui/button';
 
 export type ProjectWithStatus = {
   id: string;
@@ -14,24 +16,39 @@ export type ProjectWithStatus = {
   serverIp: string | null;
   createdAt: Date;
   apiKey: string;
-};
-
-const statusCfg = {
-  ACTIVE:    { dot: 'bg-emerald-500', text: 'text-emerald-400', label: 'ACTIVE' },
-  SUSPENDED: { dot: 'bg-rose-500',    text: 'text-rose-400',    label: 'SUSPEND' },
-  TAMPERED:  { dot: 'bg-amber-500',   text: 'text-amber-400',   label: 'TAMPER' },
+  userId?: string | null;
+  user?: {
+    id?: string;
+    username?: string;
+    email?: string;
+  } | null;
 };
 
 function formatDate(date: Date | null) {
-  if (!date) return '—';
+  if (!date) return 'Belum terhubung';
   return new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit', month: '2-digit', year: '2-digit',
-    hour: '2-digit', minute: '2-digit',
-  }).format(new Date(date)).replace(',', '');
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(date));
 }
 
-export default function ProjectTable({ projects }: { projects: ProjectWithStatus[] }) {
+export default function ProjectTable({
+  projects,
+  showOwner = true,
+}: {
+  projects: ProjectWithStatus[];
+  showOwner?: boolean;
+}) {
   const [isPending, startTransition] = useTransition();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  function copyKey(key: string, id: string) {
+    navigator.clipboard.writeText(key);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  }
 
   function toggleStatus(id: string, currentStatus: string) {
     const newStatus = currentStatus === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
@@ -42,10 +59,10 @@ export default function ProjectTable({ projects }: { projects: ProjectWithStatus
 
   if (projects.length === 0) {
     return (
-      <div className="text-center py-16 font-mono">
-        <p className="text-xs text-zinc-600">// no projects registered yet</p>
-        <p className="text-xs text-zinc-700 mt-1">
-          run <span className="text-emerald-500">npx @masdannn/license-guard init</span> or add via dashboard
+      <div className="text-center py-16 px-4">
+        <p className="text-sm font-semibold text-slate-700">Belum ada project terdaftar</p>
+        <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+          Jalankan perintah CLI <code className="px-1.5 py-0.5 rounded bg-slate-100 font-mono text-slate-800">npx @masdannn/license-guard init</code> di terminal atau klik tombol di atas.
         </p>
       </div>
     );
@@ -53,94 +70,125 @@ export default function ProjectTable({ projects }: { projects: ProjectWithStatus
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left font-mono">
-        <thead className="border-b border-zinc-800/60 text-xs text-zinc-500 uppercase tracking-widest">
+      <table className="w-full text-left border-collapse">
+        <thead className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
           <tr>
-            <th className="px-4 py-3">Project</th>
-            <th className="px-4 py-3">Domain</th>
-            <th className="px-4 py-3">Status</th>
-            <th className="px-4 py-3">Last Seen</th>
-            <th className="px-4 py-3">API Key</th>
-            <th className="px-4 py-3 text-right">Actions</th>
+            <th className="px-5 py-3.5">Nama Project</th>
+            <th className="px-5 py-3.5">Domain</th>
+            {showOwner && <th className="px-5 py-3.5">Pemilik Akun</th>}
+            <th className="px-5 py-3.5">Status Lisensi</th>
+            <th className="px-5 py-3.5">Heartbeat Terakhir</th>
+            <th className="px-5 py-3.5">API Key</th>
+            <th className="px-5 py-3.5 text-right">Aksi</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-800/40">
-          {projects.map((project) => {
-            const cfg = statusCfg[project.status];
-            return (
-              <tr key={project.id} className="hover:bg-zinc-900/40 transition-colors group">
-                {/* Project Name */}
-                <td className="px-4 py-3.5">
-                  <Link
-                    href={`/projects/${project.id}`}
-                    className="text-xs font-semibold text-zinc-200 group-hover:text-white transition-colors"
+        <tbody className="divide-y divide-slate-100 text-sm">
+          {projects.map((project) => (
+            <tr key={project.id} className="hover:bg-slate-50/70 transition-colors">
+              {/* Project Name */}
+              <td className="px-5 py-4 whitespace-nowrap">
+                <Link
+                  href={`/projects/${project.id}`}
+                  className="font-semibold text-slate-900 hover:text-sky-600 transition-colors block"
+                >
+                  {project.name}
+                </Link>
+                <span className="text-[11px] text-slate-400 font-mono">
+                  ID: {project.id.slice(0, 8)}...
+                </span>
+              </td>
+
+              {/* Domain */}
+              <td className="px-5 py-4 whitespace-nowrap">
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200">
+                  <Globe className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{project.domain}</span>
+                </div>
+              </td>
+
+              {/* Owner */}
+              {showOwner && (
+                <td className="px-5 py-4 whitespace-nowrap">
+                  {project.user ? (
+                    <div className="flex flex-col">
+                      <span className="text-xs font-semibold text-slate-800">
+                        {project.user.email}
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        @{project.user.username}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-slate-400">—</span>
+                  )}
+                </td>
+              )}
+
+              {/* Status */}
+              <td className="px-5 py-4 whitespace-nowrap">
+                <StatusBadge status={project.status} />
+              </td>
+
+              {/* Last Heartbeat */}
+              <td className="px-5 py-4 whitespace-nowrap text-xs text-slate-500">
+                {formatDate(project.lastHeartbeat)}
+              </td>
+
+              {/* API Key */}
+              <td className="px-5 py-4 whitespace-nowrap">
+                <div className="inline-flex items-center gap-1.5">
+                  <span className="text-xs font-mono text-slate-600 bg-slate-50 px-2 py-0.5 rounded border border-slate-200">
+                    {project.apiKey.slice(0, 10)}••••
+                  </span>
+                  <button
+                    onClick={() => copyKey(project.apiKey, project.id)}
+                    className="p-1 rounded text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+                    title="Salin API Key"
                   >
-                    {project.name}
-                  </Link>
-                  <p className="text-xs text-zinc-700 mt-0.5">{project.id.slice(0, 12)}...</p>
-                </td>
-
-                {/* Domain */}
-                <td className="px-4 py-3.5 whitespace-nowrap">
-                  <span className="text-xs text-zinc-400 bg-black px-2 py-0.5 rounded border border-zinc-800">
-                    {project.domain}
-                  </span>
-                </td>
-
-                {/* Status */}
-                <td className="px-4 py-3.5 whitespace-nowrap">
-                  <div className="flex items-center gap-1.5">
-                    <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${project.status === 'ACTIVE' ? 'shadow-[0_0_4px_rgba(16,185,129,0.8)]' : ''}`} />
-                    <span className={`text-xs font-bold ${cfg.text}`}>{cfg.label}</span>
-                  </div>
-                </td>
-
-                {/* Last Heartbeat */}
-                <td className="px-4 py-3.5 whitespace-nowrap text-xs text-zinc-600">
-                  {formatDate(project.lastHeartbeat)}
-                </td>
-
-                {/* API Key */}
-                <td className="px-4 py-3.5 whitespace-nowrap">
-                  <span className="text-xs text-zinc-700 font-mono">
-                    {project.apiKey.slice(0, 16)}...
-                  </span>
-                </td>
-
-                {/* Actions */}
-                <td className="px-4 py-3.5 text-right whitespace-nowrap">
-                  <div className="flex items-center justify-end gap-2">
-                    {project.status === 'ACTIVE' ? (
-                      <button
-                        disabled={isPending}
-                        onClick={() => toggleStatus(project.id, project.status)}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-400 border border-rose-500/30 bg-rose-500/5 rounded hover:bg-rose-500/10 hover:border-rose-500/50 transition-all disabled:opacity-40 cursor-pointer"
-                      >
-                        <PauseCircle className="w-3 h-3" />
-                        suspend
-                      </button>
+                    {copiedId === project.id ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
                     ) : (
-                      <button
-                        disabled={isPending}
-                        onClick={() => toggleStatus(project.id, project.status)}
-                        className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-emerald-400 border border-emerald-500/30 bg-emerald-500/5 rounded hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all disabled:opacity-40 cursor-pointer"
-                      >
-                        <PlayCircle className="w-3 h-3" />
-                        activate
-                      </button>
+                      <Copy className="w-3.5 h-3.5" />
                     )}
-                    <Link
-                      href={`/projects/${project.id}`}
-                      className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-zinc-400 border border-zinc-800 rounded hover:border-zinc-600 hover:text-zinc-200 transition-all"
+                  </button>
+                </div>
+              </td>
+
+              {/* Actions */}
+              <td className="px-5 py-4 text-right whitespace-nowrap">
+                <div className="flex items-center justify-end gap-2">
+                  {project.status === 'ACTIVE' ? (
+                    <button
+                      disabled={isPending}
+                      onClick={() => toggleStatus(project.id, project.status)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                      title="Kunci / Tangguhkan lisensi"
                     >
-                      <Eye className="w-3 h-3" />
-                      view
+                      <PauseCircle className="w-3.5 h-3.5" />
+                      <span>Suspend</span>
+                    </button>
+                  ) : (
+                    <button
+                      disabled={isPending}
+                      onClick={() => toggleStatus(project.id, project.status)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                      title="Buka / Aktifkan lisensi"
+                    >
+                      <PlayCircle className="w-3.5 h-3.5" />
+                      <span>Aktifkan</span>
+                    </button>
+                  )}
+
+                  <Button asChild variant="outline" size="sm" className="h-7 px-2.5 text-xs">
+                    <Link href={`/projects/${project.id}`}>
+                      <Eye className="w-3.5 h-3.5 mr-1" />
+                      <span>Detail</span>
                     </Link>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

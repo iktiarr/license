@@ -5,8 +5,8 @@ import { PlanTier } from '@/lib/plans';
 
 /**
  * PATCH /api/admin/users/plan
- * Admin-only endpoint to upgrade/downgrade a user's plan tier
- * Body: { userId: string, plan: PlanTier }
+ * Admin-only endpoint to upgrade/downgrade a user's plan tier and set active period (Jatuh Tempo)
+ * Body: { userId: string, plan: PlanTier, planStartedAt?: string | null, planExpiresAt?: string | null }
  */
 export async function PATCH(req: NextRequest) {
   try {
@@ -19,7 +19,12 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { userId, plan } = body as { userId?: string; plan?: PlanTier };
+    const { userId, plan, planStartedAt, planExpiresAt } = body as {
+      userId?: string;
+      plan?: PlanTier;
+      planStartedAt?: string | null;
+      planExpiresAt?: string | null;
+    };
 
     if (!userId || !plan) {
       return NextResponse.json(
@@ -36,10 +41,27 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    let startedAtDate: Date | null = null;
+    let expiresAtDate: Date | null = null;
+
+    if (plan !== 'FREE') {
+      startedAtDate = planStartedAt ? new Date(planStartedAt) : new Date();
+      if (planExpiresAt) {
+        expiresAtDate = new Date(planExpiresAt);
+      } else {
+        // Default 30 days if not specified
+        expiresAtDate = new Date(startedAtDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+      }
+    } else {
+      startedAtDate = null;
+      expiresAtDate = null;
+    }
+
     const updatedUser = await db.user.update({
       where: { id: userId },
       data: {
         plan,
+        planExpiresAt: expiresAtDate,
         updatedAt: new Date(),
       },
       select: {
@@ -48,18 +70,22 @@ export async function PATCH(req: NextRequest) {
         email: true,
         plan: true,
         role: true,
+        planExpiresAt: true,
+        updatedAt: true,
       },
     });
 
     return NextResponse.json({
       success: true,
-      message: `Paket pengguna ${updatedUser.username} berhasil diubah ke ${plan}.`,
+      message: `Paket pengguna ${updatedUser.username} berhasil diubah ke ${plan}${
+        expiresAtDate ? ` (Aktif s/d ${new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).format(expiresAtDate)})` : ''
+      }.`,
       user: updatedUser,
     });
   } catch (err: unknown) {
     console.error('[admin/users/plan]', err);
     return NextResponse.json(
-      { error: 'Gagal memperbarui paket pengguna.' },
+      { error: 'Gagal memperbarui paket dan masa aktif pengguna.' },
       { status: 500 }
     );
   }

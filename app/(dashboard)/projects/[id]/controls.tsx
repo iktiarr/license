@@ -3,7 +3,8 @@
 import { useTransition, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateProjectStatus, deleteProject } from '@/lib/actions';
-import { PauseCircle, PlayCircle, Trash2, Power } from 'lucide-react';
+import { PauseCircle, PlayCircle, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 type ProjectStatus = 'ACTIVE' | 'SUSPENDED' | 'TAMPERED';
 
@@ -38,52 +39,48 @@ export default function ProjectControls({ project }: Props) {
   }
 
   return (
-    <div className="flex items-center gap-3 bg-zinc-950 border border-zinc-800 p-2 rounded font-mono">
-      {/* Status indicator button */}
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-black border border-zinc-800/80 rounded text-xs">
-        <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.8)]' : 'bg-rose-500'}`} />
-        <span className={`font-bold ${isActive ? 'text-emerald-400' : 'text-rose-400'}`}>
-          {isActive ? 'ACTIVE' : 'SUSPENDED'}
-        </span>
-      </div>
-
+    <div className="flex flex-wrap items-center gap-2">
       {/* Toggle Killswitch Button */}
       {isActive ? (
-        <button
+        <Button
           id="project-suspend-btn"
+          type="button"
           disabled={isPending}
           onClick={() => handleToggle(false)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-rose-400 border border-rose-500/30 bg-rose-500/10 rounded hover:bg-rose-500/20 hover:border-rose-500/50 transition-all disabled:opacity-40 cursor-pointer"
+          className="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 shadow-none font-semibold text-xs h-9 cursor-pointer"
         >
-          <PauseCircle className="w-4 h-4" />
-          <span>{isPending ? 'LOCKING...' : '[ SUSPEND ]'}</span>
-        </button>
+          <PauseCircle className="w-4 h-4 mr-1.5" />
+          <span>{isPending ? 'Memproses...' : 'Kunci / Suspend'}</span>
+        </Button>
       ) : (
-        <button
+        <Button
           id="project-activate-btn"
+          type="button"
           disabled={isPending}
           onClick={() => handleToggle(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 rounded hover:bg-emerald-500/20 hover:border-emerald-500/50 transition-all disabled:opacity-40 cursor-pointer"
+          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 shadow-none font-semibold text-xs h-9 cursor-pointer"
         >
-          <PlayCircle className="w-4 h-4" />
-          <span>{isPending ? 'ACTIVATING...' : '[ ACTIVATE ]'}</span>
-        </button>
+          <PlayCircle className="w-4 h-4 mr-1.5" />
+          <span>{isPending ? 'Memproses...' : 'Aktifkan Lisensi'}</span>
+        </Button>
       )}
 
       {/* Delete Button */}
-      <button
+      <Button
         id="project-delete-btn"
+        type="button"
         disabled={isPending}
         onClick={handleDelete}
-        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded border transition-all disabled:opacity-40 cursor-pointer ${
+        variant="outline"
+        className={`text-xs h-9 font-medium transition-colors cursor-pointer ${
           confirmDelete
-            ? 'border-rose-500 bg-rose-600 text-white animate-pulse'
-            : 'border-zinc-800 text-zinc-500 hover:text-rose-400 hover:border-rose-500/30 bg-zinc-900/50'
+            ? 'border-rose-300 bg-rose-600 text-white hover:bg-rose-700'
+            : 'text-slate-600 hover:text-rose-600 hover:bg-rose-50 border-slate-200'
         }`}
       >
-        <Trash2 className="w-3.5 h-3.5" />
-        <span>{confirmDelete ? '[ CONFIRM DELETE? ]' : '[ DELETE ]'}</span>
-      </button>
+        <Trash2 className="w-3.5 h-3.5 mr-1" />
+        <span>{confirmDelete ? 'Yakin Hapus?' : 'Hapus'}</span>
+      </Button>
     </div>
   );
 }

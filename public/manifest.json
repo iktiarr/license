@@ -1,0 +1,49 @@
+{
+  "name": "License Guard",
+  "short_name": "LicenseGuard",
+  "description": "Centralized Remote Software License Management & Killswitch Dashboard",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f8fafc",
+  "theme_color": "#ffffff",
+  "lang": "id-ID",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["developer", "security", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Daftar Projects",
+      "short_name": "Projects",
+      "description": "Lihat seluruh project lisensi",
+      "url": "/projects",
+      "icons": [{ "src": "/icons/icon-192x192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Tambah Project",
+      "short_name": "New Project",
+      "description": "Daftarkan domain baru",
+      "url": "/projects/new",
+      "icons": [{ "src": "/icons/icon-192x192.svg", "sizes": "192x192" }]
+    }
+  ]
+}
