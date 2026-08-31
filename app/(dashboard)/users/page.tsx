@@ -1,10 +1,10 @@
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import UsersTable from '@/components/users-table';
-import { ShieldAlert, ArrowLeft, CreditCard } from 'lucide-react';
+import { ShieldAlert, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { getDynamicPlanConfigs } from '@/lib/plans';
 
 export const dynamic = 'force-dynamic';
@@ -45,7 +45,7 @@ export default async function UsersManagementPage() {
     );
   }
 
-  const [rawUsers, dynamicPlanConfigs] = await Promise.all([
+  const [rawUsers, dynamicPlanConfigs, rawLogs] = await Promise.all([
     db.user.findMany({
       orderBy: { createdAt: 'desc' },
       select: {
@@ -64,6 +64,16 @@ export default async function UsersManagementPage() {
       },
     }),
     getDynamicPlanConfigs(),
+    (async () => {
+      try {
+        return await db.userLog.findMany({
+          take: 100,
+          orderBy: { createdAt: 'desc' },
+        });
+      } catch {
+        return [];
+      }
+    })(),
   ]);
 
   const users = rawUsers.map((u) => ({
@@ -79,42 +89,37 @@ export default async function UsersManagementPage() {
     projectsCount: u.projects.length,
   }));
 
+  const logs = rawLogs.map((l) => ({
+    id: l.id,
+    userId: l.userId,
+    username: l.username,
+    action: l.action,
+    details: l.details,
+    ipAddress: l.ipAddress,
+    createdAt: l.createdAt.toISOString(),
+  }));
+
   const freeCount = users.filter((u) => u.plan === 'FREE').length;
   const paidCount = users.filter((u) => u.plan !== 'FREE').length;
 
   return (
     <div className="space-y-6">
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-            Manajemen Pengguna &amp; Developer
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            {users.length} akun terdaftar ({paidCount} paket berbayar, {freeCount} paket gratis)
-          </p>
-        </div>
-
-        <Button asChild variant="outline" className="text-xs h-9 font-semibold self-start sm:self-auto">
-          <Link href="/billing">
-            <CreditCard className="w-4 h-4 mr-1.5" />
-            <span>Lihat Daftar Harga Paket</span>
-          </Link>
-        </Button>
+      <div className="pb-2 border-b border-slate-200">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+          Manajemen Pengguna &amp; Developer
+        </h1>
+        <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          {users.length} akun terdaftar ({paidCount} paket berbayar, {freeCount} paket gratis)
+        </p>
       </div>
 
-      {/* ── Users Table Card ── */}
-      <Card className="border-slate-200 bg-white overflow-hidden">
-        <CardHeader className="py-4 px-5 border-b border-slate-100 flex flex-row items-center justify-between">
-          <CardTitle className="text-sm font-bold text-slate-900">Daftar Semua Akun Developer</CardTitle>
-          <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
-            {users.length} Total Akun
-          </span>
-        </CardHeader>
-        <CardContent className="p-0">
-          <UsersTable initialUsers={users} planConfigs={dynamicPlanConfigs} />
-        </CardContent>
-      </Card>
+      {/* ── Users & Logs Interactive Management Suite ── */}
+      <UsersTable
+        initialUsers={users}
+        initialLogs={logs}
+        planConfigs={dynamicPlanConfigs}
+      />
     </div>
   );
 }

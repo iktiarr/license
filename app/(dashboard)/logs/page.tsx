@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { db } from '@/lib/db';
 import { auth } from '@/lib/auth';
-import LogTable from '@/components/log-table';
+import LogManager from '@/components/log-manager';
 import { PlanTier, getPlanConfigById } from '@/lib/plans';
 import { Lock, ArrowRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import type { Prisma } from '@prisma/client';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 export const dynamic = 'force-dynamic';
@@ -20,35 +20,57 @@ export default async function LogsPage() {
   const plan = ((session?.user as { plan?: PlanTier })?.plan || (isAdmin ? 'MAX' : 'FREE')) as PlanTier;
   const planConfig = await getPlanConfigById(plan);
 
-  // Filter logs by dynamic plan retention & user project ownership
+  // Filter logs by dynamic plan retention & user project ownership (Personal project logs only)
   const currentUserId = session?.user?.id;
   const whereCondition: Prisma.ActivityLogWhereInput = {};
 
-  if (!isAdmin) {
-    if (planConfig.retentionDays > 0 && planConfig.retentionDays < 1000) {
-      const now = new Date();
-      const retentionDate = new Date(now.getTime() - planConfig.retentionDays * 24 * 60 * 60 * 1000);
-      whereCondition.createdAt = { gte: retentionDate };
-    }
-    if (currentUserId) {
-      whereCondition.project = { userId: currentUserId };
-    }
+  if (currentUserId) {
+    whereCondition.project = { userId: currentUserId };
+  }
+
+  if (!isAdmin && planConfig.retentionDays > 0 && planConfig.retentionDays < 1000) {
+    const now = new Date();
+    const retentionDate = new Date(now.getTime() - planConfig.retentionDays * 24 * 60 * 60 * 1000);
+    whereCondition.createdAt = { gte: retentionDate };
   }
 
   const isLocked = !isAdmin && planConfig.retentionDays === 0;
 
-  const logs = isLocked
+  const rawLogs = isLocked
     ? []
     : await db.activityLog.findMany({
         where: Object.keys(whereCondition).length > 0 ? whereCondition : undefined,
         orderBy: { createdAt: 'desc' },
-        take: 200,
+        take: 500,
         include: {
-          project: { select: { name: true, domain: true } },
+          project: {
+            select: {
+              name: true,
+              domain: true,
+              status: true,
+              frameworkType: true,
+              user: {
+                select: {
+                  username: true,
+                  email: true,
+                },
+              },
+            },
+          },
         },
       });
 
-  const counts = logs.reduce<Record<string, number>>((acc, log) => {
+  const formattedLogs = rawLogs.map((l) => ({
+    id: l.id,
+    projectId: l.projectId,
+    event: l.event,
+    ipAddress: l.ipAddress,
+    metadata: l.metadata,
+    createdAt: l.createdAt.toISOString(),
+    project: l.project,
+  }));
+
+  const counts = formattedLogs.reduce<Record<string, number>>((acc, log) => {
     acc[log.event] = (acc[log.event] ?? 0) + 1;
     return acc;
   }, {});
@@ -62,7 +84,7 @@ export default async function LogsPage() {
             Riwayat Audit &amp; Event Logs
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            {logs.length} catatan aktivitas &mdash; Retensi paket <strong>{planConfig.name}</strong>:{' '}
+            {formattedLogs.length} catatan aktivitas &mdash; Retensi paket <strong>{planConfig.name}</strong>:{' '}
             {planConfig.retentionDays === 0
               ? 'Tanpa log audit'
               : planConfig.retentionDays > 1000
@@ -138,7 +160,7 @@ export default async function LogsPage() {
       )}
 
       {/* ── Event Summary Badges ── */}
-      {logs.length > 0 && (
+      {formattedLogs.length > 0 && (
         <div className="flex flex-wrap gap-2">
           {Object.entries(counts).map(([event, count]) => (
             <div
@@ -154,19 +176,9 @@ export default async function LogsPage() {
         </div>
       )}
 
-      {/* ── Log Table Card ── */}
-      {logs.length > 0 && (
-        <Card className="border-slate-200 bg-white overflow-hidden">
-          <CardHeader className="py-4 px-5 border-b border-slate-100 flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-bold text-slate-900">Aliran Log Sistem</CardTitle>
-            <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
-              {logs.length} Data
-            </span>
-          </CardHeader>
-          <CardContent className="p-0">
-            <LogTable logs={logs} showProject />
-          </CardContent>
-        </Card>
+      {/* ── Interactive Log Manager (Export JSON/TXT/Excel + Hapus Permanen) ── */}
+      {!isLocked && (
+        <LogManager initialLogs={formattedLogs} showProject />
       )}
     </div>
   );

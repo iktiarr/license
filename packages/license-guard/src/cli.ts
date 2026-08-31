@@ -9,8 +9,8 @@ import { execSync } from 'child_process';
 import { encodeLicensePayload, decodeLicensePayload, validateEmergencyBypassToken } from './index';
 
 const DEFAULT_ENDPOINT = 'https://license-tau-nine.vercel.app';
-const VERSION_STRING = '2.0.4';
-const CURRENT_VERSION = '^2.0.4';
+const VERSION_STRING = '3.0.0';
+const CURRENT_VERSION = '^3.0.0';
 
 type Framework =
   | 'nextjs'

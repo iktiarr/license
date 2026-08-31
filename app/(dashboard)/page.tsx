@@ -19,6 +19,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import StatusBadge from '@/components/status-badge';
+import DashboardAnalyticsChart from '@/components/dashboard-analytics-chart';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -225,6 +226,13 @@ export default async function DashboardPage() {
           </div>
         </Card>
       </div>
+
+      {/* ── Interactive Activity & Quota Chart ── */}
+      <DashboardAnalyticsChart
+        stats={stats}
+        maxDomains={maxDomains}
+        planName={planConfig.name}
+      />
 
       {/* ── Two Column Content: Projects + Activity ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">

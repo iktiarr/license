@@ -6,6 +6,7 @@ import LogTable from '@/components/log-table';
 import ProjectControls from './controls';
 import IntegrationSnippet from '@/components/integration-snippet';
 import StatusBadge from '@/components/status-badge';
+import ProjectCredentialsCard from '@/components/project-credentials-card';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getPlanConfigById, PlanTier } from '@/lib/plans';
@@ -18,7 +19,6 @@ import {
   Key,
   Activity,
   ShieldCheck,
-  ShieldAlert,
   AlertCircle,
   User as UserIcon,
   ExternalLink,
@@ -40,6 +40,20 @@ function formatDate(date: Date | null | undefined) {
     hour: '2-digit',
     minute: '2-digit',
   }).format(new Date(date));
+}
+
+function formatRelativeTime(date: Date | null | undefined) {
+  if (!date) return 'Belum terhubung';
+  const now = new Date();
+  const diffMs = now.getTime() - new Date(date).getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+
+  if (diffMins < 2) return 'Online (Baru saja)';
+  if (diffMins < 60) return `${diffMins} menit lalu`;
+  if (diffHours < 24) return `${diffHours} jam lalu`;
+
+  return formatDate(date);
 }
 
 export default async function ProjectDetailPage({
@@ -154,16 +168,16 @@ export default async function ProjectDetailPage({
 
   return (
     <div className="space-y-6">
-      {/* ── Breadcrumb Header ── */}
-      <div className="space-y-2">
-        <Button asChild variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 -ml-2">
+      {/* ── Breadcrumb & Action Header ── */}
+      <div className="space-y-3">
+        <Button asChild variant="ghost" size="sm" className="text-slate-600 hover:text-slate-900 -ml-2 h-8 text-xs font-medium">
           <Link href="/projects">
-            <ArrowLeft className="w-4 h-4 mr-1.5" />
+            <ArrowLeft className="w-3.5 h-3.5 mr-1" />
             <span>Kembali ke Daftar Projects</span>
           </Link>
         </Button>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
@@ -173,7 +187,7 @@ export default async function ProjectDetailPage({
             </div>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 flex items-center gap-1.5">
               <Globe className="w-3.5 h-3.5 text-slate-400" />
-              <span>{project.domain}</span>
+              <span className="font-mono">{project.domain}</span>
             </p>
           </div>
 
@@ -183,19 +197,65 @@ export default async function ProjectDetailPage({
                 id: project.id,
                 status: project.status,
                 name: project.name,
+                domain: project.domain,
               }}
             />
           </div>
         </div>
       </div>
 
+      {/* ── Metric Highlights Top Row ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* 1. Status Lisensi */}
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between space-y-1">
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Status Lisensi</span>
+          <div className="flex items-center gap-2">
+            <span
+              className={`w-2.5 h-2.5 rounded-full ${
+                project.status === 'ACTIVE' ? 'bg-emerald-500' : 'bg-rose-500'
+              }`}
+            />
+            <span className="text-sm font-bold text-slate-900">
+              {project.status === 'ACTIVE' ? 'Aktif (Terverifikasi)' : 'Ditangguhkan (Terkunci)'}
+            </span>
+          </div>
+        </div>
+
+        {/* 2. Heartbeat Terakhir */}
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between space-y-1">
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Heartbeat Live</span>
+          <div className="flex items-center gap-1.5 text-slate-800 text-xs font-semibold">
+            <Activity className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+            <span>{formatRelativeTime(project.lastHeartbeat)}</span>
+          </div>
+        </div>
+
+        {/* 3. Toleransi Offline */}
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between space-y-1">
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Grace Period Offline</span>
+          <div className="flex items-center gap-1.5 text-slate-800 text-xs font-semibold">
+            <Clock className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span>{project.gracePeriod} Jam Fail-Safe</span>
+          </div>
+        </div>
+
+        {/* 4. Filter IP Server */}
+        <div className="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between space-y-1">
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Server IP Lock</span>
+          <div className="flex items-center gap-1.5 text-slate-800 text-xs font-semibold font-mono truncate">
+            <Server className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+            <span>{project.serverIp ?? 'Bebas (Semua IP)'}</span>
+          </div>
+        </div>
+      </div>
+
       {/* ── Two Column Grid: Details + Audit Stream ── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Project Details & API Key (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6">
+        {/* Left Column: Project Metadata & Keys (5 Cols) */}
+        <div className="lg:col-span-5 space-y-5">
           {/* Metadata Card */}
-          <Card className="border-slate-200 bg-white">
-            <CardHeader className="py-4 px-5 border-b border-slate-100 flex flex-row items-center justify-between">
+          <Card className="border-slate-200 bg-white shadow-2xs">
+            <CardHeader className="py-3.5 px-5 border-b border-slate-100 flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-slate-700" />
                 <CardTitle className="text-sm font-bold text-slate-900">
@@ -218,13 +278,13 @@ export default async function ProjectDetailPage({
                       href={link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-semibold text-slate-900 hover:text-sky-600 transition-colors flex items-center gap-1 font-mono"
+                      className="font-semibold text-slate-900 hover:text-sky-600 transition-colors flex items-center gap-1 font-mono text-xs"
                     >
                       <span>{value}</span>
                       <ExternalLink className="w-3 h-3 text-slate-400" />
                     </a>
                   ) : (
-                    <span className="font-semibold text-slate-900 font-mono text-right truncate max-w-50">
+                    <span className="font-semibold text-slate-900 font-mono text-right truncate max-w-48 text-xs">
                       {value}
                     </span>
                   )}
@@ -233,71 +293,14 @@ export default async function ProjectDetailPage({
             </CardContent>
           </Card>
 
-          {/* API Key Card */}
-          <Card className="border-slate-200 bg-white">
-            <CardHeader className="py-4 px-5 border-b border-slate-100 flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Key className="w-4 h-4 text-amber-500" />
-                <CardTitle className="text-sm font-bold text-slate-900">
-                  Secret API Key
-                </CardTitle>
-              </div>
-              <span className="text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">
-                Rahasia
-              </span>
-            </CardHeader>
-            <CardContent className="p-5 space-y-2">
-              <p className="text-xs text-slate-500">
-                Gunakan API key ini untuk mengautentikasi dan menghubungkan website klien ke server:
-              </p>
-              <div className="font-mono text-xs text-slate-800 bg-slate-100 p-3 rounded-lg border border-slate-200 select-all break-all leading-relaxed">
-                {project.apiKey}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Emergency Bypass Key Card (Fail-Safe Offline Recovery) */}
-          <Card className="border-rose-200 bg-rose-50/30">
-            <CardHeader className="py-3.5 px-5 border-b border-rose-100 bg-rose-100/30 flex flex-row items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 text-rose-600" />
-                <CardTitle className="text-sm font-bold text-rose-950">
-                  Emergency Bypass Key
-                </CardTitle>
-              </div>
-              <span className="text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200 px-2 py-0.5 rounded-full">
-                Offline Fail-Safe
-              </span>
-            </CardHeader>
-            <CardContent className="p-5 space-y-3">
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Kunci pemulihan darurat untuk meng-unlock website klien secara offline jika server pusat down atau jaringan intranet tertutup:
-              </p>
-              <div className="font-mono text-xs font-bold text-rose-900 bg-white p-3 rounded-lg border border-rose-200 select-all break-all leading-relaxed shadow-2xs">
-                {(() => {
-                  const secret = 'EBP_SALT_masdannn_guard_98f4';
-                  let hash = 0;
-                  const str = `${project.apiKey}:${project.domain}:${secret}`;
-                  for (let i = 0; i < str.length; i++) {
-                    hash = (hash << 5) - hash + str.charCodeAt(i);
-                    hash |= 0;
-                  }
-                  const hex = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
-                  const part2 = Math.abs(hash ^ 0x5a5a5a5a).toString(16).toUpperCase().padStart(8, '0');
-                  return `EBP-${hex}${part2}`;
-                })()}
-              </div>
-              <div className="p-2.5 bg-slate-900 text-slate-200 rounded-lg text-[11px] font-mono select-all">
-                npx @masdannn/license-guard bypass
-              </div>
-            </CardContent>
-          </Card>
+          {/* Secret API Key & Emergency Bypass Key Card */}
+          <ProjectCredentialsCard apiKey={project.apiKey} domain={project.domain} />
         </div>
 
         {/* Right Column: Audit Logs (7 Cols) */}
         <div className="lg:col-span-7">
-          <Card className="border-slate-200 bg-white">
-            <CardHeader className="py-4 px-5 border-b border-slate-100 flex flex-row items-center justify-between">
+          <Card className="border-slate-200 bg-white shadow-2xs">
+            <CardHeader className="py-3.5 px-5 border-b border-slate-100 flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-slate-500" />
                 <CardTitle className="text-sm font-bold text-slate-900">
@@ -310,7 +313,7 @@ export default async function ProjectDetailPage({
             </CardHeader>
             <CardContent className="p-0">
               {isLogsLocked ? (
-                <div className="p-6 text-center space-y-3 bg-amber-50/40">
+                <div className="p-8 text-center space-y-3 bg-amber-50/30">
                   <div className="w-10 h-10 rounded-full bg-amber-100 border border-amber-200 text-amber-800 flex items-center justify-center mx-auto">
                     <Lock className="w-5 h-5" />
                   </div>

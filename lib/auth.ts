@@ -39,6 +39,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // 1. Cek Root Admin via Environment Variables
         const isRootAdminMatch = (identifier === adminEmail || identifier === 'admin') && inputPassword === adminPassword;
         if (isRootAdminMatch) {
+          try {
+            await db.userLog.create({
+              data: {
+                username: 'Root Administrator',
+                action: 'LOGIN',
+                details: 'Login berhasil via Akun Administrator (Environment)',
+              },
+            });
+          } catch { /* ignore log error */ }
+
           return {
             id: 'root-admin',
             email: adminEmail,
@@ -64,6 +74,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             const isPasswordValid = await bcrypt.compare(inputPassword, user.password);
             if (isPasswordValid) {
               const isAdmin = user.role === 'ADMIN' || user.email.toLowerCase() === adminEmail || user.username.toLowerCase() === 'admin';
+
+              try {
+                await db.userLog.create({
+                  data: {
+                    userId: user.id,
+                    username: user.username,
+                    action: 'LOGIN',
+                    details: `Login sesi berhasil (${user.email})`,
+                  },
+                });
+              } catch { /* ignore log error */ }
+
               return {
                 id: user.id,
                 email: user.email,

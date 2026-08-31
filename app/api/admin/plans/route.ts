@@ -33,6 +33,7 @@ export async function PUT(req: NextRequest) {
         price: number;
         maxProjects: number;
         retentionDays: number;
+        maxLockTemplates?: number;
         tagline?: string;
       }>;
     };
@@ -47,16 +48,18 @@ export async function PUT(req: NextRequest) {
       const planPrice = Number(p.price) || 0;
       const planMaxProjects = Number(p.maxProjects) || 1;
       const planRetentionDays = Number(p.retentionDays) || 0;
+      const planMaxLockTemplates = typeof p.maxLockTemplates === 'number' ? p.maxLockTemplates : 0;
       const planTagline = p.tagline || '';
 
       await db.$executeRawUnsafe(
-        `INSERT INTO "plan_settings" ("id", "name", "price", "maxProjects", "retentionDays", "tagline", "features", "updatedAt")
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+        `INSERT INTO "plan_settings" ("id", "name", "price", "maxProjects", "retentionDays", "maxLockTemplates", "tagline", "features", "updatedAt")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
          ON CONFLICT ("id") DO UPDATE SET
            "name" = EXCLUDED."name",
            "price" = EXCLUDED."price",
            "maxProjects" = EXCLUDED."maxProjects",
            "retentionDays" = EXCLUDED."retentionDays",
+           "maxLockTemplates" = EXCLUDED."maxLockTemplates",
            "tagline" = EXCLUDED."tagline",
            "updatedAt" = NOW()`,
         planId,
@@ -64,6 +67,7 @@ export async function PUT(req: NextRequest) {
         planPrice,
         planMaxProjects,
         planRetentionDays,
+        planMaxLockTemplates,
         planTagline,
         []
       );

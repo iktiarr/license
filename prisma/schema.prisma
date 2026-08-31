@@ -40,6 +40,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   projects      Project[]
   lockTemplates LockTemplate[]
+  userLogs      UserLog[]
 
   @@map("users")
 }
@@ -106,15 +107,30 @@ model PairingSession {
 }
 
 model PlanSetting {
-  id            String   @id // "FREE", "PLUS", "PRO", "MAX"
-  name          String
-  price         Int
-  maxProjects   Int      // banyaknya domain
-  retentionDays Int      // log dari penggunaan (hari)
-  tagline       String   @default("")
-  features      String[]
-  updatedAt     DateTime @updatedAt
+  id               String   @id // "FREE", "PLUS", "PRO", "MAX"
+  name             String
+  price            Int
+  maxProjects      Int      // banyaknya domain
+  retentionDays    Int      // log dari penggunaan (hari)
+  maxLockTemplates Int      @default(0) // kuota template layar kunci kustom
+  tagline          String   @default("")
+  features         String[]
+  updatedAt        DateTime @updatedAt
 
   @@map("plan_settings")
 }
+
+model UserLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  username  String?
+  action    String   // "LOGIN", "LOGOUT", "USER_CREATED", "USER_UPDATED", "PASSWORD_CHANGED", "PLAN_CHANGED"
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@map("user_logs")
+}
+
 

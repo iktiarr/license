@@ -1,6 +1,6 @@
 /**
- * @masdannn/license-guard — Client SDK Runtime (v2.0.0)
- * Universal, offline-resilient, Vite/SPA-friendly, and anti-tamper client guard SDK.
+ * @masdannn/license-guard — Client SDK Runtime (v3.0.0)
+ * Universal, offline-resilient, Vite/SPA-friendly, and enterprise anti-tamper client guard SDK.
  */
 
 export interface LicenseGuardConfig {
@@ -93,10 +93,38 @@ function renderLockScreen(reason: string, pageUrl: string, suspendedTime: string
   if (typeof document === 'undefined') return;
 
   let overlay = document.getElementById(OVERLAY_ID);
-  if (overlay) return;
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = OVERLAY_ID;
+  }
 
-  overlay = document.createElement('div');
-  overlay.id = OVERLAY_ID;
+  // Force critical lock styles
+  const baseStyles = [
+    'position: fixed !important',
+    'top: 0 !important',
+    'left: 0 !important',
+    'right: 0 !important',
+    'bottom: 0 !important',
+    'width: 100vw !important',
+    'height: 100vh !important',
+    'z-index: 2147483647 !important',
+    'background: #ffffff !important',
+    'display: flex !important',
+    'flex-direction: column !important',
+    'align-items: center !important',
+    'justify-content: center !important',
+    'padding: 32px 20px !important',
+    'margin: 0 !important',
+    'box-sizing: border-box !important',
+    'overflow-y: auto !important',
+    'opacity: 1 !important',
+    'visibility: visible !important',
+    'pointer-events: auto !important',
+    'transform: none !important',
+    'filter: none !important',
+    'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important',
+    'color: #09090b !important',
+  ];
 
   if (customHtml && customHtml.trim()) {
     overlay.style.cssText = [
@@ -110,97 +138,81 @@ function renderLockScreen(reason: string, pageUrl: string, suspendedTime: string
       'margin: 0 !important',
       'padding: 0 !important',
       'overflow: auto !important',
+      'opacity: 1 !important',
+      'visibility: visible !important',
       'pointer-events: auto !important',
     ].join(';');
     overlay.innerHTML = customHtml;
-    document.body.appendChild(overlay);
-    return;
-  }
+  } else {
+    overlay.style.cssText = baseStyles.join(';');
 
-  overlay.style.cssText = [
-    'position: fixed !important',
-    'top: 0 !important',
-    'left: 0 !important',
-    'width: 100vw !important',
-    'height: 100vh !important',
-    'z-index: 2147483647 !important',
-    'background: #ffffff !important',
-    'display: flex !important',
-    'flex-direction: column !important',
-    'align-items: center !important',
-    'justify-content: center !important',
-    'padding: 32px 20px !important',
-    'box-sizing: border-box !important',
-    'overflow-y: auto !important',
-    'font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important',
-    'color: #09090b !important',
-    'pointer-events: auto !important',
-  ].join(';');
+    const reasonTitle =
+      reason === 'TAMPERED'
+        ? 'Akses Dibatasi: Modifikasi Tidak Sah'
+        : 'Akses Halaman Ditangguhkan';
 
-  const reasonTitle =
-    reason === 'TAMPERED'
-      ? 'Akses Dibatasi: Modifikasi Tidak Sah'
-      : 'Akses Halaman Ditangguhkan';
+    const reasonText =
+      reason === 'TAMPERED'
+        ? 'Domain Mismatch / File Lisensi Dimodifikasi'
+        : 'Lisensi Dinonaktifkan oleh Administrator';
 
-  const reasonText =
-    reason === 'TAMPERED'
-      ? 'Domain Mismatch / File Lisensi Dimodifikasi'
-      : 'Lisensi Dinonaktifkan oleh Administrator';
+    overlay.innerHTML = `
+      <div style="max-width:620px;width:100%;margin:auto;text-align:center;animation:lgFade 0.3s ease-out;">
+        <div style="width:84px;height:84px;margin:0 auto 20px;background:#fef2f2;border:2px solid #fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
 
-  overlay.innerHTML = `
-    <div style="max-width:620px;width:100%;margin:auto;text-align:center;animation:lgFade 0.3s ease-out;">
-      <div style="width:84px;height:84px;margin:0 auto 20px;background:#fef2f2;border:2px solid #fee2e2;border-radius:50%;display:flex;align-items:center;justify-content:center;">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-      </div>
+        <h1 style="margin:0 0 12px;font-size:28px;font-weight:800;letter-spacing:-0.03em;color:#09090b;line-height:1.25;">
+          ${reasonTitle}
+        </h1>
 
-      <h1 style="margin:0 0 12px;font-size:28px;font-weight:800;letter-spacing:-0.03em;color:#09090b;line-height:1.25;">
-        ${reasonTitle}
-      </h1>
+        <p style="margin:0 auto 24px;font-size:14px;line-height:1.6;color:#52525b;max-width:480px;">
+          Akses ke website ini sementara ditangguhkan oleh pengelola lisensi. Website akan aktif kembali secara otomatis begitu lisensi dipulihkan di dashboard admin.
+        </p>
 
-      <p style="margin:0 auto 24px;font-size:14px;line-height:1.6;color:#52525b;max-width:480px;">
-        Akses ke website ini sementara ditangguhkan oleh pengelola lisensi. Website akan aktif kembali secara otomatis begitu lisensi dipulihkan di dashboard admin.
-      </p>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px;text-align:left;font-size:13px;line-height:1.6;margin-bottom:24px;">
+          <div style="padding-bottom:10px;border-bottom:1px solid #e2e8f0;">
+            <div style="color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Domain Terdeteksi:</div>
+            <div style="color:#09090b;font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;font-weight:600;word-break:break-all;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:7px 10px;">
+              ${pageUrl}
+            </div>
+          </div>
 
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:18px;text-align:left;font-size:13px;line-height:1.6;margin-bottom:24px;">
-        <div style="padding-bottom:10px;border-bottom:1px solid #e2e8f0;">
-          <div style="color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">Domain Terdeteksi:</div>
-          <div style="color:#09090b;font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;font-weight:600;word-break:break-all;background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;padding:7px 10px;">
-            ${pageUrl}
+          <div style="padding:9px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#64748b;font-size:12px;font-weight:600;">Waktu Penangguhan:</span>
+            <span style="color:#09090b;font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;font-weight:700;">
+              ${suspendedTime}
+            </span>
+          </div>
+
+          <div style="padding-top:9px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:#64748b;font-size:12px;font-weight:600;">Status Lisensi:</span>
+            <span style="color:#ef4444;font-size:12px;font-weight:700;">
+              ${reasonText}
+            </span>
           </div>
         </div>
 
-        <div style="padding:9px 0;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
-          <span style="color:#64748b;font-size:12px;font-weight:600;">Waktu Penangguhan:</span>
-          <span style="color:#09090b;font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px;font-weight:700;">
-            ${suspendedTime}
-          </span>
-        </div>
-
-        <div style="padding-top:9px;display:flex;justify-content:space-between;align-items:center;">
-          <span style="color:#64748b;font-size:12px;font-weight:600;">Status Lisensi:</span>
-          <span style="color:#ef4444;font-size:12px;font-weight:700;">
-            ${reasonText}
-          </span>
+        <div style="font-size:11px;color:#a1a1aa;display:flex;align-items:center;justify-content:center;gap:6px;">
+          <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;animation:lgPulse 1.5s infinite;"></span>
+          <span>Centralized License Guard v3.0 &bull; Auto-Sync Active</span>
         </div>
       </div>
+      <style>
+        @keyframes lgFade{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+        @keyframes lgPulse{0%,100%{opacity:1}50%{opacity:0.3}}
+      </style>
+    `;
+  }
 
-      <div style="font-size:11px;color:#a1a1aa;display:flex;align-items:center;justify-content:center;gap:6px;">
-        <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef4444;animation:lgPulse 1.5s infinite;"></span>
-        <span>Centralized License Guard v2.0 &bull; Auto-Sync Active</span>
-      </div>
-    </div>
-    <style>
-      @keyframes lgFade{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
-      @keyframes lgPulse{0%,100%{opacity:1}50%{opacity:0.3}}
-    </style>
-  `;
-
-  document.documentElement.style.overflow = 'hidden';
-  document.body.style.overflow = 'hidden';
+  try {
+    document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+    document.body.style.setProperty('overflow', 'hidden', 'important');
+  } catch { /* ignore */ }
 
   const append = () => {
     if (document.body && !document.getElementById(OVERLAY_ID)) {
@@ -224,8 +236,10 @@ function removeLockScreen() {
   }
 
   // Restore scrolling and interactivity cleanly in Vite / React / Vue SPAs
-  document.documentElement.style.overflow = '';
-  document.body.style.overflow = '';
+  try {
+    document.documentElement.style.overflow = '';
+    document.body.style.overflow = '';
+  } catch { /* ignore */ }
 
   // Dispatch custom window event so framework components can re-render if needed
   if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
@@ -243,6 +257,7 @@ function formatTime(ts: number | null | undefined): string {
 
 // ── Global Singleton Client Guard ──
 let pollTimer: ReturnType<typeof setInterval> | null = null;
+let watchdogTimer: ReturnType<typeof setInterval> | null = null;
 let initialized = false;
 
 export function initGuard(config: LicenseGuardConfig = {}): void {
@@ -272,7 +287,6 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
   // Anti-tamper check: if key is completely missing at runtime
   if (!apiKey) {
     console.warn('[@masdannn/license-guard] License configuration key is missing or corrupted.');
-    // Trigger tamper lock and report telemetry
     renderLockScreen('TAMPERED', window.location.href, formatTime(Date.now()));
     reportTamperTelemetry(endpoint, 'License key missing or stripped from source code');
     return;
@@ -382,21 +396,70 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
   // Periodic heartbeat
   setInterval(performHeartbeat, heartbeatInterval);
 
-  // Focus re-validation
+  // Focus & Network Reconnect re-validation
   window.addEventListener('focus', () => {
     if (Date.now() - (state.lastCheck || 0) > 5000) {
       performHeartbeat();
     }
   });
 
-  // Anti-tamper: re-inject overlay if removed via DevTools
-  if (typeof window !== 'undefined' && window.MutationObserver) {
-    const observer = new MutationObserver(() => {
-      if (!state.valid && !document.getElementById(OVERLAY_ID) && document.body) {
-        renderLockScreen(state.status, window.location.href, formatTime(state.suspendedAt));
-      }
-    });
-    observer.observe(document.documentElement, { childList: true, subtree: true });
+  window.addEventListener('online', () => {
+    performHeartbeat();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && Date.now() - (state.lastCheck || 0) > 5000) {
+      performHeartbeat();
+    }
+  });
+
+  window.addEventListener('popstate', () => {
+    if (!state.valid) {
+      renderLockScreen(state.status, window.location.href, formatTime(state.suspendedAt));
+    }
+  });
+
+  // Enterprise Anti-tamper: Watchdog & MutationObserver defense against DevTools tampering
+  if (typeof window !== 'undefined') {
+    // 1. Mutation Observer against element removal
+    if (window.MutationObserver) {
+      const observer = new MutationObserver(() => {
+        if (!state.valid && document.body) {
+          const el = document.getElementById(OVERLAY_ID);
+          if (!el) {
+            renderLockScreen(state.status, window.location.href, formatTime(state.suspendedAt));
+            reportTamperTelemetry(cleanEndpoint, 'Lock screen overlay element was removed from DOM');
+          }
+        }
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true });
+    }
+
+    // 2. Continuous 1-second watchdog against CSS property tampering (display: none / opacity: 0)
+    if (!watchdogTimer) {
+      watchdogTimer = setInterval(() => {
+        if (!state.valid && document.body) {
+          const el = document.getElementById(OVERLAY_ID);
+          if (!el) {
+            renderLockScreen(state.status, window.location.href, formatTime(state.suspendedAt));
+          } else {
+            const computed = window.getComputedStyle(el);
+            if (
+              computed.display === 'none' ||
+              computed.visibility === 'hidden' ||
+              parseFloat(computed.opacity || '1') < 0.1 ||
+              parseInt(computed.zIndex || '0', 10) < 1000
+            ) {
+              el.style.setProperty('display', 'flex', 'important');
+              el.style.setProperty('visibility', 'visible', 'important');
+              el.style.setProperty('opacity', '1', 'important');
+              el.style.setProperty('z-index', '2147483647', 'important');
+              reportTamperTelemetry(cleanEndpoint, 'Lock screen CSS style tampering detected');
+            }
+          }
+        }
+      }, 1000);
+    }
   }
 }
 

@@ -124,6 +124,7 @@ type DbSettingItem = {
   price?: number;
   maxProjects?: number;
   retentionDays?: number;
+  maxLockTemplates?: number;
   tagline?: string;
   features?: string[];
 };
@@ -149,7 +150,7 @@ export async function getDynamicPlanConfigs(): Promise<Record<PlanTier, PlanConf
     if (!dbSettings || dbSettings.length === 0) {
       try {
         dbSettings = await db.$queryRawUnsafe<DbSettingItem[]>(
-          'SELECT "id", "name", "price", "maxProjects", "retentionDays", "tagline", "features" FROM "plan_settings"'
+          'SELECT "id", "name", "price", "maxProjects", "retentionDays", "maxLockTemplates", "tagline", "features" FROM "plan_settings"'
         );
       } catch {}
     }
@@ -160,14 +161,15 @@ export async function getDynamicPlanConfigs(): Promise<Record<PlanTier, PlanConf
         for (const [tier, cfg] of Object.entries(PLAN_CONFIGS)) {
           try {
             await db.$executeRawUnsafe(
-              `INSERT INTO "plan_settings" ("id", "name", "price", "maxProjects", "retentionDays", "tagline", "features", "updatedAt")
-               VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+              `INSERT INTO "plan_settings" ("id", "name", "price", "maxProjects", "retentionDays", "maxLockTemplates", "tagline", "features", "updatedAt")
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
                ON CONFLICT ("id") DO NOTHING`,
               tier,
               cfg.name,
               cfg.price,
               cfg.maxProjects,
               cfg.retentionDays,
+              cfg.maxLockTemplates,
               cfg.tagline,
               cfg.features
             );
@@ -183,6 +185,7 @@ export async function getDynamicPlanConfigs(): Promise<Record<PlanTier, PlanConf
         const itemPrice = typeof item.price === 'number' ? item.price : Number(item.price) || 0;
         const itemMaxProjects = typeof item.maxProjects === 'number' ? item.maxProjects : Number(item.maxProjects) || 1;
         const itemRetentionDays = typeof item.retentionDays === 'number' ? item.retentionDays : Number(item.retentionDays) || 0;
+        const itemMaxLockTemplates = typeof item.maxLockTemplates === 'number' ? item.maxLockTemplates : (result[tier].maxLockTemplates ?? 0);
 
         result[tier] = {
           ...result[tier],
@@ -191,6 +194,7 @@ export async function getDynamicPlanConfigs(): Promise<Record<PlanTier, PlanConf
           formattedPrice: formatRupiah(itemPrice),
           maxProjects: itemMaxProjects,
           retentionDays: itemRetentionDays,
+          maxLockTemplates: itemMaxLockTemplates,
           tagline: item.tagline || result[tier].tagline,
           features: item.features && item.features.length > 0 ? item.features : [
             `Maksimal ${itemMaxProjects > 1000 ? 'Unlimited' : itemMaxProjects} project domain`,
@@ -199,6 +203,9 @@ export async function getDynamicPlanConfigs(): Promise<Record<PlanTier, PlanConf
               : itemRetentionDays > 1000
               ? 'Unlimited retensi log selamanya'
               : `${itemRetentionDays} Hari retensi log aktivitas`,
+            itemMaxLockTemplates === 0
+              ? 'Layar kunci standar sistem'
+              : `${itemMaxLockTemplates} Template Layar Kunci Kustom (.html)`,
             'Proteksi Native & Framework',
             'Remote Killswitch Aktif',
           ],
