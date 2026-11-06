@@ -31,8 +31,21 @@ export async function POST(req: NextRequest) {
       where: { id: projectId },
     });
 
-    if (!project || (!isAdmin && project.userId && project.userId !== userId)) {
+    if (!project || (!isAdmin && project.userId !== userId)) {
       return NextResponse.json({ error: 'Project tidak ditemukan atau bukan milik Anda.' }, { status: 404 });
+    }
+
+    // Verify template ownership if templateId is provided
+    if (templateId) {
+      const template = await db.lockTemplate.findUnique({
+        where: { id: templateId },
+      });
+      if (!template || (!isAdmin && template.userId !== userId)) {
+        return NextResponse.json(
+          { error: 'Template tidak ditemukan atau bukan milik Anda.' },
+          { status: 404 }
+        );
+      }
     }
 
     const updated = await db.project.update({

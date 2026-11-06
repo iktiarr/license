@@ -12,6 +12,10 @@ type ProjectStatus = 'ACTIVE' | 'SUSPENDED' | 'TAMPERED';
 
 export async function createProject(formData: FormData) {
   const session = await auth();
+  if (!session?.user?.id) {
+    return { error: 'UNAUTHORIZED: Anda harus login terlebih dahulu.' };
+  }
+
   const name = formData.get('name') as string;
   const domain = formData.get('domain') as string;
   const serverIp = formData.get('serverIp') as string;
@@ -23,8 +27,8 @@ export async function createProject(formData: FormData) {
     return { error: 'Nama project dan domain wajib diisi.' };
   }
 
-  const userId = session?.user?.id;
-  const role = (session?.user as { role?: string })?.role;
+  const userId = session.user.id;
+  const role = (session.user as { role?: string })?.role;
   const isAdmin = role === 'ADMIN';
 
   // Check quota if not admin
@@ -87,6 +91,19 @@ export async function updateProjectStatus(
   projectId: string,
   status: ProjectStatus
 ) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: 'UNAUTHORIZED: Silakan login terlebih dahulu.' };
+  }
+
+  const userId = session.user.id;
+  const isAdmin = (session.user as { role?: string })?.role === 'ADMIN';
+
+  const existing = await db.project.findUnique({ where: { id: projectId } });
+  if (!existing || (!isAdmin && existing.userId !== userId)) {
+    return { error: 'FORBIDDEN: Anda tidak memiliki wewenang untuk mengubah status project ini.' };
+  }
+
   const eventMap: Record<string, string> = {
     ACTIVE: 'ACTIVATED',
     SUSPENDED: 'SUSPENDED',
@@ -102,7 +119,7 @@ export async function updateProjectStatus(
     data: {
       projectId,
       event: eventMap[status],
-      metadata: { changedBy: 'admin', newStatus: status },
+      metadata: { changedBy: isAdmin ? 'admin' : session.user.name || 'owner', newStatus: status },
     },
   });
 
@@ -115,6 +132,19 @@ export async function updateProjectStatus(
 // ── Delete Project ──────────────────────────────────────────────────────────
 
 export async function deleteProject(projectId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: 'UNAUTHORIZED: Silakan login terlebih dahulu.' };
+  }
+
+  const userId = session.user.id;
+  const isAdmin = (session.user as { role?: string })?.role === 'ADMIN';
+
+  const existing = await db.project.findUnique({ where: { id: projectId } });
+  if (!existing || (!isAdmin && existing.userId !== userId)) {
+    return { error: 'FORBIDDEN: Anda tidak memiliki hak untuk menghapus project ini.' };
+  }
+
   await db.project.delete({ where: { id: projectId } });
   revalidatePath('/projects');
   revalidatePath('/');
@@ -124,8 +154,18 @@ export async function deleteProject(projectId: string) {
 // ── Refresh License Token ───────────────────────────────────────────────────
 
 export async function refreshLicenseToken(projectId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: 'UNAUTHORIZED' };
+  }
+
+  const userId = session.user.id;
+  const isAdmin = (session.user as { role?: string })?.role === 'ADMIN';
+
   const project = await db.project.findUnique({ where: { id: projectId } });
-  if (!project) return { error: 'Project not found' };
+  if (!project || (!isAdmin && project.userId !== userId)) {
+    return { error: 'Project tidak ditemukan atau akses ditolak.' };
+  }
 
   const token = await signLicenseToken({
     projectId: project.id,
@@ -139,6 +179,19 @@ export async function refreshLicenseToken(projectId: string) {
 // ── Update Project Info ─────────────────────────────────────────────────────
 
 export async function updateProject(projectId: string, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { error: 'UNAUTHORIZED' };
+  }
+
+  const userId = session.user.id;
+  const isAdmin = (session.user as { role?: string })?.role === 'ADMIN';
+
+  const existing = await db.project.findUnique({ where: { id: projectId } });
+  if (!existing || (!isAdmin && existing.userId !== userId)) {
+    return { error: 'FORBIDDEN: Anda tidak memiliki izin untuk mengedit project ini.' };
+  }
+
   const name = formData.get('name') as string;
   const serverIp = formData.get('serverIp') as string;
   const gracePeriodRaw = formData.get('gracePeriod') as string;

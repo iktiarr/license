@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(req: NextRequest) {
   try {
+    // 0. Rate limiting to prevent bot registrations & brute-force
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+    const rateCheck = checkRateLimit(`auth-register:${clientIp}`, { limit: 10, windowMs: 15 * 60 * 1000 });
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        { error: 'Terlalu banyak permintaan pendaftaran dari IP ini. Silakan coba kembali dalam 15 menit.' },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { username, email, phone, password } = body as {
       username?: string;
@@ -85,7 +96,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Hash password
+    // Hash password using strong bcrypt
     const hashedPassword = await bcrypt.hash(cleanPassword, 10);
 
     // Create user

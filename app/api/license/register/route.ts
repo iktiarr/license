@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { signLicenseToken } from '@/lib/jwt';
 import { jsonWithCors, handleOptions } from '@/lib/cors';
 import { isDomainMatch, normalizeDomain } from '@/lib/domain';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { NextRequest } from 'next/server';
 
 export async function OPTIONS() {
@@ -14,6 +15,12 @@ export async function OPTIONS() {
  */
 export async function POST(request: NextRequest) {
   try {
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || request.headers.get('x-real-ip') || 'unknown';
+    const rateCheck = checkRateLimit(`license-reg:${ip}`, { limit: 30, windowMs: 60 * 1000 });
+    if (!rateCheck.success) {
+      return jsonWithCors({ error: 'Too many registration requests. Please retry in 1 minute.', valid: false }, { status: 429 });
+    }
+
     const body = await request.json();
     const { apiKey, domain } = body as { apiKey?: string; domain?: string };
 
@@ -51,8 +58,6 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       );
     }
-
-    const ip = request.headers.get('x-forwarded-for') ?? request.headers.get('x-real-ip') ?? null;
 
     // Log register
     await db.activityLog.create({

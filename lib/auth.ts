@@ -20,7 +20,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   secret:
     process.env.AUTH_SECRET ||
     process.env.NEXTAUTH_SECRET ||
-    'K7hPqR9mXvL2nJdW5tBcYuA3eGsFzN8k',
+    (process.env.NODE_ENV === 'production'
+      ? undefined
+      : 'K7hPqR9mXvL2nJdW5tBcYuA3eGsFzN8k'),
   providers: [
     Credentials({
       name: 'credentials',
@@ -34,10 +36,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const identifier = String(credentials.email).trim().toLowerCase();
         const inputPassword = String(credentials.password).trim();
         const adminEmail = (process.env.ADMIN_EMAIL || adminEmailDefault).trim().toLowerCase();
-        const adminPassword = (process.env.ADMIN_PASSWORD || 'Admin@1234').trim();
+        const adminPassword = (process.env.ADMIN_PASSWORD || (process.env.NODE_ENV === 'production' ? '' : 'Admin@1234')).trim();
 
         // 1. Cek Root Admin via Environment Variables
-        const isRootAdminMatch = (identifier === adminEmail || identifier === 'admin') && inputPassword === adminPassword;
+        const isRootAdminMatch = !!adminPassword && (identifier === adminEmail || identifier === 'admin') && inputPassword === adminPassword;
         if (isRootAdminMatch) {
           try {
             await db.userLog.create({

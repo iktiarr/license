@@ -3,6 +3,7 @@ import { jsonWithCors, handleOptions } from '@/lib/cors';
 import { NextRequest } from 'next/server';
 import { normalizeDomain } from '@/lib/domain';
 import { PlanTier } from '@/lib/plans';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function OPTIONS() {
   return handleOptions();
@@ -15,13 +16,22 @@ export async function OPTIONS() {
  *
  * Logika Seamless Re-registration & Account Ownership:
  * - Memvalidasi kepemilikan akun developer berdasarkan email yang dimasukkan di CLI.
- * - Jika akun belum ada di database, tolak dengan instruksi registrasi akun.
- * - Jika akun ada, hubungkan project ke akun tersebut (userId) dan periksa kuota paket jika bukan Admin.
- * - Jika domain sudah ada sebelumnya: perbarui apiKey & nama serta transfer kepemilikan bila perlu,
- *   namun tetap PERTAHANKAN status lisensi saat ini (ACTIVE / SUSPENDED).
+ * - Memverifikasi bahwa jika domain sudah terdaftar, hanya pemilik aslinya yang berhak mengupdate.
+ * - Mencegah project hijacking / takeover oleh pihak ketiga.
+ * - Memeriksa kuota paket developer.
  */
 export async function POST(request: NextRequest) {
   try {
+    // 0. Rate limiting proteksi brute force / abuse
+    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+    const rateCheck = checkRateLimit(`pairing-init:${clientIp}`, { limit: 20, windowMs: 60 * 1000 });
+    if (!rateCheck.success) {
+      return jsonWithCors(
+        { error: 'Terlalu banyak permintaan inisialisasi. Silakan coba lagi dalam 1 menit.' },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { name, domain, email, apiKey, framework } = body as {
       name?: string;
@@ -68,8 +78,19 @@ export async function POST(request: NextRequest) {
       where: { domain: cleanDomain },
     });
 
-    // 3. Cek kuota lisensi jika user bukan ROOT/ADMIN
     const isUserAdmin = user.role === 'ADMIN';
+
+    // 3. Security Check: Cegah Project Hijacking (IDOR)
+    if (existingProject && existingProject.userId && existingProject.userId !== user.id && !isUserAdmin) {
+      return jsonWithCors(
+        {
+          error: 'Domain ini sudah terdaftar oleh akun developer lain. Anda tidak memiliki izin untuk mengklaim atau mengubah konfigurasi domain ini.',
+        },
+        { status: 403 }
+      );
+    }
+
+    // 4. Cek kuota lisensi jika user bukan ROOT/ADMIN
     if (!isUserAdmin) {
       const { getPlanConfigById } = await import('@/lib/plans');
       const planConfig = await getPlanConfigById((user.plan as PlanTier) || 'FREE');
@@ -154,7 +175,7 @@ export async function POST(request: NextRequest) {
   } catch (err: unknown) {
     console.error('[pairing/init]', err);
     return jsonWithCors(
-      { error: err instanceof Error ? err.message : 'Gagal memproses pendaftaran project.' },
+      { error: 'Terjadi kesalahan sistem saat memproses pendaftaran project.' },
       { status: 500 }
     );
   }

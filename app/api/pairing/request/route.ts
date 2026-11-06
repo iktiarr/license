@@ -1,5 +1,7 @@
 import { db } from '@/lib/db';
 import { jsonWithCors, handleOptions } from '@/lib/cors';
+import { checkRateLimit } from '@/lib/rate-limit';
+import { NextRequest } from 'next/server';
 import crypto from 'crypto';
 
 export async function OPTIONS() {
@@ -21,8 +23,16 @@ function generatePairingCode(): string {
  * POST /api/pairing/request
  * Dipanggil oleh CLI (npx @iktiarr/license-guard init) untuk meminta kode pairing handshake
  */
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+    const rateCheck = checkRateLimit(`pairing-req:${clientIp}`, { limit: 20, windowMs: 60 * 1000 });
+    if (!rateCheck.success) {
+      return jsonWithCors(
+        { error: 'Terlalu banyak permintaan pairing. Silakan tunggu sebentar.', success: false },
+        { status: 429 }
+      );
+    }
     let code = generatePairingCode();
 
     let attempts = 0;

@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { signLicenseToken } from '@/lib/jwt';
 import { jsonWithCors, handleOptions } from '@/lib/cors';
 import { isDomainMatch, normalizeDomain } from '@/lib/domain';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { NextRequest } from 'next/server';
 
 export async function OPTIONS() {
@@ -18,6 +19,16 @@ export async function OPTIONS() {
  */
 export async function POST(request: NextRequest) {
   try {
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0].trim() ||
+      request.headers.get('x-real-ip') ||
+      null;
+
+    const rateCheck = checkRateLimit(`license-hb:${ip || 'unknown'}`, { limit: 120, windowMs: 60 * 1000 });
+    if (!rateCheck.success) {
+      return jsonWithCors({ error: 'Heartbeat rate limit exceeded.', valid: false }, { status: 429 });
+    }
+
     const body = await request.json();
     const { apiKey, domain, serverIp, tamperReason } = body as {
       apiKey?: string;
@@ -25,11 +36,6 @@ export async function POST(request: NextRequest) {
       serverIp?: string;
       tamperReason?: string;
     };
-
-    const ip =
-      request.headers.get('x-forwarded-for') ??
-      request.headers.get('x-real-ip') ??
-      null;
 
     const requestDomain = domain || 'localhost';
     const cleanRequestDomain = normalizeDomain(requestDomain);
