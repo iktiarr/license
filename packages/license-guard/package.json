@@ -41,6 +41,11 @@
     "@types/node": "^22.13.0"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com"
   }
 }
