@@ -42,10 +42,10 @@
   },
   "publishConfig": {
     "access": "public",
-    "registry": "https://github.com"
+    "registry": "https://npm.pkg.github.com"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com"
+    "url": "git+https://github.com/iktiarr/license.git"
   }
 }
