@@ -43,7 +43,7 @@ export default function ProjectCredentialsCard({ apiKey, domain }: ProjectCreden
   };
 
   const handleCopyCli = () => {
-    navigator.clipboard.writeText('npx @masdannn/license-guard bypass');
+    navigator.clipboard.writeText('npx @iktiarr/license-guard bypass');
     setCopiedCli(true);
     setTimeout(() => setCopiedCli(false), 2000);
   };
@@ -151,7 +151,7 @@ export default function ProjectCredentialsCard({ apiKey, domain }: ProjectCreden
           </div>
 
           <div className="flex items-center justify-between gap-2 p-2 bg-slate-900 text-slate-200 rounded-lg text-[11px] font-mono">
-            <span className="truncate">npx @masdannn/license-guard bypass</span>
+            <span className="truncate">npx @iktiarr/license-guard bypass</span>
             <button
               onClick={handleCopyCli}
               className="text-slate-400 hover:text-white p-1 rounded"

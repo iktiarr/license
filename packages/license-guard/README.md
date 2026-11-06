@@ -1,4 +1,4 @@
-# @masdannn/license-guard
+# @iktiarr/license-guard
 
 Universal Remote License Guard & Killswitch SDK for Web Applications and Server Backends.
 
@@ -9,7 +9,7 @@ Universal Remote License Guard & Killswitch SDK for Web Applications and Server 
 Jalankan perintah ini di direktori project Anda:
 
 ```bash
-npx @masdannn/license-guard init
+npx @iktiarr/license-guard init
 ```
 
 Terminal akan menampilkan **Pairing Code** (misal `LG-8942-XK91`). Masukkan kode tersebut di [Control Hub Dashboard](https://license-tau-nine.vercel.app/projects/new) untuk menghubungkan project secara otomatis.
@@ -19,11 +19,11 @@ Terminal akan menampilkan **Pairing Code** (misal `LG-8942-XK91`). Masukkan kode
 ## 📦 Manual Installation
 
 ```bash
-npm install @masdannn/license-guard
+npm install @iktiarr/license-guard
 # or
-yarn add @masdannn/license-guard
+yarn add @iktiarr/license-guard
 # or
-pnpm add @masdannn/license-guard
+pnpm add @iktiarr/license-guard
 ```
 
 ---
@@ -34,7 +34,7 @@ pnpm add @masdannn/license-guard
 
 ```javascript
 import { useEffect } from 'react';
-import { initGuard } from '@masdannn/license-guard';
+import { initGuard } from '@iktiarr/license-guard';
 
 export default function App() {
   useEffect(() => {
@@ -51,7 +51,7 @@ export default function App() {
 
 ```javascript
 import express from 'express';
-import { guardMiddleware } from '@masdannn/license-guard';
+import { guardMiddleware } from '@iktiarr/license-guard';
 
 const app = express();
 

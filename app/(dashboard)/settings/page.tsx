@@ -76,49 +76,49 @@ export default function SettingsPage() {
     {
       id: 'cmd-init',
       name: 'Inisialisasi & Setup Project (Wizard)',
-      cmd: 'npx @masdannn/license-guard init',
-      alias: 'npx @masdannn/license-guard',
+      cmd: 'npx @iktiarr/license-guard init',
+      alias: 'npx @iktiarr/license-guard',
       desc: 'Inisialisasi lisensi interaktif: memasukkan Nama Project, Domain Target, dan Email Akun Developer untuk pairing instan ke server.',
     },
     {
       id: 'cmd-status',
       name: 'Cek Status Lisensi Live',
-      cmd: 'npx @masdannn/license-guard status',
+      cmd: 'npx @iktiarr/license-guard status',
       alias: 'view / info',
       desc: 'Memeriksa status lisensi aktif langsung dari server pusat (ACTIVE, SUSPENDED, atau TAMPERED).',
     },
     {
       id: 'cmd-doctor',
       name: 'Health Check & Diagnostic Tool',
-      cmd: 'npx @masdannn/license-guard doctor',
+      cmd: 'npx @iktiarr/license-guard doctor',
       alias: 'check / diag (Rahasia)',
       desc: 'Melakukan diagnosa komprehensif 5-tahap: integritas file helper, validasi konfigurasi lokal, kompatibilitas framework, dan uji latency ping jaringan ke server pusat.',
     },
     {
       id: 'cmd-bypass',
       name: 'Emergency Bypass & Offline Unlock',
-      cmd: 'npx @masdannn/license-guard bypass [TOKEN]',
+      cmd: 'npx @iktiarr/license-guard bypass [TOKEN]',
       alias: 'unlock / recover (Rahasia)',
       desc: 'Membuka kunci website klien secara offline (fail-safe) menggunakan Emergency Bypass Token jika server down atau jaringan tertutup.',
     },
     {
       id: 'cmd-update',
       name: 'Update Otomatis ke Versi Terbaru (v3.0)',
-      cmd: 'npx @masdannn/license-guard update',
+      cmd: 'npx @iktiarr/license-guard update',
       alias: 'Rahasia (Developer Only)',
-      desc: 'Memperbarui package @masdannn/license-guard ke versi paling mutakhir dan memperbarui konfigurasi proyek secara otomatis.',
+      desc: 'Memperbarui package @iktiarr/license-guard ke versi paling mutakhir dan memperbarui konfigurasi proyek secara otomatis.',
     },
     {
       id: 'cmd-finish',
       name: 'Finalisasi & Uninstaller (Bersih Total)',
-      cmd: 'npx @masdannn/license-guard finish',
+      cmd: 'npx @iktiarr/license-guard finish',
       alias: 'clean / detach',
       desc: 'Menghapus seluruh berkas konfigurasi (.licenseguard.json, license-guard.ts), mencabut injeksi import dari layout/main, dan menghapus dependensi dari package.json saat urusan proyek telah selesai.',
     },
     {
       id: 'cmd-version',
       name: 'Cek Versi Terinstall & Registry',
-      cmd: 'npx @masdannn/license-guard version',
+      cmd: 'npx @iktiarr/license-guard version',
       alias: 'Rahasia (Developer Only)',
       desc: 'Mengecek versi CLI yang terpasang di proyek saat ini dan membandingkannya dengan versi rilis terbaru di NPM registry.',
     },
@@ -126,9 +126,9 @@ export default function SettingsPage() {
 
   const cliOutputs: Record<string, { title: string; lines: Array<{ text: string; color?: string }> }> = {
     'cmd-init': {
-      title: 'Output: npx @masdannn/license-guard init',
+      title: 'Output: npx @iktiarr/license-guard init',
       lines: [
-        { text: '$ npx @masdannn/license-guard init', color: 'text-slate-400' },
+        { text: '$ npx @iktiarr/license-guard init', color: 'text-slate-400' },
         { text: '', color: '' },
         { text: '╔══════════════════════════════════════════════════════════╗', color: 'text-cyan-400 font-bold' },
         { text: '║  🛡️  CENTRALIZED LICENSE GUARD CLI (v3.0.0)             ║', color: 'text-cyan-400 font-bold' },
@@ -152,15 +152,15 @@ export default function SettingsPage() {
         { text: '  ✔ Dibuat: app/license-guard.ts (Runtime SDK Hook)', color: 'text-emerald-400' },
         { text: '  ✔ Dibuat: .licenseguard.json (Konfigurasi Proyek)', color: 'text-emerald-400' },
         { text: '  ✔ Terhubung ke: app/layout.tsx (Auto Mount Root)', color: 'text-emerald-400' },
-        { text: '  ✔ Dependensi @masdannn/license-guard@^3.0.0 ditambahkan ke package.json', color: 'text-emerald-400' },
+        { text: '  ✔ Dependensi @iktiarr/license-guard@^3.0.0 ditambahkan ke package.json', color: 'text-emerald-400' },
         { text: '', color: '' },
         { text: '🎉 Project berhasil diamankan dengan Central License Guard!', color: 'text-cyan-300 font-bold' },
       ],
     },
     'cmd-status': {
-      title: 'Output: npx @masdannn/license-guard status',
+      title: 'Output: npx @iktiarr/license-guard status',
       lines: [
-        { text: '$ npx @masdannn/license-guard status', color: 'text-slate-400' },
+        { text: '$ npx @iktiarr/license-guard status', color: 'text-slate-400' },
         { text: '', color: '' },
         { text: '╔══════════════════════════════════════════════════════════╗', color: 'text-cyan-400 font-bold' },
         { text: '║  🛡️  STATUS LISENSI CENTRALIZED LICENSE GUARD (v3.0.0)   ║', color: 'text-cyan-400 font-bold' },
@@ -176,9 +176,9 @@ export default function SettingsPage() {
       ],
     },
     'cmd-doctor': {
-      title: 'Output: npx @masdannn/license-guard doctor',
+      title: 'Output: npx @iktiarr/license-guard doctor',
       lines: [
-        { text: '$ npx @masdannn/license-guard doctor', color: 'text-slate-400' },
+        { text: '$ npx @iktiarr/license-guard doctor', color: 'text-slate-400' },
         { text: '', color: '' },
         { text: '╔══════════════════════════════════════════════════════════╗', color: 'text-cyan-400 font-bold' },
         { text: '║  🩺 LICENSE GUARD HEALTH CHECK & DIAGNOSTIC (v3.0.0)     ║', color: 'text-cyan-400 font-bold' },
@@ -195,9 +195,9 @@ export default function SettingsPage() {
       ],
     },
     'cmd-bypass': {
-      title: 'Output: npx @masdannn/license-guard bypass EBP-8F4A1C92',
+      title: 'Output: npx @iktiarr/license-guard bypass EBP-8F4A1C92',
       lines: [
-        { text: '$ npx @masdannn/license-guard bypass EBP-8F4A1C92', color: 'text-slate-400' },
+        { text: '$ npx @iktiarr/license-guard bypass EBP-8F4A1C92', color: 'text-slate-400' },
         { text: '', color: '' },
         { text: '╔══════════════════════════════════════════════════════════╗', color: 'text-rose-400 font-bold' },
         { text: '║  🔑 EMERGENCY OFFLINE UNLOCK (FAIL-SAFE v3.0.0)          ║', color: 'text-rose-400 font-bold' },
@@ -213,16 +213,16 @@ export default function SettingsPage() {
       ],
     },
     'cmd-update': {
-      title: 'Output: npx @masdannn/license-guard update',
+      title: 'Output: npx @iktiarr/license-guard update',
       lines: [
-        { text: '$ npx @masdannn/license-guard update', color: 'text-slate-400' },
+        { text: '$ npx @iktiarr/license-guard update', color: 'text-slate-400' },
         { text: '', color: '' },
         { text: '╔══════════════════════════════════════════════════════════╗', color: 'text-cyan-400 font-bold' },
         { text: '║  🔄 AUTO-UPDATE CENTRAL LICENSE GUARD (v3.0.0)           ║', color: 'text-cyan-400 font-bold' },
         { text: '╚══════════════════════════════════════════════════════════╝', color: 'text-cyan-400 font-bold' },
         { text: '', color: '' },
-        { text: '  Versi Terpasang : @masdannn/license-guard@2.0.4', color: 'text-slate-400' },
-        { text: '  Versi Terbaru   : @masdannn/license-guard@3.0.0', color: 'text-emerald-400 font-bold' },
+        { text: '  Versi Terpasang : @iktiarr/license-guard@2.0.4', color: 'text-slate-400' },
+        { text: '  Versi Terbaru   : @iktiarr/license-guard@3.0.0', color: 'text-emerald-400 font-bold' },
         { text: '', color: '' },
         { text: '  ✔ Mengunduh dan memperbarui dependensi NPM...', color: 'text-emerald-400' },
         { text: '  ✔ Memperbarui berkas runtime helper ke versi 3.0.0...', color: 'text-emerald-400' },
@@ -230,9 +230,9 @@ export default function SettingsPage() {
       ],
     },
     'cmd-finish': {
-      title: 'Output: npx @masdannn/license-guard finish',
+      title: 'Output: npx @iktiarr/license-guard finish',
       lines: [
-        { text: '$ npx @masdannn/license-guard finish', color: 'text-slate-400' },
+        { text: '$ npx @iktiarr/license-guard finish', color: 'text-slate-400' },
         { text: '', color: '' },
         { text: '╔══════════════════════════════════════════════════════════╗', color: 'text-amber-400 font-bold' },
         { text: '║  🧹 FINALISASI & UNINSTALLER BERSIH TOTAL (v3.0.0)       ║', color: 'text-amber-400 font-bold' },
@@ -243,18 +243,18 @@ export default function SettingsPage() {
         { text: '  ✔ Menghapus berkas .licenseguard.json', color: 'text-emerald-400' },
         { text: '  ✔ Menghapus berkas app/license-guard.ts', color: 'text-emerald-400' },
         { text: '  ✔ Mencabut import dari app/layout.tsx', color: 'text-emerald-400' },
-        { text: '  ✔ Menghapus dependensi @masdannn/license-guard dari package.json', color: 'text-emerald-400' },
+        { text: '  ✔ Menghapus dependensi @iktiarr/license-guard dari package.json', color: 'text-emerald-400' },
         { text: '', color: '' },
         { text: 'Proyek telah bersih total. Terima kasih telah menggunakan License Guard!', color: 'text-cyan-300 font-bold' },
       ],
     },
     'cmd-version': {
-      title: 'Output: npx @masdannn/license-guard version',
+      title: 'Output: npx @iktiarr/license-guard version',
       lines: [
-        { text: '$ npx @masdannn/license-guard version', color: 'text-slate-400' },
+        { text: '$ npx @iktiarr/license-guard version', color: 'text-slate-400' },
         { text: '', color: '' },
         { text: '  Versi Terinstall : 3.0.0', color: 'text-emerald-400 font-bold' },
-        { text: '  NPM Registry     : @masdannn/license-guard@3.0.0 (Latest)', color: 'text-slate-300' },
+        { text: '  NPM Registry     : @iktiarr/license-guard@3.0.0 (Latest)', color: 'text-slate-300' },
         { text: '  Status           : Versi paling mutakhir (Up to date)', color: 'text-cyan-300' },
       ],
     },
@@ -355,7 +355,7 @@ export default function SettingsPage() {
                   <div className="flex items-center gap-2">
                     <Terminal className="w-4 h-4 text-slate-700" />
                     <CardTitle className="text-sm font-bold text-slate-900">
-                      Cheat Sheet CLI (@masdannn/license-guard v3.0)
+                      Cheat Sheet CLI (@iktiarr/license-guard v3.0)
                     </CardTitle>
                   </div>
                   <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
@@ -464,7 +464,7 @@ export default function SettingsPage() {
                               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
                           }`}
                         >
-                          {cmd.cmd.replace('npx @masdannn/license-guard ', '')}
+                          {cmd.cmd.replace('npx @iktiarr/license-guard ', '')}
                         </button>
                       ))}
                     </div>
@@ -484,14 +484,14 @@ export default function SettingsPage() {
                     {/* Modal Footer */}
                     <div className="py-3 px-4 bg-slate-900 border-t border-slate-800 flex items-center justify-between">
                       <span className="text-[11px] text-slate-400 font-mono">
-                        @masdannn/license-guard v3.0.0
+                        @iktiarr/license-guard v3.0.0
                       </span>
                       <div className="flex items-center gap-2">
                         <Button
                           type="button"
                           size="sm"
                           onClick={() => {
-                            const cmd = cliCommands.find((c) => c.id === selectedCliId)?.cmd || 'npx @masdannn/license-guard';
+                            const cmd = cliCommands.find((c) => c.id === selectedCliId)?.cmd || 'npx @iktiarr/license-guard';
                             copyText(cmd, selectedCliId);
                           }}
                           className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs h-7.5 cursor-pointer"

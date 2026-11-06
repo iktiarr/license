@@ -57,7 +57,7 @@ export default function IntegrationSnippet({ apiKey, domain, serverUrl }: Props)
           step: 1,
           title: 'Install SDK',
           desc: 'Install dependensi di terminal proyek Next.js:',
-          code: 'npm install @masdannn/license-guard',
+          code: 'npm install @iktiarr/license-guard',
         },
         {
           step: 2,
@@ -66,7 +66,7 @@ export default function IntegrationSnippet({ apiKey, domain, serverUrl }: Props)
           desc: 'Simpan file berikut di folder lib/license-guard.ts:',
           code: `'use client';
 
-import { initGuard } from '@masdannn/license-guard';
+import { initGuard } from '@iktiarr/license-guard';
 import { useEffect } from 'react';
 
 const LICENSE_KEY = '${effectiveApiKey}';
@@ -112,14 +112,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           step: 1,
           title: 'Install SDK',
           desc: 'Install di terminal proyek Vite Anda:',
-          code: 'npm install @masdannn/license-guard',
+          code: 'npm install @iktiarr/license-guard',
         },
         {
           step: 2,
           title: 'Buat file src/lib/license-guard.ts',
           file: 'src/lib/license-guard.ts',
           desc: 'Buat file di src/lib/license-guard.ts:',
-          code: `import { initGuard } from '@masdannn/license-guard';
+          code: `import { initGuard } from '@iktiarr/license-guard';
 
 initGuard({
   apiKey: '${effectiveApiKey}',
@@ -256,7 +256,7 @@ WidgetsBinding.instance.addPostFrameCallback((_) {
           file: 'server.js',
           desc: 'Gunakan guardMiddleware di Express app:',
           code: `import express from 'express';
-import { guardMiddleware } from '@masdannn/license-guard';
+import { guardMiddleware } from '@iktiarr/license-guard';
 
 const app = express();
 

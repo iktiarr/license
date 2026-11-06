@@ -1,5 +1,5 @@
 {
-  "name": "@masdannn/license-guard",
+  "name": "@iktiarr/license-guard",
   "version": "3.0.0",
   "description": "Centralized Remote License Guard Client SDK & Multi-Platform CLI (v3)",
   "main": "./dist/index.js",

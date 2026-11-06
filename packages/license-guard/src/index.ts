@@ -1,5 +1,5 @@
 /**
- * @masdannn/license-guard — Client SDK Runtime (v3.0.0)
+ * @iktiarr/license-guard — Client SDK Runtime (v3.0.0)
  * Universal, offline-resilient, Vite/SPA-friendly, and enterprise anti-tamper client guard SDK.
  */
 
@@ -286,7 +286,7 @@ export function initGuard(config: LicenseGuardConfig = {}): void {
 
   // Anti-tamper check: if key is completely missing at runtime
   if (!apiKey) {
-    console.warn('[@masdannn/license-guard] License configuration key is missing or corrupted.');
+    console.warn('[@iktiarr/license-guard] License configuration key is missing or corrupted.');
     renderLockScreen('TAMPERED', window.location.href, formatTime(Date.now()));
     reportTamperTelemetry(endpoint, 'License key missing or stripped from source code');
     return;

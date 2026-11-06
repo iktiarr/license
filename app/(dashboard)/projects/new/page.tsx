@@ -159,14 +159,14 @@ export default function NewProjectPage() {
               <div className="relative flex items-center">
                 <Input
                   readOnly
-                  value="npx @masdannn/license-guard"
+                  value="npx @iktiarr/license-guard"
                   className="pr-9 h-9 text-xs font-mono font-semibold bg-slate-950 text-emerald-400 border-slate-800 select-all"
                 />
                 <button
                   type="button"
                   title="Salin Perintah"
                   onClick={() => {
-                    navigator.clipboard.writeText('npx @masdannn/license-guard');
+                    navigator.clipboard.writeText('npx @iktiarr/license-guard');
                     setCliCopied(true);
                     setTimeout(() => setCliCopied(false), 2000);
                   }}
@@ -422,7 +422,7 @@ export default function NewProjectPage() {
 
             {/* Terminal Body */}
             <div className="p-5 font-mono text-xs text-slate-200 space-y-1 overflow-y-auto flex-1 leading-relaxed select-text">
-              <div className="text-slate-400">$ npx @masdannn/license-guard init</div>
+              <div className="text-slate-400">$ npx @iktiarr/license-guard init</div>
               <div className="text-cyan-400 font-bold">╔══════════════════════════════════════════════════════════╗</div>
               <div className="text-cyan-400 font-bold">║  🛡️  CENTRALIZED LICENSE GUARD CLI (v3.0.0)             ║</div>
               <div className="text-cyan-400 font-bold">║  Proteksi Lisensi, Anti-Tamper & Remote Killswitch       ║</div>
@@ -444,7 +444,7 @@ export default function NewProjectPage() {
               <div className="text-emerald-400">  ✔ Dibuat: app/license-guard.ts (Runtime SDK Hook)</div>
               <div className="text-emerald-400">  ✔ Dibuat: .licenseguard.json (Konfigurasi Proyek)</div>
               <div className="text-emerald-400">  ✔ Terhubung ke: app/layout.tsx (Auto Mount Root)</div>
-              <div className="text-emerald-400">  ✔ Dependensi @masdannn/license-guard@^3.0.0 ditambahkan ke package.json</div>
+              <div className="text-emerald-400">  ✔ Dependensi @iktiarr/license-guard@^3.0.0 ditambahkan ke package.json</div>
               <div>&nbsp;</div>
               <div className="text-cyan-300 font-bold">🎉 Project berhasil diamankan dengan Central License Guard!</div>
             </div>
@@ -458,7 +458,7 @@ export default function NewProjectPage() {
                 type="button"
                 size="sm"
                 onClick={() => {
-                  navigator.clipboard.writeText('npx @masdannn/license-guard init');
+                  navigator.clipboard.writeText('npx @iktiarr/license-guard init');
                   setCliCopied(true);
                   setTimeout(() => setCliCopied(false), 2000);
                   setShowCliModal(false);

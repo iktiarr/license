@@ -1,5 +1,5 @@
 /**
- * @masdannn/license-guard — Client SDK Runtime (v3.0.0)
+ * @iktiarr/license-guard — Client SDK Runtime (v3.0.0)
  * Universal, offline-resilient, Vite/SPA-friendly, and enterprise anti-tamper client guard SDK.
  */
 interface LicenseGuardConfig {

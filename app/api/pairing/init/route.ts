@@ -10,7 +10,7 @@ export async function OPTIONS() {
 
 /**
  * POST /api/pairing/init
- * Dipanggil oleh CLI saat `npx @masdannn/license-guard init` / `new` / `fix`
+ * Dipanggil oleh CLI saat `npx @iktiarr/license-guard init` / `new` / `fix`
  * Body: { name: string, domain: string, email: string, apiKey: string, framework: string }
  *
  * Logika Seamless Re-registration & Account Ownership:
